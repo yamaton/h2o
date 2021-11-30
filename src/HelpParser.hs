@@ -3,8 +3,7 @@
 module HelpParser where
 
 import qualified Data.List as List
-import Data.List.Extra (dropPrefix, nubOrd)
-import Data.String.Utils (strip)
+import Data.List.Extra (dropPrefix, nubOrd, trim)
 import Debug.Trace (trace)
 import Text.ParserCombinators.ReadP
 import Type
@@ -184,8 +183,8 @@ optNameArgPair = do
   name <- optName
   (s, args) <- gather $ sepBy (optArgInBraket <++ optArg <++ optArgAsNumber) argSep
   extra <- twoOrMoreDots <++ pure ""
-  let s' = strip $ dropPrefix "=" s
-  if (length args == 1 && strip (head args) == "or") || length args >= 5
+  let s' = trim $ dropPrefix "=" s
+  if (length args == 1 && trim (head args) == "or") || length args >= 5
     then pfail
     else return (name, s' ++ extra)
   where

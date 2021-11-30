@@ -42,8 +42,7 @@ library
   hs-source-dirs:
       src
   build-depends:
-      MissingH
-    , aeson
+      aeson
     , base >=4.7 && <5
     , containers
     , extra
@@ -63,8 +62,7 @@ executable h2o
       app
   ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      MissingH
-    , aeson
+      aeson
     , base >=4.7 && <5
     , containers
     , extra
@@ -86,8 +84,7 @@ test-suite h2o-test
       test
   ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      MissingH
-    , aeson
+      aeson
     , base >=4.7 && <5
     , containers
     , extra

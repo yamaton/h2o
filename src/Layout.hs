@@ -5,10 +5,9 @@ module Layout where
 
 import Control.Exception (assert)
 import qualified Data.List as List
-import Data.List.Extra (nubSort, trim)
+import Data.List.Extra (nubSort, trim, trimEnd, splitOn)
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
-import Data.String.Utils (join, rstrip, split, strip)
 import Debug.Trace (trace)
 import HelpParser (parseLine, parseWithOptPart, preprocessAllFallback)
 import Text.Printf (printf)
@@ -151,13 +150,13 @@ descOffsetWithCountInOptionLines :: String -> [Location] -> Maybe (Int, Int)
 descOffsetWithCountInOptionLines s optLocs =
   assert ('\t' `notElem` s) res
   where
-    sep = "   " -- Hardcode as 3 spaces for now
+    sep = "   " -- hardcoded as 3 spaces for now
     xs = lines s
     -- reversed to handle spacing not multiples of 3
-    -- for example `split sep "--opt     desc"` == ["--opt", "  desc"]`
+    -- for example `splitOn sep "--opt     desc"` == ["--opt", "  desc"]`
     -- but I don't want spaces at the beginning of the description
     optLineNums = map fst optLocs
-    xss = map (join sep . tail . split sep . reverse . rstrip . (xs !!)) optLineNums
+    xss = map (List.intercalate sep . tail . splitOn sep . reverse . trimEnd . (xs !!)) optLineNums
     res = getMostFrequentWithCount $ map ((n +) . length) $ filter (not . isSpacesOnly) $ filter (not . null) xss
       where
         n = length sep
@@ -303,8 +302,8 @@ handleQuartet xs offset (optFrom, optTo, descFrom, descTo)
 squashOptionsAndDescriptionsNoOverlap :: [String] -> Int -> Int -> Int -> Int -> (String, String)
 squashOptionsAndDescriptionsNoOverlap xs offset a b c = (opt, desc)
   where
-    optLines = map (strip . (xs !!)) $ take (b - a) [a, a + 1 ..]
-    opt = join "," optLines
+    optLines = map (trim . (xs !!)) $ take (b - a) [a, a + 1 ..]
+    opt = List.intercalate "," optLines
     descLines = map (drop offset . (xs !!)) $ take (c - b) [b, b + 1 ..]
     desc = smartUnwords descLines
 
@@ -312,14 +311,14 @@ squashOptionsAndDescriptionsOverlap :: [String] -> Int -> Int -> Int -> Int -> (
 squashOptionsAndDescriptionsOverlap xs offset a b c = (opt, desc)
   where
     optLines = map (xs !!) $ take (b - a) [a, a + 1 ..]
-    optLinesLastTruncated = map strip (init optLines ++ [take offset (last optLines)])
-    opt = join "," optLinesLastTruncated
+    optLinesLastTruncated = map trim (init optLines ++ [take offset (last optLines)])
+    opt = List.intercalate "," optLinesLastTruncated
     descLines = map (drop offset . (xs !!)) $ take (c - b + 1) [b - 1, b ..]
     desc = smartUnwords descLines
 
 oneliners :: [String] -> Int -> Int -> Int -> [(String, String)]
 oneliners xs offset a b =
-  [ (strip former, latter)
+  [ (trim former, latter)
     | i <- take (b - a) [a, a + 1 ..],
       let (former, latter) = splitAt offset (xs !! i)
   ]
