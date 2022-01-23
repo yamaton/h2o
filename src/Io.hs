@@ -216,7 +216,7 @@ pageToCommandIO name skipMan content = do
         !isManAvailable <- isManAvailableIO name
         let useMan = not skipMan && isManAvailable
         -- [FIXME] Currently hardcoding to limit scan to sub-sub-sub command level.
-        mapM (\(Subcommand subname subdesc) -> getCommandRec 2 useMan [name, subname] subdesc (T.pack content)) candidates
+        mapM (\(Subcommand subname subdesc) -> getCommandRec 3 useMan [name, subname] subdesc (T.pack content)) candidates
 
 -- | Scan subcommand recursively for its options and sub-sub commands
 --
