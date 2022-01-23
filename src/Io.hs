@@ -119,13 +119,10 @@ isCommandNotFound _ exitCode _ =
     exitCode == System.Exit.ExitFailure 252
 
 getHelp :: String -> IO Text
-getHelp name = getHelpTemplate name [["--help"], ["help"], ["-help"], ["-h"]]
+getHelp name = getHelpTemplate name [["help"]]
 
 getHelpSub :: [String] -> IO Text
-getHelpSub names = getHelpTemplate name [[subname, "--help"], ["help", subname], [subname, "-help"], [subname, "-h"]]
-  where
-    name = unwords (init names)
-    subname = last names
+getHelpSub names = getHelpTemplate (unwords names) [["help"]]
 
 getMan :: String -> IO Text
 getMan name = do
