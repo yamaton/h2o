@@ -292,3 +292,19 @@ getSkipMan (CommandInput _ b) = b
 getSkipMan (SubcommandInput _ _ b) = b
 getSkipMan (FileInput _ b) = b
 getSkipMan (JsonInput _) = True
+
+
+callAwsCompleter :: String -> IO [Text]
+callAwsCompleter s = do
+  (_, stdout, _) <- Process.readProcess (Process.shell shellCall)
+  let stdoutText = TL.toStrict . TLE.decodeUtf8 $ stdout
+  let stdoutStrings = T.lines stdoutText
+  return stdoutStrings
+  where
+    shellCall = "export COMP_LINE='" ++ s ++ "' && aws_completer"
+
+awsGetSubcommandNames :: [String] -> IO [Text]
+awsGetSubcommandNames parentSeq = callAwsCompleter (unwords parentSeq ++ " ")
+
+awsGetOptionNames :: [String] -> IO [Text]
+awsGetOptionNames parentSeq = callAwsCompleter (unwords parentSeq ++ " --")
