@@ -2,7 +2,7 @@ module Subcommand where
 
 import Control.Monad (liftM2)
 import qualified Data.Maybe as Maybe
-import HelpParser (alphanumChars, newline, singleSpace, skip, word)
+import HelpParser (alphanumChars, newline, skip)
 import Layout (getDescriptionOffset)
 import Text.ParserCombinators.ReadP
 import Type (Subcommand (..))
@@ -28,7 +28,7 @@ getLayoutMaybe xs offset = liftM2 (,) first second
   where
     pairs =
       infoMsg "subcommand: first two word locations:" $
-        filter (\(a, b) -> a > 0 && b >= a + 6 && a < offset) $ map firstTwoWordsLoc xs
+        filter (\(a, b) -> a > 0 && b >= a + 2 && a < offset) $ map firstTwoWordsLoc xs
     second = getMostFrequent [b | (_, b) <- pairs]
     first = getMostFrequent [a | (a, _) <- pairs, a < Maybe.fromMaybe 50 second]
 
@@ -59,26 +59,13 @@ subcommandWord = do
 subcommand :: ReadP Subcommand
 subcommand = do
   skipSpaces
+  _ <- char 'o'
+  _ <- munch1 (== ' ')
   cmd <- subcommandWord
-  _ <- subcommandSep
-  ss <- sepBy1 word singleSpace
   _ <- munch (== ' ')
   skip newline <++ eof
-  let desc = unwords ss
+  let desc = "(placeholder) " ++ cmd
   return (Subcommand cmd desc)
-
-subcommandSep :: ReadP String
-subcommandSep = colonBased <++ spaceBased
-  where
-    colonBased = do
-      skipSpaces
-      s <- string ":"
-      skipSpaces
-      return s
-    spaceBased = do
-      s <- string "   "
-      skipSpaces
-      return s
 
 removeOptionLine :: String -> Bool
 removeOptionLine s =
