@@ -115,7 +115,8 @@ fetchHelpInfo name args = do
 
 isCommandNotFound :: String -> System.Exit.ExitCode -> Text -> Bool
 isCommandNotFound _ exitCode _ =
-  exitCode == System.Exit.ExitFailure 127
+  exitCode == System.Exit.ExitFailure 127 ||
+    exitCode == System.Exit.ExitFailure 252
 
 getHelp :: String -> IO Text
 getHelp name = getHelpTemplate name [["--help"], ["help"], ["-help"], ["-h"]]
