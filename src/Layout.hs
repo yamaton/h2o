@@ -505,6 +505,19 @@ splitByHeaders xs
       zip chunkIndice (Utils.splitsAt xs headingIndices)
 
 
+-- | Split text by top-level headers
+-- where headers are recognized by the least indentations
+-- NOTE: the top-level headers are **included** in the output
+chunksByHeaders :: [String] -> [[String]]
+chunksByHeaders xs
+  | any Utils.startsWithLongOption headings = [xs]
+  | any Utils.startsWithShortOrOldOption headings = [xs]
+  | otherwise = filter (\lines_ -> length lines_ > 1 && any Utils.startsWithDash lines_) $ Utils.splitsAt xs headingIndices
+  where
+    headingIndices = getHeadingIndices xs
+    headings = map (xs !!) headingIndices
+
+
 -- | Parse (option-and-argument, description) pairs from text by applying
 -- preprocessAll to each header-based block.
 preprocessBlockwise :: String -> [(String, String)]

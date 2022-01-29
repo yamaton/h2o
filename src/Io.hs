@@ -29,6 +29,7 @@ import Text.Printf (printf)
 import Type (Command (..), Opt, Subcommand (..), asSubcommand)
 import Utils (convertTabsToSpaces, infoMsg, infoTrace, mayContainUseful, warnMsg, warnTrace)
 import qualified Utils
+import ExtractDescription (parseDescription)
 
 -- | Main function processing ConfigOrVersion
 run :: ConfigOrVersion -> IO Text
@@ -218,6 +219,33 @@ pageToCommandIO name skipMan content = do
         -- [FIXME] Currently hardcoding to limit scan to sub-sub-sub command level.
         mapM (\(Subcommand subname subdesc) -> getCommandRec 3 useMan [name, subname] subdesc (T.pack content)) candidates
 
+
+-- | Scans over command and subcommands
+--
+-- `name` is the name of the command.
+-- `skipMan` sets weather to read man pages in subsequent scans.
+-- `content` is the top-level text to be scanned.
+pageToCommandAwsIO :: String -> Bool -> String -> IO Command
+pageToCommandAwsIO name skipMan content = do
+  subcommands <- subcommandsM
+  if null rootOptions && null subcommands
+    then error ("Failed to extract information for a Command: " ++ name)
+    else return $ Postprocess.fixCommand $ Command name desc rootOptions subcommands
+  where
+    desc = parseDescription [name] content
+    -- get command options from `content`
+    rootOptions = parseBlockwise content
+    candidates = getSubcmdCandidates content
+    -- scan over subcommand candidates
+    subcommandsM =
+      map fst . filter snd <$> do
+        !isManAvailable <- isManAvailableIO name
+        let useMan = not skipMan && isManAvailable
+        -- [FIXME] Currently hardcoding to limit scan to sub-sub-sub command level.
+        mapM (\(Subcommand subname subdesc) -> getCommandRec 3 useMan [name, subname] subdesc (T.pack content)) candidates
+
+
+
 -- | Scan subcommand recursively for its options and sub-sub commands
 --
 -- Arguments:
@@ -304,7 +332,9 @@ callAwsCompleter s = do
     shellCall = "export COMP_LINE='" ++ s ++ "' && aws_completer"
 
 awsGetSubcommandNames :: [String] -> IO [Text]
-awsGetSubcommandNames parentSeq = callAwsCompleter (unwords parentSeq ++ " ")
+awsGetSubcommandNames parentSeq = filter (/= "help") <$> xs
+  where
+    xs = callAwsCompleter (unwords parentSeq ++ " ")
 
 awsGetOptionNames :: [String] -> IO [Text]
 awsGetOptionNames parentSeq = callAwsCompleter (unwords parentSeq ++ " --")
