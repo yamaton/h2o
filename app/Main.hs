@@ -6,7 +6,8 @@
 module Main where
 
 import CommandArgs (configOrVersion)
-import qualified Data.Text.IO as TIO
+-- import qualified Data.Text.IO as TIO
+import qualified Data.ByteString.Lazy as BL
 import Io (run)
 import Options.Applicative
   ( execParser,
@@ -18,7 +19,7 @@ import Options.Applicative
   )
 
 main :: IO ()
-main = execParser opts >>= run >>= TIO.putStr
+main = execParser opts >>= run >>= BL.putStr
   where
     opts =
       info

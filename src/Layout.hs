@@ -512,7 +512,7 @@ chunksByHeaders :: [String] -> [[String]]
 chunksByHeaders xs
   | any Utils.startsWithLongOption headings = [xs]
   | any Utils.startsWithShortOrOldOption headings = [xs]
-  | otherwise = filter (\lines_ -> length lines_ > 1 && any Utils.startsWithDash lines_) $ Utils.splitsAt xs headingIndices
+  | otherwise = filter (\lines_ -> length lines_ > 1) $ Utils.splitsAt xs headingIndices
   where
     headingIndices = getHeadingIndices xs
     headings = map (xs !!) headingIndices

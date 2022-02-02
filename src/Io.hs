@@ -9,6 +9,7 @@ import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat 
 import qualified Constants
 import Control.Exception (SomeException, try)
 import qualified Data.Aeson as Aeson
+import Data.ByteString.Lazy (ByteString)
 import qualified Data.List as List
 import qualified Data.Map.Ordered as OMap
 import Data.Text (Text)
@@ -17,7 +18,7 @@ import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TLE
 import GenBashCompletions (toBashScript)
 import GenFishCompletions (toFishScript)
-import GenJSON (toJSONText)
+-- import GenJSON (toJSONText)
 import GenZshCompletions (toZshScript)
 import Layout (parseBlockwise, preprocessBlockwise)
 import qualified Postprocess
@@ -29,18 +30,21 @@ import Text.Printf (printf)
 import Type (Command (..), Opt, Subcommand (..), asSubcommand)
 import Utils (convertTabsToSpaces, infoMsg, infoTrace, mayContainUseful, warnMsg, warnTrace)
 import qualified Utils
-import ExtractDescription (parseDescription)
+import ExtractDescription (getDescription, getSection)
+
+toLazyByteString :: Text -> ByteString
+toLazyByteString = TLE.encodeUtf8 . TL.fromStrict
 
 -- | Main function processing ConfigOrVersion
-run :: ConfigOrVersion -> IO Text
+run :: ConfigOrVersion -> IO ByteString
 -- Just return version
-run Version = return (T.concat ["h2o ", Constants.versionStr, "\n"])
+run Version = return (toLazyByteString $ T.concat ["h2o ", Constants.versionStr, "\n"])
 -- Or, do some utility work
 run (C_ (Config input _ isExportingJSON isConvertingTabsToSpaces isListingSubcommands isPreprocessOnly isShallowOnly))
   | isExportingJSON = Utils.warnTrace "io: Deprecated: Use --format json instead" $ run (C_ (Config input Json False False False False isShallowOnly))
-  | isConvertingTabsToSpaces = infoTrace "io: Converting tags to spaces...\n" T.pack <$> getInputContent input
-  | isListingSubcommands = infoTrace "io: Listing subcommands...\n" $ T.unlines <$> listSubcommandsIO input
-  | isPreprocessOnly = infoTrace "io: processing (option+arg, description) splitting only" $ T.pack . formatStringPairs . preprocessBlockwise <$> getInputContent input
+  | isConvertingTabsToSpaces = infoTrace "io: Converting tags to spaces...\n" $ toLazyByteString . T.pack <$> getInputContent input
+  | isListingSubcommands = infoTrace "io: Listing subcommands...\n" $ toLazyByteString . T.unlines <$> listSubcommandsIO input
+  | isPreprocessOnly = infoTrace "io: processing (option+arg, description) splitting only" $ toLazyByteString . T.pack . formatStringPairs . preprocessBlockwise <$> getInputContent input
   where
     formatStringPairs = unlines . map (\(a, b) -> unlines [a, b])
 
@@ -55,7 +59,7 @@ run (C_ (Config input@(FileInput f skipMan) format _ _ _ _ isShallowOnly))
 -- Or, process with command name
 run (C_ (Config input@(CommandInput name skipMan) format _ _ _ _ isShallowOnly))
   | isShallowOnly = toScript format . pageToCommandSimple name <$> contentIO
-  | otherwise = toScript format <$> (pageToCommandIO name skipMan =<< contentIO)
+  | otherwise = toScript format . infoMsg " ... starting toScript" <$> awsPageToCommandIO name skipMan
   where
     contentIO = getInputContent input
 
@@ -93,7 +97,7 @@ getManAndHelpSub names = do
 getHelpTemplate :: String -> [[String]] -> IO Text
 getHelpTemplate _ [] = return ""
 getHelpTemplate name (args : argsBag) = do
-  emx <- try (fetchHelpInfo name args) :: IO (Either SomeException (Maybe Text))
+  !emx <- try (fetchHelpInfo name args) :: IO (Either SomeException (Maybe Text))
   case emx of
     Left _ -> return ""
     Right mx -> case mx of
@@ -102,7 +106,7 @@ getHelpTemplate name (args : argsBag) = do
 
 fetchHelpInfo :: String -> [String] -> IO (Maybe Text)
 fetchHelpInfo name args = do
-  (exitCode, stdout, stderr) <- Process.readProcess (Process.shell $ unwords (name : args) ++ removeColorPostfix)
+  (!exitCode, !stdout, !stderr) <- Process.readProcess (Process.shell $ unwords (name : args) ++ removeColorPostfix)
   let stdoutText = TL.toStrict . TLE.decodeUtf8 $ stdout
   let stderrText = TL.toStrict . TLE.decodeUtf8 $ stderr
   let res
@@ -127,13 +131,13 @@ getHelpSub names = getHelpTemplate (unwords names) [["help"]]
 
 getMan :: String -> IO Text
 getMan name = do
-  (exitCode, stdout, _) <- Process.readProcess cp
+  (!exitCode, !stdout, _) <- Process.readProcess (Process.shell cmd)
   -- The exit code is actually thrown when piped to others...
   if exitCode == System.Exit.ExitFailure 16
     then return ""
     else return . TL.toStrict . TLE.decodeUtf8 $ stdout
   where
-    cp = Process.shell $ printf "man %s | col -bx" name
+    cmd = printf "man %s | col -bx" name
 
 getManAndHelp :: String -> IO Text
 getManAndHelp name = do
@@ -177,12 +181,12 @@ getInputContent (FileInput f _) =
   T.unpack . Utils.dropUsage . Utils.convertTabsToSpaces 8 . T.pack <$> readFile f
 getInputContent (JsonInput f) = readFile f
 
-toScript :: OutputFormat -> Command -> Text
-toScript Fish = toFishScript
-toScript Zsh = toZshScript
-toScript Bash = toBashScript
-toScript Json = toJSONText
-toScript Native = toNativeText
+toScript :: OutputFormat -> Command -> ByteString
+toScript Fish = toLazyByteString . toFishScript
+toScript Zsh = toLazyByteString . toZshScript
+toScript Bash = toLazyByteString . toBashScript
+toScript Json = Aeson.encode
+toScript Native = toLazyByteString . toNativeText
 
 toNativeText :: Command -> Text
 toNativeText (Command _ _ opts []) = warnTrace "No subcommands" $ T.unlines $ map (T.pack .show) opts
@@ -201,6 +205,8 @@ toNativeTextRec path cmd@(Command name _ _ subCmds) =
 -- `name` is the name of the command.
 -- `skipMan` sets weather to read man pages in subsequent scans.
 -- `content` is the top-level text to be scanned.
+--
+-- [NOTE] replaced by awsPageToCommandIO
 pageToCommandIO :: String -> Bool -> String -> IO Command
 pageToCommandIO name skipMan content = do
   subcommands <- subcommandsM
@@ -225,25 +231,41 @@ pageToCommandIO name skipMan content = do
 -- `name` is the name of the command.
 -- `skipMan` sets weather to read man pages in subsequent scans.
 -- `content` is the top-level text to be scanned.
-pageToCommandAwsIO :: String -> Bool -> String -> IO Command
-pageToCommandAwsIO name skipMan content = do
-  subcommands <- subcommandsM
-  if null rootOptions && null subcommands
-    then error ("Failed to extract information for a Command: " ++ name)
-    else return $ Postprocess.fixCommand $ Command name desc rootOptions subcommands
-  where
-    desc = parseDescription [name] content
-    -- get command options from `content`
-    rootOptions = parseBlockwise content
-    candidates = getSubcmdCandidates content
-    -- scan over subcommand candidates
-    subcommandsM =
-      map fst . filter snd <$> do
-        !isManAvailable <- isManAvailableIO name
-        let useMan = not skipMan && isManAvailable
-        -- [FIXME] Currently hardcoding to limit scan to sub-sub-sub command level.
-        mapM (\(Subcommand subname subdesc) -> getCommandRec 3 useMan [name, subname] subdesc (T.pack content)) candidates
+awsPageToCommandIO :: String -> Bool -> IO Command
+awsPageToCommandIO name skipMan = do
+  !isManAvailable <- isManAvailableIO name
+  let !useMan = not skipMan && isManAvailable
+  (!cmd, !_) <- getCommandRec2 useMan 4 [name] "placeholder"
+  return $ infoMsg "done awsPageToCommandIO" cmd
 
+
+-- | Scan subcommand recursively for its options and sub-sub commands
+--
+-- Arguments:
+--   extraDepth is the number of extra depths to scan sub-sub..commands. Set 0 to avoid scanning sub-sub commands.
+--   useMan carries information weather man page is used as the information source.
+--   cmdSeq is a list composed of command name, subcommand name, for example ["docker", "container", "run"].
+--   desc is description of the subcommand obtained from the upper-level source.
+--   upperContent is the text scanned in the upper level. This information is needed because
+--     "foo bar --help" sometimes returns the identical result as "foo --help".
+getCommandRec2 :: Bool -> Int -> [String] -> Text -> IO (Command, Bool)
+getCommandRec2 useMan extraDepth cmdSeq upperContent = do
+  let !readFunc = if useMan then getManSub else getHelpSub
+  !page <- Utils.convertTabsToSpaces 8 <$> readFunc cmdSeq
+  let !isSuccess = infoMsg ("getCommandRec2 isSuccess: " ++ unwords cmdSeq ++ " --> ") $ not (T.null page) && page /= upperContent
+  let !optSection = T.unpack $ getSection "OPTIONS" cmdSeq page
+  !subCommandNames <- map T.unpack <$> if extraDepth <= 0 then return [] else awsGetSubcommandNames cmdSeq
+  let !subCommandCandidsM =
+        mapM
+        (\subName ->
+          getCommandRec2 useMan (extraDepth - 1) (cmdSeq ++ [subName]) page)
+        subCommandNames
+  let !subCommandsM = map fst . filter snd <$> subCommandCandidsM
+  let !opts = parseBlockwise optSection
+  let !desc = T.unpack $ getDescription cmdSeq page
+  !subCommands <- subCommandsM
+  let !result = Command (last cmdSeq) desc opts subCommands
+  return (result, isSuccess)
 
 
 -- | Scan subcommand recursively for its options and sub-sub commands
@@ -324,15 +346,15 @@ getSkipMan (JsonInput _) = True
 
 callAwsCompleter :: String -> IO [Text]
 callAwsCompleter s = do
-  (_, stdout, _) <- Process.readProcess (Process.shell shellCall)
-  let stdoutText = TL.toStrict . TLE.decodeUtf8 $ stdout
-  let stdoutStrings = T.lines stdoutText
+  (_, !stdout, _) <- Process.readProcess (Process.shell shellCall)
+  let !stdoutText = TL.toStrict . TLE.decodeUtf8 $ stdout
+  let !stdoutStrings = T.lines stdoutText
   return stdoutStrings
   where
     shellCall = "export COMP_LINE='" ++ s ++ "' && aws_completer"
 
 awsGetSubcommandNames :: [String] -> IO [Text]
-awsGetSubcommandNames parentSeq = filter (/= "help") <$> xs
+awsGetSubcommandNames parentSeq = filter (\s -> not ("-" `T.isPrefixOf` s)) . filter (/= "help") <$> xs
   where
     xs = callAwsCompleter (unwords parentSeq ++ " ")
 
