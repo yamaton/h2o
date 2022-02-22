@@ -17,22 +17,26 @@ import Layout (makeRanges, mergeRanges, mergeRangesFast, parseMany)
 import qualified Postprocess
 import Subcommand (firstTwoWordsLoc)
 import System.FilePath (takeBaseName)
+import System.Environment (setEnv)
 import Test.Tasty ( defaultMain, testGroup, TestTree )
-import Test.Tasty.ExpectedFailure
+import Test.Tasty.ExpectedFailure ( expectFail )
 import Test.Tasty.Golden (goldenVsString)
-import Test.Tasty.HUnit
+import Test.Tasty.HUnit ( testCase, (@?=) )
 import Test.Tasty.Hedgehog (testProperty)
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
 import Type (Opt (..), OptName (..), OptNameType (..))
 import Utils (convertTabsToSpaces, getMostFrequent, toContiguousChunks, toRanges)
 
+
 main :: IO ()
-main =
+main = do
+  setEnv "COLUMNS" "1000"
   defaultMain $
     testGroup
       "Tests"
       [optNameTests, propertyTests, outdatedTests, devTests, optPartTests, unsupportedCases, miscTests, shellCompTests, shellCompGoldenTests, integratedGoldenTestsCommandInput, integratedGoldenTestsFileInput, layoutTests]
+
 
 outdatedTests :: TestTree
 outdatedTests =

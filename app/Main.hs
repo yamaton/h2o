@@ -16,9 +16,12 @@ import Options.Applicative
     progDesc,
     (<**>),
   )
+import System.Environment (setEnv)
 
 main :: IO ()
-main = execParser opts >>= run >>= TIO.putStr
+main = do
+  setEnv "COLUMNS" "1000"
+  execParser opts >>= run >>= TIO.putStr
   where
     opts =
       info

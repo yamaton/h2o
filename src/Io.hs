@@ -99,7 +99,7 @@ getHelpTemplate name (args : argsBag) = do
 
 fetchHelpInfo :: String -> [String] -> IO (Maybe Text)
 fetchHelpInfo name args = do
-  (exitCode, stdout, stderr) <- Process.readProcess (Process.shell $ unwords (name : args) ++ removeColorPostfix)
+  (exitCode, stdout, stderr) <- Process.readProcess pc
   let stdoutText = TL.toStrict . TLE.decodeUtf8 $ stdout
   let stderrText = TL.toStrict . TLE.decodeUtf8 $ stderr
   let res
@@ -109,6 +109,7 @@ fetchHelpInfo name args = do
         | otherwise = Nothing
   return res
   where
+    pc = Process.shell $ unwords (name : args) ++ removeColorPostfix
     removeColorPostfix = " | sed -r 's/.\x08//g' | sed -r 's/\x1B\\[(([0-9]{1,2})?(;)?([0-9]{1,2})?)?[m,K,H,f,J]//g'"
 
 isCommandNotFound :: String -> System.Exit.ExitCode -> Text -> Bool
@@ -126,13 +127,13 @@ getHelpSub names = getHelpTemplate name [[subname, "--help"], ["help", subname],
 
 getMan :: String -> IO Text
 getMan name = do
-  (exitCode, stdout, _) <- Process.readProcess cp
+  (exitCode, stdout, _) <- Process.readProcess pc
   -- The exit code is actually thrown when piped to others...
   if exitCode == System.Exit.ExitFailure 16
     then return ""
     else return . TL.toStrict . TLE.decodeUtf8 $ stdout
   where
-    cp = Process.shell $ printf "man %s | col -bx" name
+    pc = Process.shell $ printf "man %s | col -bx" name
 
 getManAndHelp :: String -> IO Text
 getManAndHelp name = do
@@ -254,11 +255,11 @@ getSubcmdCandidates content =
 -- | Checks if man page is available
 isManAvailableIO :: String -> IO Bool
 isManAvailableIO name = do
-  (exitCode, _, _) <- Process.readProcess cp
+  (exitCode, _, _) <- Process.readProcess pc
   -- The exit code is actually thrown when piped to others...
   return $ exitCode == System.Exit.ExitSuccess
   where
-    cp = Process.shell $ printf "man -w %s" name
+    pc = Process.shell $ printf "man -w %s" name
 
 -- | Converts to Command given command name and text
 pageToCommandSimple :: String -> String -> Command

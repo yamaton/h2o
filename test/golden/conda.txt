@@ -10,17 +10,17 @@ Show the conda version number and exit.
 (conda)
 clean                     (Remove unused packages and caches.)
 compare                   (Compare packages between conda environments.)
-config                    (Modify configuration values in .condarc. This is modeled)
-create                    (Create a new conda environment from a list of specified)
+config                    (Modify configuration values in .condarc. This is modeled after the git config command. Writes to the user .condarc file (/home/vierbein/.condarc) by default.)
+create                    (Create a new conda environment from a list of specified packages.)
 info                      (Display information about current conda install.)
 init                      (Initialize conda for shell interaction. [Experimental])
-install                   (Installs a list of packages into a specified conda)
+install                   (Installs a list of packages into a specified conda environment.)
 list                      (List linked packages in a conda environment.)
 package                   (Low-level conda package utility. (EXPERIMENTAL))
 remove                    (Remove a list of packages from a specified conda environment.)
 uninstall                 (Alias for conda remove.)
 run                       (Run an executable in a conda environment. [Experimental])
-search                    (Search for packages and display associated information. The)
+search                    (Search for packages and display associated information. The input is a MatchSpec, a query language for conda packages. See examples below.)
 update                    (Updates conda packages to the latest compatible version.)
 upgrade                   (Alias for conda update.)
 
@@ -396,7 +396,7 @@ Show this help message and exit.
 Show channel urls. Overrides the value given by `conda config --show show_channel_urls`.
 
 (conda list) -c --canonical  ::  
-Output canonical names of packages only. Implies --nopip.
+Output canonical names of packages only. Implies --no-pip.
 
 (conda list) -f --full-name  ::  
 Only search for full names, i.e., ^<regex>$.
