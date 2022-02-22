@@ -21,6 +21,9 @@ digitChars = "0123456789"
 alphChars :: [Char]
 alphChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+symbolChars :: [Char]
+symbolChars = "+-_!?@."
+
 alphanumChars :: [Char]
 alphanumChars = alphChars ++ digitChars
 
@@ -37,7 +40,7 @@ isAlphanum :: Char -> Bool
 isAlphanum c = c `elem` alphanumChars
 
 isAllowedOptChar :: Char -> Bool
-isAllowedOptChar c = c `elem` (alphanumChars ++ "+-_!?@.")
+isAllowedOptChar c = c `elem` (alphanumChars ++ symbolChars)
 
 newline :: ReadP Char
 newline = char '\n'
@@ -103,7 +106,10 @@ optWord = do
   xs <- munch isAllowedOptChar
   -- For example docker run --help has "--docker*"
   _ <- char '*' <++ pure '*'
-  return (x : xs)
+  -- Don't allow options like `-S.` or `--baba.`
+  if (not . null) xs && last xs == '.'
+    then pfail
+    else return (x : xs)
 
 longOptName :: ReadP OptName
 longOptName = do
@@ -134,16 +140,17 @@ shortOptName :: ReadP OptName
 shortOptName = do
   _ <- dash
   c <- alphanum +++ satisfy (`elem` "@$=?&#%~\":.")
-  let res = OptName ('-' : c : "") ShortType
+  let res = OptName ['-', c] ShortType
   return res
 
 oldOptName :: ReadP OptName
 oldOptName = do
   _ <- dash
-  x <- alphanum
-  xs <- munch1 isAllowedOptChar
-  let res = OptName ('-' : x : xs) OldType
-  return res
+  name <- optWord
+  let res = OptName ('-' : name) OldType
+  if length name >= 2
+    then return res
+    else pfail
 
 optName :: ReadP OptName
 optName = longOptName <++ doubleDash <++ oldOptName <++ shortOptName <++ singleDash
@@ -189,9 +196,10 @@ optNameArgPair = do
   (s, args) <- gather $ sepBy (optArgInBraket <++ optArg <++ optArgAsNumber) argSep
   extra <- twoOrMoreDots <++ pure ""
   let s' = trim $ dropPrefix "=" s
-  if (length args == 1 && trim (head args) == "or") || length args >= 5
+  let cleanArg = s' ++ extra
+  if (length args == 1 && trim (head args) == "or") || length args >= 5 || cleanArg == "."
     then pfail
-    else return (name, s' ++ extra)
+    else return (name, cleanArg)
   where
     twoOrMoreDots = do
       c <- char '.'
