@@ -96,21 +96,26 @@ traceIf check run x
   | check x = trace (run x) x
   | otherwise = x
 
--- | hyphen-aware unlines
+-- | hyphen-aware unwords
 -- Here supporting hypen as in unicode \8208 (decimal) = \2010 (hex)
 -- https://unicode-table.com/en/2010/
+--
+-- [FIXME] `smartUnwords ["git-", "status"]` should be "git-status" instead of "gitstatus".
+--
 smartUnwords :: [String] -> String
 smartUnwords =
   foldr1 f
   where
+    hyphens = ['-', '\8208']
     f "" acc = acc
     f s "" = s
     f s acc
-      | c == '-' || c == '\8208' = init s ++ acc
-      | c == ' ' = s ++ acc
+      | length s > 1 && c `elem` hyphens && c2 `List.notElem` (' ' : hyphens) = initS ++ acc
       | otherwise = s ++ (' ' : acc)
       where
         c = last s
+        initS = init s
+        c2 = last initS
 
 -- | convert strictly-increasing ints to a list of left-inclusive right-exclusive ranges
 -- toRanges [1,2,3,4,6,9,10] == [(1, 5), (6, 7), (9, 11)]

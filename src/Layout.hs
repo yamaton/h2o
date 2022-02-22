@@ -13,7 +13,7 @@ import qualified Data.Set as Set
 import Debug.Trace (trace)
 import Text.Printf (printf)
 import Type (Opt)
-import Utils (debugMsg, getMostFrequent, getMostFrequentWithCount, infoMsg, infoShow, smartUnwords, warnShow)
+import Utils (debugMsg, getMostFrequent, getMostFrequentWithCount, infoMsg, infoShow, warnShow)
 import qualified Utils
 import qualified HelpParser
 
@@ -390,7 +390,7 @@ squashOptionsAndDescriptionsNoOverlap xs offset a b c = (opt, desc)
     optLines = map (trim . (xs !!)) $ take (b - a) [a, a + 1 ..]
     opt = List.intercalate "," optLines
     descLines = map (drop offset . (xs !!)) $ take (c - b) [b, b + 1 ..]
-    desc = smartUnwords descLines
+    desc = unlines descLines
 
 squashOptionsAndDescriptionsOverlap :: [String] -> Int -> Int -> Int -> Int -> (String, String)
 squashOptionsAndDescriptionsOverlap xs offset a b c = (opt, desc)
@@ -399,7 +399,7 @@ squashOptionsAndDescriptionsOverlap xs offset a b c = (opt, desc)
     optLinesLastTruncated = map trim (init optLines ++ [take offset (last optLines)])
     opt = List.intercalate "," optLinesLastTruncated
     descLines = map (drop offset . (xs !!)) $ take (c - b + 1) [b - 1, b ..]
-    desc = smartUnwords descLines
+    desc = unlines descLines
 
 oneliners :: [String] -> Int -> Int -> Int -> [(String, String)]
 oneliners xs offset a b =
@@ -551,7 +551,7 @@ parseBlockwise s = List.nub . concat $ results
 
 
 preprocessMeta :: (Int -> String -> [(String, String)]) -> Int -> String -> [(String, String)]
-preprocessMeta fallbackFunc lineIdxBase content = filter (/= ("", "")) $ map (Bifunctor.bimap trim (unwords . words)) res
+preprocessMeta fallbackFunc lineIdxBase content = filter (/= ("", "")) $ map (Bifunctor.bimap trim cleanDescription) res
   where
     xs = lines content
     may = getOptionDescriptionPairsFromLayout lineIdxBase content
@@ -572,6 +572,7 @@ preprocessMeta fallbackFunc lineIdxBase content = filter (/= ("", "")) $ map (Bi
           \[warn] ignore layout: processing with fallback \n\
           \===============================================\n"
           $ HelpParser.preprocessAllFallback content
+    cleanDescription = unwords . words . Utils.smartUnwords . lines
 
 
 -- |  Parse (option-and-argument, description) pairs from text
