@@ -7,6 +7,7 @@ import Control.Exception (assert)
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.List as List
 import Data.List.Extra (nubSort, trim, trimEnd, breakOnEnd)
+import qualified Data.Text as T
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import Debug.Trace (trace)
@@ -169,9 +170,13 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
 --      --option (arg) Somehow explanation immediately follows
 --      and it's continued to the next lines without indentation.   <--- hanging
 --
---      Some descriptions are  not tied to particular options, yet show    <--- NOT hanging
+--         --option arg
+--      When following description lines are indented less than     <--- NOT hanging
+--      the option line itself, they are not hanging.               <--- NOT hanging
+--
+--      Some descriptions are not tied to particular options, yet show    <--- NOT hanging
 --      --option in the middle of the sentences. This case should be
---      excluded from description statistics.                              <--- NOT hanging
+--      excluded from description statistics.                             <--- NOT hanging
 --
 --    Something blah                           <--- NOT hanging
 --      more blah...                           <--- NOT hanging
@@ -497,34 +502,36 @@ getHeadingIndices xs
 
 -- | Split text by top-level headers
 -- where headers are recognized by the least indentations
--- NOTE: the top-level headers are **excluded** from the output
+-- NOTE: the top-level headers are **included** in the output
 --       this is not exclude headings starting with "- Hey this is heading!"
-splitByHeaders :: [String] -> ([Int], [String])
+splitByHeaders :: [String] -> [(Int, String)]
 splitByHeaders xs
-  | any Utils.startsWithLongOption headings = ([0], [unlines xs])
-  | any Utils.startsWithShortOrOldOption headings = ([0], [unlines xs])
-  | otherwise = unzip chunks
+  | any Utils.startsWithLongOption headings = [(0, unlines xs)]
+  | any Utils.startsWithShortOrOldOption headings = [(0, unlines xs)]
+  | otherwise = chunks
   where
     sepIndices = getHeadingIndices xs  -- separater indices
     blockIndicesRaw =
       if null sepIndices || 0 `notElem` sepIndices
         then 0 : sepIndices
         else sepIndices
-    blockIndices = map (+1) blockIndicesRaw  -- compensating missing header lines and the very top line
     headings = map (xs !!) blockIndicesRaw
-    chunks = map (Bifunctor.second (unlines . tail)) $
+    chunks = map (Bifunctor.second unlines) $
       filter (\(_, lines_) -> length lines_ > 1 && any Utils.startsWithDash lines_) $
-      zip blockIndices $ Utils.splitsAt xs blockIndicesRaw
+      zip blockIndicesRaw $ Utils.splitsAt xs blockIndicesRaw
 
 
 -- | Parse (option-and-argument, description) pairs from text by applying
 -- preprocessAll to each header-based block.
 preprocessBlockwise :: String -> [(String, String)]
-preprocessBlockwise content = Utils.infoTrace decoratedMsg $ concatMap (uncurry preprocessAll) (zip indexBases contentsWoHeader)
+preprocessBlockwise content = Utils.infoTrace decoratedMsg $ concatMap (uncurry preprocessAll) indexBlockWoHeaderPairs
   where
     xs = lines content
-    (indexBases, contentsWoHeader) = splitByHeaders xs
-    msg = printf "Found %d header-based blocks" (length contentsWoHeader)
+    indexBlockPairs = splitByHeaders xs
+    indexBlockPairsWoUsage = filter (not . Utils.isUsageBlock . T.pack . snd) indexBlockPairs
+     -- fix indices to compensate header-less content
+    indexBlockWoHeaderPairs = map (\(i, s) -> (i + 1, tail s)) indexBlockPairsWoUsage
+    msg = printf "Found %d header-based blocks" (length indexBlockWoHeaderPairs)
     decoratedMsg = "-------- " ++ msg ++ " --------"
 
 

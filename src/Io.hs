@@ -222,7 +222,7 @@ pageToCommandIO name skipMan depth content = do
 getCommandRec :: Int -> Bool -> [String] -> String -> Text -> String -> IO (Command, Bool)
 getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
   page <- if null givenPage
-            then Utils.dropUsage . Utils.convertTabsToSpaces 8 <$> readFunc cmdSeq
+            then Utils.convertTabsToSpaces 8 <$> readFunc cmdSeq
             else return (T.pack givenPage)
   let content = T.unpack page
   let isSuccess = not (T.null page) && page /= upperContent

@@ -201,8 +201,11 @@ dropUsage :: Text -> Text
 dropUsage text = T.concat rest
   where
     xs = splitByTopHeaders text
-    isUsageBlock = ("usage" `T.isPrefixOf`) . T.toLower . T.stripStart
     rest = filter (not . isUsageBlock) xs
+
+isUsageBlock :: Text -> Bool
+isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s)) . T.toLower . T.stripStart
+
 
 -- | A speculative criteria for non-critical purposes
 mayContainUseful :: Text -> Bool
