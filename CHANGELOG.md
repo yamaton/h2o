@@ -1,3 +1,6 @@
+## 0.3.2 (2020-02-23)
+- Bugfixes and tunings
+
 ## 0.3.1 (2020-02-21)
 - Bugfixes
 - Parameter tuning
