@@ -149,7 +149,9 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
             -- description's offset is equal (rare case!) or greater than option's
             null optOffsets' || (List.maximum optOffsets' <= x),
             -- description can exist only around option lines
-            head optLineNums < r, r < last optLineNums + 5
+            (not . null) optLineNums,
+            head optLineNums < r,
+            r < last optLineNums + 5
             -- previous line cannot be blank
       ]
     res = infoMsg "descOffsetWithCountInNonoptLines: " $ getMostFrequentWithCount indentations
@@ -190,7 +192,9 @@ takeHangingDesc lineIdxBase optLocs descLocs = descLocSelected
       [ (descLineNum, descIndentation) |
         (i, (descLineNum, descIndentation)) <- zip [0..] descLocs,
         (descLineNum - 1) `elem` optLineNums,
-        let optIndentation = head [c | (r, c) <- optLocs, r == (descLineNum - 1)],
+        let xs = [c | (r, c) <- optLocs, r == (descLineNum - 1)],
+        (not . null) xs,
+        let optIndentation = head xs,
         descIndentation >= optIndentation,
         descIndentation > optIndentation ||
           (descLineNum - 2) `notElem` descLineNums ||
@@ -199,10 +203,10 @@ takeHangingDesc lineIdxBase optLocs descLocs = descLocSelected
       ]
     (cueLineNums, _) = unzip cueDescLocs
     descLocChunks = Utils.toFstContiguousChunks descLocs
-    descLocChunks' = filter (\chunk -> not (null chunk) && fst (head chunk) `elem` cueLineNums) descLocChunks
+    descLocChunks' = filter (\chunk -> (not . null) chunk && fst (head chunk) `elem` cueLineNums) descLocChunks
     descLocSelected =
       concatMap
-      (\chunk -> takeWhile (\(_, c) -> c == snd (head chunk)) chunk)
+      (\chunk -> takeWhile (\(_, c) -> (not . null) chunk && c == snd (head chunk)) chunk)
       descLocChunks'
 
 

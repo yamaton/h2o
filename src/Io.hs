@@ -120,7 +120,10 @@ getHelp :: String -> IO Text
 getHelp name = getHelpTemplate name [["--help"], ["help"], ["-help"], ["-h"]]
 
 getHelpSub :: [String] -> IO Text
-getHelpSub names = getHelpTemplate name [[subname, "--help"], ["help", subname], [subname, "-help"], [subname, "-h"]]
+getHelpSub names
+  | null names = return T.empty
+  | length names == 1 = getHelp (head names)
+  | otherwise = getHelpTemplate name [[subname, "--help"], ["help", subname], [subname, "-help"], [subname, "-h"]]
   where
     name = unwords (init names)
     subname = last names
