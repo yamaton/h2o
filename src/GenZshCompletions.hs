@@ -34,7 +34,7 @@ getOptAsText (Opt optnames arg desc)
   | otherwise = formatted
   where
     argUppercase = T.toUpper (T.pack arg)
-    isArgAboutFile = any (`T.isInfixOf` argUppercase) ["FILE", "PATH", "DIR"]
+    isArgAboutFile = any (`T.isInfixOf` argUppercase) ["FILE", "PATH", "DIR", "ARCHIVE"]
     raws = map _raw optnames
     optionNames = List.intercalate "," raws
     quotedDesc = quote . T.pack $ desc

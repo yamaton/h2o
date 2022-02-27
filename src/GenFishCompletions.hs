@@ -25,6 +25,7 @@ argToFlg t
   | "FILE" `T.isInfixOf` upper = " -r"
   | "DIR" `T.isInfixOf` upper = " -r"
   | "PATH" `T.isInfixOf` upper = " -r"
+  | "ARCHIVE" `T.isInfixOf` upper = " -r"  -- respect tar
   | otherwise = " -x"
   where
     upper = T.toUpper (T.pack t)
