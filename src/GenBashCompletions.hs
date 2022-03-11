@@ -9,17 +9,23 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Formatting
 import Type (Command (..), Opt (..), OptName (..))
+import qualified Data.Char as Char
+import qualified Data.List as List
 
 getOptsArray :: [Opt] -> Text
 getOptsArray opts = T.unwords $ concatMap (map (T.pack . _raw) . _names) opts
 
+
 getSubcommandCall :: String -> String -> Text
 getSubcommandCall name subname =
   T.unlines
-    [ sformat ("          " % string % ") _" % string % "_" % string) subname name subname,
+    [ sformat ("          " % string % ") " % string) subname funcName,
       "            return",
       "            ;;"
     ]
+  where
+    funcName = toBashFuncName [name, subname]
+
 
 getSubcommandFunc :: String -> Command -> Text
 getSubcommandFunc name (Command subname _ opts subsubcmds)
@@ -30,9 +36,10 @@ getSubcommandFunc name (Command subname _ opts subsubcmds)
     subsubNames = [T.pack subsubname | (Command subsubname _ _ _) <- subsubcmds]
     optsNames = concat [map (T.pack . _raw) optnames | (Opt optnames _ _) <- opts]
     subsubNamesAndSubOptionsText = T.unwords (subsubNames ++ optsNames)
+    funcName = toBashFuncName [name, subname]
     prefix =
       T.unlines
-        [ sformat ("_" % string % "_" % string % " ()") name subname,
+        [ sformat (string % " ()") funcName,
           "{",
           "    local cur word_list"
         ]
@@ -88,17 +95,23 @@ getSubcmdsArray subcmds = T.unwords subnames
 genBashScript :: String -> [Opt] -> Text
 genBashScript name opts = toBashScript (Command name name opts [])
 
+toBashFuncName :: [String] -> String
+toBashFuncName cmdSeq = '_' : List.intercalate "_" xs
+  where
+    xs = map (filter Char.isAlphaNum) cmdSeq
+
 toBashScript :: Command -> Text
 toBashScript (Command name _ opts subcmds)
   | null subcmds = T.concat [mainPrefix, mainSuffix, compStatement]
   | otherwise = T.concat [mainPrefix, mainSubcommandCalls, mainSuffix, subcommandFuncs, compStatement]
   where
     subcommandsAndOptsText = T.unwords [getSubcmdsArray subcmds, getOptsArray opts]
+    funcName = toBashFuncName [name]
     mainPrefix =
       T.unlines
         [ meta,
           "",
-          sformat ("_" % string % "()") name,
+          sformat (string % "()") funcName,
           "{",
           "    local i=1 cmd cur word_list",
           "    cur=\"${COMP_WORDS[COMP_CWORD]}\"",
@@ -121,7 +134,7 @@ toBashScript (Command name _ opts subcmds)
     mainSuffix =
       T.unlines
         [ "      *)",
-          sformat ("          word_list=\" " % stext % "\" ") subcommandsAndOptsText,
+          sformat ("          word_list=\" " % stext % "\"") subcommandsAndOptsText,
           "          COMPREPLY=( $(compgen -W \"${word_list}\" -- \"${cur}\") )",
           "          ;;",
           "    esac",
@@ -134,6 +147,6 @@ toBashScript (Command name _ opts subcmds)
     compStatement =
       T.unlines
         [ "## -o bashdefault and -o default are fallback",
-          sformat ("complete -o bashdefault -o default -F _" % string % " " % string) name name
+          sformat ("complete -o bashdefault -o default -F " % string % " " % string) funcName name
         ]
     meta = "# Auto-generated with h2o"

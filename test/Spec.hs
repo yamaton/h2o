@@ -544,7 +544,7 @@ shellCompTests =
       \\n\
       \    case \"$cmd\" in\n\
       \      *)\n\
-      \          word_list=\"  -o --output --help\" \n\
+      \          word_list=\"  -o --output --help\"\n\
       \          COMPREPLY=( $(compgen -W \"${word_list}\" -- \"${cur}\") )\n\
       \          ;;\n\
       \    esac\n\
