@@ -28,7 +28,7 @@ alphanumChars :: [Char]
 alphanumChars = alphChars ++ digitChars
 
 dash :: ReadP Char
-dash = satisfy (== '-')
+dash = char '-'
 
 alphanum :: ReadP Char
 alphanum = satisfy $ \c -> c `elem` alphanumChars
@@ -104,7 +104,7 @@ optWord :: ReadP String
 optWord = do
   x <- alphanum
   xs <- munch isAllowedOptChar
-  -- For example docker run --help has "--docker*"
+  -- For example stack --help has "--docker*"
   _ <- char '*' <++ pure '*'
   -- Don't allow options like `-S.` or `--baba.`
   if (not . null) xs && last xs == '.'
@@ -155,7 +155,7 @@ oldOptName = do
 optName :: ReadP OptName
 optName = longOptName <++ doubleDash <++ oldOptName <++ shortOptName <++ singleDash
 
-optArg :: ReadP String
+optArg :: ReadP OptArg
 optArg = do
   _ <- char '=' <++ singleSpace <++ pure ' '
   _ <- munch (== ' ')
@@ -167,7 +167,7 @@ optArgInBraket = do
   _ <- munch (== ' ')
   argWordBracketed
 
-optArgAsNumber :: ReadP String
+optArgAsNumber :: ReadP OptArg
 optArgAsNumber = do
   _ <- char '='
   _ <- munch (== ' ')
@@ -190,10 +190,10 @@ heuristicSep args =
     twoSpaces = string "  "
     oneSpace = string " "
 
-optNameArgPair :: ReadP (OptName, String)
+optNameArgPair :: ReadP (OptName, OptArg)
 optNameArgPair = do
   name <- optName
-  (s, args) <- gather $ sepBy (optArgInBraket <++ optArg <++ optArgAsNumber) argSep
+  (s, args) <- gather $ sepBy (optArgInBraket <++ optArg <++ optArgAsNumber <++ optArgAsSingleStar) argSep
   extra <- twoOrMoreDots <++ pure ""
   let s' = trim $ dropPrefix "=" s
   let cleanArg = s' ++ extra

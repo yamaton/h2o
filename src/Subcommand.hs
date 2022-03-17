@@ -57,7 +57,9 @@ subcommandWord :: ReadP String
 subcommandWord = do
   x <- satisfy $ \c -> c `elem` lowercase
   xs <- munch isAlphanumOrDashOrUnderscore
-  -- For example docker run --help has "--docker*"
+  -- Discard postfix '*'.
+  -- Never seen subcommand followed by * as special note,
+  -- but there exists options like --docker* as in `stack --help`.
   _ <- char '*' <++ pure '*'
   return (x : xs)
 
