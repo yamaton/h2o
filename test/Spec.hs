@@ -371,7 +371,11 @@ optPartTests =
       ---- octopus ----
       test_optPart
         " --inactive-flank-scoring arg (=1)"
-        (["--inactive-flank-scoring"], "arg (=1)")
+        (["--inactive-flank-scoring"], "arg (=1)"),
+      ---- robotframework ----
+      test_optPart
+        "--expandkeywords name:<pattern>|tag:<pattern> *"
+        (["--expandkeywords"], "name:<pattern>|tag:<pattern> *")
     ]
 
 unsupportedCases :: TestTree

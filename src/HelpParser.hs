@@ -54,6 +54,11 @@ argWordBare = do
   xs <- munch (\c -> c `elem` (alphanumChars ++ "\"`'_:<>()+-*/|#.=[]"))
   return (x : xs)
 
+argWordSingleStar :: ReadP String
+argWordSingleStar = do
+  x <- char '*'
+  return [x]
+
 argWordNumber :: ReadP String
 argWordNumber = do
   sign <- string "-" <++ pure ""
@@ -161,7 +166,12 @@ optArg = do
   _ <- munch (== ' ')
   argWordBare
 
-optArgInBraket :: ReadP String
+optArgAsSingleStar :: ReadP OptArg
+optArgAsSingleStar = do
+  _ <- char '=' <++ singleSpace <++ pure ' '
+  argWordSingleStar
+
+optArgInBraket :: ReadP OptArg
 optArgInBraket = do
   _ <- char '=' <++ singleSpace <++ pure ' ' -- ok not to have a delimiter before
   _ <- munch (== ' ')
