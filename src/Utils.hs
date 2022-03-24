@@ -203,10 +203,13 @@ splitByTopHeaders text = map T.unlines $ splitsAt xs headingIndices
     headingIndices = getTopLevelHeadingIndices xs
 
 dropUsage :: Text -> Text
-dropUsage text = T.concat rest
+dropUsage text = res
   where
     xs = splitByTopHeaders text
     rest = filter (not . isUsageBlock) xs
+    res = if null rest
+            then text
+            else T.concat rest
 
 isUsageBlock :: Text -> Bool
 isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s)) . T.toLower . T.stripStart
