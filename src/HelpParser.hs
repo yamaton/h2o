@@ -116,6 +116,14 @@ optWord = do
     then pfail
     else return (x : xs)
 
+longOptNameWithNo :: ReadP OptName
+longOptNameWithNo = do
+  _ <- count 2 dash
+  _ <- string "[no]"
+  name <- optWord
+  let res = OptName ("--" ++ name) LongType
+  return res
+
 longOptName :: ReadP OptName
 longOptName = do
   _ <- count 2 dash
