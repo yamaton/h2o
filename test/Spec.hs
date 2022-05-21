@@ -16,18 +16,17 @@ import Io (getInputContent, pageToCommandSimple, run, toScript)
 import Layout (makeRanges, mergeRanges, mergeRangesFast, parseMany)
 import qualified Postprocess
 import Subcommand (firstTwoWordsLoc)
-import System.FilePath (takeBaseName)
 import System.Environment (setEnv)
-import Test.Tasty ( defaultMain, testGroup, TestTree )
-import Test.Tasty.ExpectedFailure ( expectFail )
+import System.FilePath (takeBaseName)
+import Test.Tasty (TestTree, defaultMain, testGroup)
+import Test.Tasty.ExpectedFailure (expectFail)
 import Test.Tasty.Golden (goldenVsString)
-import Test.Tasty.HUnit ( testCase, (@?=) )
+import Test.Tasty.HUnit (testCase, (@?=))
 import Test.Tasty.Hedgehog (testProperty)
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
 import Type (Opt (..), OptName (..), OptNameType (..))
 import Utils (convertTabsToSpaces, getMostFrequent, toContiguousChunks, toRanges)
-
 
 main :: IO ()
 main = do
@@ -36,7 +35,6 @@ main = do
     testGroup
       "Tests"
       [optNameTests, propertyTests, outdatedTests, devTests, optPartTests, unsupportedCases, miscTests, shellCompTests, shellCompGoldenTests, integratedGoldenTestsCommandInput, integratedGoldenTestsFileInput, layoutTests]
-
 
 outdatedTests :: TestTree
 outdatedTests =
@@ -490,7 +488,8 @@ miscTests =
       testCase "truncateAfterPeriod 4" $
         truncateAfterPeriod "baba .. keke" @?= "baba ..",
       testCase "fixOpt 1" $
-        Postprocess.fixShortOptWithArgWithoutSpace (Opt [OptName "-Ttagsfile" OldType, OptName "--tag-file" LongType] "tagsfile" "Specifies a tags file...")
+        Postprocess.fixShortOptWithArgWithoutSpace
+          (Opt [OptName "-Ttagsfile" OldType, OptName "--tag-file" LongType] "tagsfile" "Specifies a tags file...")
           @?= Opt [OptName "-T" ShortType, OptName "--tag-file" LongType] "tagsfile" "Specifies a tags file..."
     ]
 
@@ -581,7 +580,9 @@ shellCompGoldenTests =
     ]
   where
     toLazyByteString = TLE.encodeUtf8 . TL.fromStrict
-    action shell x = toLazyByteString . toScript shell . pageToCommandSimple (takeBaseName x) <$> getInputContent (FileInput x True)
+    action shell x =
+      toLazyByteString . toScript shell
+        <$> (pageToCommandSimple (takeBaseName x) =<< getInputContent (FileInput x True))
     actionFish = action Fish
     actionZsh = action Zsh
     actionBash = action Bash
@@ -610,10 +611,14 @@ integratedGoldenTestsFileInput =
   where
     -- [note] bcftools-mpileup is marginal and parsing give incomplete results
     --        such marginal example is a good at catching unexpected behviors.
-    commandNames = [
-      "rsync", "grep",
-      "bcftools-stats", "bcftools-mpileup","snakemake"
-      ] :: [String]
+    commandNames =
+      [ "rsync",
+        "grep",
+        "bcftools-stats",
+        "bcftools-mpileup",
+        "snakemake"
+      ] ::
+        [String]
     inputFiles = [printf "test/golden/%s-input.txt" name | name <- commandNames]
     outputFiles = [printf "test/golden/%s.txt" name | name <- commandNames]
     triples = zip3 commandNames inputFiles outputFiles

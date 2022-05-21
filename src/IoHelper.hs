@@ -34,7 +34,7 @@ getManAndHelpSub names = do
 getHelpTemplateMeta :: (Text -> Bool) -> String -> [[String]] -> IO Text
 getHelpTemplateMeta _ _ [] = return ""
 getHelpTemplateMeta isGood name (args : argsBag) = do
-  emx <- try (fetchHelpInfo isGood name args) :: IO (Either SomeException (Maybe Text))
+  !emx <- try (fetchHelpInfo isGood name args) :: IO (Either SomeException (Maybe Text))
   case emx of
     Left _ -> return ""
     Right mx -> case mx of
@@ -105,3 +105,6 @@ isManAvailableIO name = do
   where
     pc = Process.shell $ printf "man -w %s" name
 
+getVersion :: String -> IO Text
+getVersion name =
+  getHelpTemplateMeta (not . T.null) name [["--version"], ["version"], ["-version"]]

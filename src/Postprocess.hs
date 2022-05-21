@@ -15,6 +15,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Type (Command (..), Opt (..), OptName (..), OptNameType (..))
 import qualified Utils
+import IoHelper (getVersion)
 
 fixOptName :: String -> OptName -> OptName
 fixOptName arg_ (OptName raw t) =
@@ -126,8 +127,17 @@ score (Opt names arg desc) =
         types = Set.fromList $ map _type optnames
         topElem = Set.elemAt 0 types
 
-fixCommand :: Command -> Command
-fixCommand (Command name desc opts subcmds) = Command name desc optsFixed subcmdsFixed
+fixOpts :: Command -> Command
+fixOpts (Command name desc opts subcmds version) = Command name desc optsFixed subcmdsFixed version
   where
     optsFixed = fixDuplicateOpts $ map fixShortOptWithArgWithoutSpace opts
-    subcmdsFixed = map fixCommand subcmds
+    subcmdsFixed = map fixOpts subcmds
+
+addVersion :: Command -> IO Command
+addVersion (Command name desc opts subcmds _) = Command name desc opts subcmds <$> version
+  where
+    raw = getVersion name
+    version = T.unpack . T.strip . head . T.lines <$> raw
+
+fixCommand :: Command -> IO Command
+fixCommand = addVersion . fixOpts

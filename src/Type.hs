@@ -22,7 +22,8 @@ data Command = Command
   { _name :: String, -- command name
     _description :: String, -- description of command itself
     _options :: [Opt], -- command options
-    _subcommands :: [Command] -- subcommands
+    _subcommands :: [Command], -- subcommands
+    _version :: String -- version
   }
   deriving (Show)
 
@@ -83,6 +84,7 @@ instance FromJSON Command where
       <*> (T.unpack <$> v .: "description")
       <*> v .: "options"
       <*> (Maybe.fromMaybe [] <$> v .:? "subcommands")
+      <*> (T.unpack . Maybe.fromMaybe "" <$> v .:? "version")
 
 instance ToJSON Opt where
   toJSON (Opt names arg desc) =
@@ -92,15 +94,23 @@ instance ToJSON Opt where
     pairs ("names" .= names <> "argument" .= arg <> "description" .= desc)
 
 instance ToJSON Command where
-  toJSON (Command name desc opts []) =
+  toJSON (Command name desc opts [] "") =
     object ["name" .= name, "description" .= desc, "options" .= opts]
-  toJSON (Command name desc opts subcommands) =
+  toJSON (Command name desc opts subcommands "") =
     object ["name" .= name, "description" .= desc, "options" .= opts, "subcommands" .= subcommands]
+  toJSON (Command name desc opts [] version) =
+    object ["name" .= name, "description" .= desc, "options" .= opts, "version" .= version]
+  toJSON (Command name desc opts subcommands version) =
+    object ["name" .= name, "description" .= desc, "options" .= opts, "subcommands" .= subcommands, "version" .= version]
 
-  toEncoding (Command name desc opts []) =
+  toEncoding (Command name desc opts [] "") =
     pairs ("name" .= name <> "description" .= desc <> "options" .= opts)
-  toEncoding (Command name desc opts subcommands) =
+  toEncoding (Command name desc opts subcommands "") =
     pairs ("name" .= name <> "description" .= desc <> "options" .= opts <> "subcommands" .= subcommands)
+  toEncoding (Command name desc opts [] version) =
+    pairs ("name" .= name <> "description" .= desc <> "options" .= opts <> "version" .= version)
+  toEncoding (Command name desc opts subcommands version) =
+    pairs ("name" .= name <> "description" .= desc <> "options" .= opts <> "subcommands" .= subcommands <> "version" .= version)
 
 toOptionNameType :: Text -> OptNameType
 toOptionNameType "-" = SingleDashAlone
@@ -112,4 +122,4 @@ toOptionNameType s
   | otherwise = error "Invalid option name!"
 
 asSubcommand :: Command -> Subcommand
-asSubcommand (Command n desc _ _) = Subcommand n desc
+asSubcommand (Command n desc _ _ _) = Subcommand n desc

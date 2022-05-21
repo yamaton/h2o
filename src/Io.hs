@@ -69,7 +69,7 @@ run (C_ (Config input@(CommandInput name skipMan) format _ _ _ _ depth)) =
 
 -- Or, process with command name AND subcommand name
 run (C_ (Config input@(SubcommandInput name subname _) format _ _ _ _ _)) =
-  toScript format . pageToCommandSimple nameSubname <$> getInputContent input
+  toScript format <$> (pageToCommandSimple nameSubname =<< getInputContent input)
   where
     nameSubname = name ++ "-" ++ subname
 
@@ -97,7 +97,7 @@ toSubcommandsText path cmds =
     main = T.unlines . map (T.pack . show . asSubcommand) $ cmds
 
 toSubcommandOptionsText :: [String] -> Command -> Text
-toSubcommandOptionsText nameSeq (Command subname _ opts _) =
+toSubcommandOptionsText nameSeq (Command subname _ opts _ _) =
   T.unlines $ map (\opt -> prefix `T.append` T.pack (show opt)) opts
   where
     prefix = T.pack . printf "(%s) " . T.unwords . map T.pack $ nameSeq ++ [subname]
@@ -123,14 +123,14 @@ toScript Json = toJSONText
 toScript Native = toNativeText
 
 toNativeText :: Command -> Text
-toNativeText (Command _ _ opts []) =
+toNativeText (Command _ _ opts [] _) =
   Utils.warnTrace "No subcommands" $
     T.unlines $ map (T.pack . show) opts
 toNativeText cmd =
   T.intercalate "\n\n\n" . filter (not . T.null) $ toNativeTextRec [] cmd
 
 toNativeTextRec :: [String] -> Command -> [Text]
-toNativeTextRec path cmd@(Command name _ _ subCmds) =
+toNativeTextRec path cmd@(Command name _ _ subCmds _) =
   [optsText, subcommandsText] ++ rest
   where
     optsText = toSubcommandOptionsText path cmd
@@ -148,7 +148,7 @@ pageToCommandIO name skipMan depth content = do
   let useMan = not skipMan && isManAvailable
   (cmd, status) <- getCommandRec depth useMan [name] name "placeholder" content
   if status && ((not . null . _options) cmd || (not . null . _subcommands) cmd)
-    then return $ Postprocess.fixCommand cmd
+    then Postprocess.fixCommand cmd
     else error ("Failed to extract information for a Command: " ++ name)
 
 -- | Scan subcommand recursively for its options and sub-sub commands
@@ -178,7 +178,7 @@ getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
   let subCommandsM = map fst . filter snd <$> subCommandCandidsM
   let opts = parseBlockwise content
   subCommands <- subCommandsM
-  let result = Command (last cmdSeq) desc opts subCommands
+  let result = Command (last cmdSeq) desc opts subCommands ""
   return (result, Utils.infoMsg ("getCommandRec isSuccess: " ++ unwords cmdSeq) isSuccess)
   where
     readFunc = if useMan then getManSub else getHelpSub
@@ -195,11 +195,11 @@ getSubcmdCandidates content =
     removeHelp = filter (\(Subcommand name _) -> name /= "help")
 
 -- | Converts to Command given command name and text
-pageToCommandSimple :: String -> String -> Command
+pageToCommandSimple :: String -> String -> IO Command
 pageToCommandSimple name content =
   if null rootOptions
     then error ("Failed to extract information for a Command: " ++ name)
-    else Postprocess.fixCommand $ Command name name rootOptions []
+    else Postprocess.fixCommand $ Command name name rootOptions [] ""
   where
     rootOptions = parseBlockwise content
 

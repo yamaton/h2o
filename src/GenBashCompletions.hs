@@ -28,12 +28,12 @@ getSubcommandCall name subname =
 
 
 getSubcommandFunc :: String -> Command -> Text
-getSubcommandFunc name (Command subname _ opts subsubcmds)
+getSubcommandFunc name (Command subname _ opts subsubcmds _)
   | null subsubcmds && null opts = ""
   | null subsubcmds = T.concat [prefix, suffix]
   | otherwise = T.concat [prefix, subsubCallPrefix, subsubCallBody, subsubCallSuffix, suffix, subsubFuncs]
   where
-    subsubNames = [T.pack subsubname | (Command subsubname _ _ _) <- subsubcmds]
+    subsubNames = [T.pack subsubname | (Command subsubname _ _ _ _) <- subsubcmds]
     optsNames = concat [map (T.pack . _raw) optnames | (Opt optnames _ _) <- opts]
     subsubNamesAndSubOptionsText = T.unwords (subsubNames ++ optsNames)
     funcName = toBashFuncName [name, subname]
@@ -90,10 +90,10 @@ getSubcommandFunc name (Command subname _ opts subsubcmds)
 getSubcmdsArray :: [Command] -> Text
 getSubcmdsArray subcmds = T.unwords subnames
   where
-    subnames = [T.pack subname | (Command subname _ _ _) <- subcmds]
+    subnames = [T.pack subname | (Command subname _ _ _ _) <- subcmds]
 
 genBashScript :: String -> [Opt] -> Text
-genBashScript name opts = toBashScript (Command name name opts [])
+genBashScript name opts = toBashScript (Command name name opts [] "")
 
 toBashFuncName :: [String] -> String
 toBashFuncName cmdSeq = '_' : List.intercalate "_" xs
@@ -101,7 +101,7 @@ toBashFuncName cmdSeq = '_' : List.intercalate "_" xs
     xs = map (filter Char.isAlphaNum) cmdSeq
 
 toBashScript :: Command -> Text
-toBashScript (Command name _ opts subcmds)
+toBashScript (Command name _ opts subcmds _)
   | null subcmds = T.concat [mainPrefix, mainSuffix, compStatement]
   | otherwise = T.concat [mainPrefix, mainSubcommandCalls, mainSuffix, subcommandFuncs, compStatement]
   where
