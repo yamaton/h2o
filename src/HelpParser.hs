@@ -15,16 +15,16 @@ import Data.Char (isNumber)
 
 type OptArg = String
 
-digitChars :: [Char]
+digitChars :: String
 digitChars = "0123456789"
 
-alphChars :: [Char]
+alphChars :: String
 alphChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-symbolChars :: [Char]
+symbolChars :: String
 symbolChars = "+-_!?@."
 
-alphanumChars :: [Char]
+alphanumChars :: String
 alphanumChars = alphChars ++ digitChars
 
 dash :: ReadP Char
