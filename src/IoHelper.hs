@@ -34,7 +34,7 @@ getManAndHelpSub names = do
 getHelpTemplateMeta :: (Text -> Bool) -> String -> [[String]] -> IO Text
 getHelpTemplateMeta _ _ [] = return ""
 getHelpTemplateMeta isGood name (args : argsBag) = do
-  !emx <- try (fetchHelpInfo isGood name args) :: IO (Either SomeException (Maybe Text))
+  emx <- try (fetchHelpInfo isGood name args) :: IO (Either SomeException (Maybe Text))
   case emx of
     Left _ -> return ""
     Right mx -> case mx of

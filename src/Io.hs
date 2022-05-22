@@ -144,7 +144,7 @@ toNativeTextRec path cmd@(Command name _ _ subCmds _) =
 -- `content` is the top-level text to be scanned.
 pageToCommandIO :: String -> Bool -> Int -> String -> IO Command
 pageToCommandIO name skipMan depth content = do
-  !isManAvailable <- isManAvailableIO name
+  isManAvailable <- isManAvailableIO name
   let useMan = not skipMan && isManAvailable
   (cmd, status) <- getCommandRec depth useMan [name] name "placeholder" content
   if status && ((not . null . _options) cmd || (not . null . _subcommands) cmd)
