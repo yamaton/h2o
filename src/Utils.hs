@@ -219,7 +219,12 @@ isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s
 mayContainUseful :: Text -> Bool
 mayContainUseful text = length xs >= 2
   where
-    xs = filter (not . ("error" `T.isPrefixOf`) . T.toLower . T.stripStart) . T.lines $ dropUsage text
+    criteria x =
+      (not . T.null) x &&
+      (not . ("error" `T.isInfixOf`) . T.toLower) x &&
+      (not . ("command not found" `T.isInfixOf`) . T.toLower) x &&
+      (not . ("invalid argument" `T.isInfixOf`) . T.toLower) x
+    xs = filter criteria . map T.strip . T.lines $ dropUsage text
 
 -- | splitsAt ... like Data.List.splitAt but multiple indices
 --

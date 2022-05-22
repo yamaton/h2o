@@ -1525,6 +1525,18 @@ local                     (View local snapshot)
 
 
 
+(stack ls snapshots remote) -h --help  ::  
+Show this help text
+
+
+
+
+(stack ls snapshots local) -h --help  ::  
+Show this help text
+
+
+
+
 (stack ls dependencies) --separator  ::  SEP
 Separator between package name and package version. (default: " ")
 
