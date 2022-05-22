@@ -1,7 +1,13 @@
-## 0.3.2 (2020-02-23)
+## 0.3.3 (2022-05-22)
+- Bump to GHC 9.0.2 (via Stackage LTS-19.7)
+- Tunings to reduce false positives and negatives
+- Add 'version' field to the JSON output
+- Fix bash output when command name has symbols
+
+## 0.3.2 (2022-02-23)
 - Bugfixes and tunings
 
-## 0.3.1 (2020-02-21)
+## 0.3.1 (2022-02-21)
 - Bugfixes
 - Parameter tuning
 
