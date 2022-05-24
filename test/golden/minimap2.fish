@@ -32,7 +32,7 @@ complete -c minimap2 -l no-long-join -d 'Disable the long gap patching heuristic
 complete -c minimap2 -l lj-min-ratio -d 'Fraction of query sequence length required to bridge a long gap [0.5].' -x
 complete -c minimap2 -l splice -d 'Enable the splice alignment mode.'
 complete -c minimap2 -l sr -d 'Enable short-read alignment heuristics.'
-complete -c minimap2 -l split-prefix -d 'Prefix to create temporary files.' -x
+complete -c minimap2 -l split-prefix -d 'Prefix to create temporary files.' -r
 complete -c minimap2 -l frag -d 'Whether to enable the fragment mode [no]' -x
 complete -c minimap2 -l for-only -d 'Only map to the forward strand of the reference sequences.'
 complete -c minimap2 -l rev-only -d 'Only map to the reverse complement strand of the reference sequences.'

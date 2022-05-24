@@ -6,7 +6,7 @@ complete -c bowtie2 -l tab6 -d 'query input files are TAB6 .tab6'
 complete -c bowtie2 -l qseq -d 'query input files are in Illumina\'s qseq format'
 complete -c bowtie2 -s f -d 'query input files are (multi-)FASTA .fa/.mfa'
 complete -c bowtie2 -s r -d 'query input files are raw one-sequence-per-line'
-complete -c bowtie2 -s F -d 'query input files are continuous FASTA where reads are substrings (k-mers) extracted from a FASTA file <s> and aligned at offsets 1, 1+i, 1+2i ...' -x
+complete -c bowtie2 -s F -d 'query input files are continuous FASTA where reads are substrings (k-mers) extracted from a FASTA file <s> and aligned at offsets 1, 1+i, 1+2i ...' -r
 complete -c bowtie2 -s c -d '<m1>, <m2>, <r> are sequences themselves, not files'
 complete -c bowtie2 -s s -l skip -d 'skip the first <int> reads/pairs in the input (none)' -x
 complete -c bowtie2 -s u -l upto -d 'stop after first <int> reads/pairs (no limit)' -x
