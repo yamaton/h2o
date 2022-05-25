@@ -226,6 +226,14 @@ mayContainUseful text = length xs >= 2
       (not . ("invalid argument" `T.isInfixOf`) . T.toLower) x
     xs = filter criteria . map T.strip . T.lines $ dropUsage text
 
+-- | Check if a text contains version information
+mayContainVersion :: Text -> Bool
+mayContainVersion x =
+      (not . T.null) x &&
+      (not . ("error" `T.isInfixOf`) . T.toLower) x &&
+      (not . ("command not found" `T.isInfixOf`) . T.toLower) x &&
+      (not . ("invalid argument" `T.isInfixOf`) . T.toLower) x
+
 -- | splitsAt ... like Data.List.splitAt but multiple indices
 --
 -- >>> splitsAt [0, 2, 4, 6, 8, 10] [0, 3, 5]
