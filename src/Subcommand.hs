@@ -83,7 +83,7 @@ subcommandSep = colonBased <++ spaceBased
       skipSpaces
       return s
     spaceBased = do
-      s <- string "   "
+      s <- string " "
       skipSpaces
       return s
 
