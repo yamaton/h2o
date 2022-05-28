@@ -167,6 +167,9 @@ oldOptName = do
 
 optName :: ReadP OptName
 optName = longOptName <++ doubleDash <++ oldOptName <++ shortOptName <++ singleDash
+-- For bazel, disable above and enable below
+-- optName = longOptNameWithNo <++ longOptName <++ oldOptName <++ shortOptName <++ singleDash
+
 
 optArg :: ReadP OptArg
 optArg = do

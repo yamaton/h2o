@@ -70,6 +70,7 @@ getHelpSub :: [String] -> IO Text
 getHelpSub names
   | null names = return T.empty
   | length names == 1 = getHelp (head names)
+  | name == "bazel" = getHelpTemplate name [["help", subname, "--long"]]
   | otherwise = getHelpTemplate name [[subname, "--help"], ["help", subname], [subname, "-help"], [subname, "-h"]]
   where
     name = unwords (init names)
