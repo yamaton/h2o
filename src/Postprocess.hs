@@ -137,7 +137,7 @@ addVersion :: Command -> IO Command
 addVersion (Command name desc opts subcmds _) = Command name desc opts subcmds <$> version
   where
     raw = getVersion name
-    version = T.unpack . T.strip . head . T.lines <$> raw
+    version = T.unpack . T.strip . (\xs -> if null xs then T.empty else head xs) . T.lines <$> raw
 
 fixCommand :: Command -> IO Command
 fixCommand = addVersion . fixOpts
