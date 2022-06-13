@@ -44,8 +44,11 @@ Remove cached package tarballs.
 (conda clean) -f --force-pkgs-dirs  ::  
 Remove *all* writable package caches. This option is not included with the --all flag. WARNING: This will break environments with packages installed using symlinks back to the package cache.
 
-(conda clean) -c --tempfiles  ::  TEMPFILES [TEMPFILES ...]
+(conda clean) -c --tempfiles  ::  [TEMPFILES ...]
 Remove temporary files that could not be deleted earlier due to being in-use. Argument is path(s) to prefix(es) where files should be found and removed.
+
+(conda clean) -l --logfiles  ::  
+Remove log files.
 
 (conda clean) -d --dry-run  ::  
 Only display what would have been done.
@@ -617,11 +620,8 @@ When this is set, where implemented, the shell wrapper scriptswill echo to stder
 (conda run) --cwd  ::  CWD
 Current working directory for command to run in. Defaults to cwd
 
-(conda run) --no-capture-output  ::  
-Don't capture stdout/stderr
-
-(conda run) --live-stream  ::  
-Display the output for the subprocess stdout and stderr on real time.
+(conda run) --no-capture-output --live-stream  ::  
+Don't capture stdout/stderr.
 
 (conda run) -n --name  ::  ENVIRONMENT
 Name of environment.
