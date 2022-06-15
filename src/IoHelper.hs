@@ -41,6 +41,8 @@ getHelpTemplateMeta isGood name (args : argsBag) = do
       Just x -> return x
       Nothing -> getHelpTemplateMeta isGood name argsBag
 
+-- | Get a CLI help page
+-- [TODO] the criteria `Utils.mayContainUseful` needs scrutiny
 getHelpTemplate :: String -> [[String]] -> IO Text
 getHelpTemplate = getHelpTemplateMeta Utils.mayContainUseful
 

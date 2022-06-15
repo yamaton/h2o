@@ -216,8 +216,11 @@ isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s
 
 
 -- | A speculative criteria for non-critical purposes
+-- [TODO] Scrutinize this as it's now used for critical purposes
 mayContainUseful :: Text -> Bool
-mayContainUseful text = length xs >= 2
+mayContainUseful text
+  | T.isPrefixOf "error" (T.toLower text) = False
+  | otherwise = length xs >= 2
   where
     xs = filter mayContainVersion . map T.strip . T.lines $ dropUsage text
 
