@@ -219,19 +219,26 @@ isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s
 -- [TODO] Scrutinize this as it's now used for critical purposes
 mayContainUseful :: Text -> Bool
 mayContainUseful text
-  | T.isPrefixOf "error" (T.toLower text) = False
+  | T.null text = False
+  | any (`T.isInfixOf` loweredFirstLine) errKeywords = False
   | otherwise = length xs >= 2
   where
+    errKeywords = ["error", "invalid", "unrecognized", "command not found", "unknown"]
+    loweredFirstLine = (T.toLower . head . T.lines . T.stripStart) text
     xs = filter mayContainVersion . map T.strip . T.lines $ dropUsage text
+
 
 -- | Check if a text contains version information
 mayContainVersion :: Text -> Bool
 mayContainVersion x =
       (not . T.null) x &&
-      (not . ("error" `T.isInfixOf`) . T.toLower) x &&
-      (not . ("command not found" `T.isInfixOf`) . T.toLower) x &&
-      (not . ("invalid arg" `T.isInfixOf`) . T.toLower) x &&
-      (not . ("unrecognized arg" `T.isInfixOf`) . T.toLower) x
+      (not . ("error" `T.isInfixOf`)) lowered &&
+      (not . ("command not found" `T.isInfixOf`)) lowered &&
+      (not . ("invalid arg" `T.isInfixOf`)) lowered &&
+      (not . ("unrecognized arg" `T.isInfixOf`)) lowered
+  where
+    lowered = T.toLower x
+
 
 -- | splitsAt ... like Data.List.splitAt but multiple indices
 --
