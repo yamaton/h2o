@@ -5,16 +5,15 @@
 
 module GenBashCompletions where
 
+import qualified Data.Char as Char
+import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
 import Formatting
 import Type (Command (..), Opt (..), OptName (..))
-import qualified Data.Char as Char
-import qualified Data.List as List
 
 getOptsArray :: [Opt] -> Text
 getOptsArray opts = T.unwords $ concatMap (map (T.pack . _raw) . _names) opts
-
 
 getSubcommandCall :: String -> String -> Text
 getSubcommandCall name subname =
@@ -25,7 +24,6 @@ getSubcommandCall name subname =
     ]
   where
     funcName = toBashFuncName [name, subname]
-
 
 getSubcommandFunc :: String -> Command -> Text
 getSubcommandFunc name (Command subname _ opts subsubcmds _)

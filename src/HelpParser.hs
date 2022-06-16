@@ -2,6 +2,7 @@
 
 module HelpParser where
 
+import Data.Char (isNumber)
 import qualified Data.List as List
 import Data.List.Extra (dropPrefix, nubOrd, trim)
 import Debug.Trace (trace)
@@ -11,7 +12,6 @@ import Type
     OptName (..),
     OptNameType (..),
   )
-import Data.Char (isNumber)
 
 type OptArg = String
 
@@ -167,9 +167,9 @@ oldOptName = do
 
 optName :: ReadP OptName
 optName = longOptName <++ doubleDash <++ oldOptName <++ shortOptName <++ singleDash
+
 -- For bazel, disable above and enable below
 -- optName = longOptNameWithNo <++ longOptName <++ oldOptName <++ shortOptName <++ singleDash
-
 
 optArg :: ReadP OptArg
 optArg = do

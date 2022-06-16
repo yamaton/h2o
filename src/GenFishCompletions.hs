@@ -5,12 +5,12 @@
 
 module GenFishCompletions where
 
+import qualified Data.List as List
 import Data.List.Extra (nubOrd)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Text.Printf (printf)
 import Type (Command (..), Opt (..), OptName (..), OptNameType (..), Subcommand (..), asSubcommand)
-import qualified Data.List as List
 
 -- https://unix.stackexchange.com/questions/296141/how-to-use-a-special-character-as-a-normal-one-in-unix-shells
 escapeSpecialSymbols :: Text -> Text
@@ -25,7 +25,7 @@ optToFlg (Opt _ arg desc)
   | "file" `T.isInfixOf` arg' = " -r"
   | "dir" `T.isInfixOf` arg' = " -r"
   | "path" `T.isInfixOf` arg' = " -r"
-  | "archive" `T.isInfixOf` arg' = " -r"  -- respect tar
+  | "archive" `T.isInfixOf` arg' = " -r" -- respect tar
   | "file" `T.isInfixOf` desc' = " -r"
   | "dir" `T.isInfixOf` desc' = " -r"
   | "path" `T.isInfixOf` desc' = " -r"
@@ -70,7 +70,7 @@ makeFishLineOption cmd opt@(Opt names _ desc) = line
   where
     parts = T.unwords $ map toFishCompPart names
     quotedDesc = T.replace "'" "\\'" (truncateAfterPeriod (T.pack desc))
-    line = T.pack $printf "complete -c %s %s -d '%s'%s" cmd parts quotedDesc (optToFlg opt)
+    line = T.pack $ printf "complete -c %s %s -d '%s'%s" cmd parts quotedDesc (optToFlg opt)
 
 -- | make a fish-completion line for a root-level option suppressed after a subcommand
 makeFishLineRootOption :: String -> [String] -> Opt -> Text
@@ -88,7 +88,7 @@ makeFishLineSubcommand cmd (Subcommand subcmd desc) = line
   where
     template = "complete -k -c %s -n __fish_use_subcommand -x -a %s -d '%s'"
     quotedDesc = T.replace "'" "\\'" (T.pack desc)
-    line = T.pack $printf template cmd subcmd quotedDesc
+    line = T.pack $ printf template cmd subcmd quotedDesc
 
 -- | make a fish-completion line for an option under a subcommand
 makeFishLineSubcommandOption :: String -> String -> Opt -> Text
@@ -110,7 +110,6 @@ genFishScriptRootOptions name subnames opts = T.unlines . nubOrd $ [makeFishLine
 -- | Generate fish completion script for subcommand names
 --
 -- [NOTE] The order is reversed because of fish's complete -k specification; the last line comes the first.
---
 genFishScriptSubcommands :: String -> [Subcommand] -> Text
 genFishScriptSubcommands name subcmds = T.unlines . nubOrd $ [makeFishLineSubcommand name sub | sub <- List.reverse subcmds]
 

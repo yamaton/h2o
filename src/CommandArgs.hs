@@ -83,7 +83,6 @@ fileInput =
           <> help "Skip scanning manpage and focus on help text. Does not apply if input source is a file."
       )
 
-
 jsonInput :: Parser Input
 jsonInput =
   JsonInput
@@ -126,7 +125,8 @@ config =
               ( long "debug"
                   <> help "[Test only] Run preprocessing only (for debugging)"
               )
-            <*> option auto
+            <*> option
+              auto
               ( long "depth"
                   <> metavar "<int>"
                   <> showDefault

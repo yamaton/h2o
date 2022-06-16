@@ -52,7 +52,7 @@ fetchHelpInfo isGood name args = do
   let stdoutText = TL.toStrict . TLE.decodeUtf8 $ stdout
   let stderrText = TL.toStrict . TLE.decodeUtf8 $ stderr
   let res
-        | isCommandNotFound name exitCode stderrText = Utils.warnMsg "CommandNotFound" Nothing
+        | isCommandNotFound exitCode = Utils.warnMsg "CommandNotFound" Nothing
         | isGood stdoutText = Utils.debugTrace ("Using stdout: " ++ unwords (name : args)) $ Just stdoutText
         | isGood stderrText = Utils.debugTrace ("Using stderr: " ++ unwords (name : args)) $ Just stderrText
         | otherwise = Nothing
@@ -61,9 +61,8 @@ fetchHelpInfo isGood name args = do
     pc = Process.shell $ unwords (name : args) ++ removeColorPostfix
     removeColorPostfix = " | sed -r 's/.\x08//g' | sed -r 's/\x1B\\[(([0-9]{1,2})?(;)?([0-9]{1,2})?)?[m,K,H,f,J]//g'"
 
-isCommandNotFound :: String -> System.Exit.ExitCode -> Text -> Bool
-isCommandNotFound _ exitCode _ =
-  exitCode == System.Exit.ExitFailure 127
+isCommandNotFound :: System.Exit.ExitCode -> Bool
+isCommandNotFound exitCode = exitCode == System.Exit.ExitFailure 127
 
 getHelp :: String -> IO Text
 getHelp name = getHelpTemplate name [["--help"], ["help"], ["-help"], ["-h"]]

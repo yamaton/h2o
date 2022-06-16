@@ -101,7 +101,6 @@ traceIf check run x
 -- https://unicode-table.com/en/2010/
 --
 -- [FIXME] `smartUnwords ["git-", "status"]` should be "git-status" instead of "gitstatus".
---
 smartUnwords :: [String] -> String
 smartUnwords =
   foldr1 f
@@ -172,13 +171,13 @@ startsWithLongOption :: String -> Bool
 startsWithLongOption s = startsWithDoubleDash s && length ss >= 3 && c `notElem` [' ', '-']
   where
     ss = trimStart s
-    _:_:c:_ = ss
+    _ : _ : c : _ = ss
 
 startsWithShortOrOldOption :: String -> Bool
 startsWithShortOrOldOption s = startsWithDash s && length ss >= 2 && c `notElem` [' ', '-']
   where
     ss = trimStart s
-    _:c:_ = ss
+    _ : c : _ = ss
 
 -- | A speculative criteria for non-critical purposes
 mayContainOptions :: [Text] -> Bool
@@ -207,13 +206,13 @@ dropUsage text = res
   where
     xs = splitByTopHeaders text
     rest = filter (not . isUsageBlock) xs
-    res = if null rest
-            then text
-            else T.concat rest
+    res =
+      if null rest
+        then text
+        else T.concat rest
 
 isUsageBlock :: Text -> Bool
 isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s)) . T.toLower . T.stripStart
-
 
 -- | A speculative criteria for non-critical purposes
 -- [TODO] Scrutinize this as it's now used for critical purposes
@@ -240,7 +239,6 @@ mayContainUseful text
     loweredFirstLine = (T.toLower . head . T.lines . T.stripStart) text
     xs = filter mayContainVersion . map T.strip . T.lines $ text
 
-
 -- | Check if a text contains version information
 mayContainVersion :: Text -> Bool
 mayContainVersion x =
@@ -253,7 +251,6 @@ mayContainVersion x =
     && (not . ("fatal" `T.isInfixOf`)) lowered
   where
     lowered = T.toLower x
-
 
 -- | splitsAt ... like Data.List.splitAt but multiple indices
 --
@@ -314,12 +311,10 @@ bracketPairs =
     ('(', ')')
   ]
 
-
 -- | Split increasing integers into contiguous chunks
 --
 -- >>> toContiguousChunks [2, 3, 4, 8, 10, 11]
 -- [[2, 3, 4], [8], [10, 11]]
---
 toContiguousChunks :: [Int] -> [[Int]]
 toContiguousChunks = List.unfoldr f
   where
@@ -328,7 +323,6 @@ toContiguousChunks = List.unfoldr f
     f xs = Just $ splitAt (n + 1) xs
       where
         n = length $ takeWhile (== 1) $ map (\(x, xNext) -> xNext - x) $ zip xs (tail xs)
-
 
 toFstContiguousChunks :: [(Int, a)] -> [[(Int, a)]]
 toFstContiguousChunks = List.unfoldr f
