@@ -238,7 +238,7 @@ mayContainUseful text
         "commandnotfound"
       ]
     loweredFirstLine = (T.toLower . head . T.lines . T.stripStart) text
-    xs = filter mayContainVersion . map T.strip . T.lines $ dropUsage text
+    xs = filter mayContainVersion . map T.strip . T.lines $ text
 
 
 -- | Check if a text contains version information
