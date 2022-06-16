@@ -45,7 +45,7 @@ getAlignedLines s =
       offsetMay = getDescriptionOffset (unlines xs)
       offset = infoMsg "subcommand: offset: " $ Maybe.fromMaybe 50 offsetMay
       ys = filter removeJunkLine (lines s)
-      layoutMay = infoMsg "subcommand: layout: " $ getLayoutMaybe ys offset
+      layoutMay = infoMsg "subcommand: " $ getLayoutMaybe ys offset
 
 lowercase :: String
 lowercase = "abcdefghijklmnopqrstuvwxyz"
