@@ -59,7 +59,7 @@ traceMsgHelper :: (Show a) => String -> String -> a -> a
 traceMsgHelper tag msg x = trace (unwords [tag, msg, show x, "\n"]) x
 
 traceShowHelper :: (Show b) => String -> String -> b -> a -> a
-traceShowHelper tag msg var = trace (unwords [tag, msg, show var ++ "\n"])
+traceShowHelper tag msg x = trace (unwords [tag, msg, show x ++ "\n"])
 
 debugMsg :: (Show a) => String -> a -> a
 debugMsg = traceMsgHelper debugTag
@@ -216,41 +216,40 @@ isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s
 
 -- | A speculative criteria for non-critical purposes
 -- [TODO] Scrutinize this as it's now used for critical purposes
-mayContainUseful :: Text -> Bool
-mayContainUseful text
-  | T.null text = False
-  | any (`T.isInfixOf` loweredFirstLine) errKeywords = False
-  | otherwise = length xs >= 2
+hasErrorMessageAtTop :: Text -> Bool
+hasErrorMessageAtTop text
+  | (T.null . T.strip) text = False
+  | otherwise = any (`T.isInfixOf` loweredFirstLine) errKeywords
   where
-    errKeywords =
-      [ "error",
-        "invalid",
-        "unrecognized",
-        "not found",
-        "unknown",
-        "missing",
-        "not understood",
-        "fatal",
-        "no such file",
-        "not exist",
-        "doesn\'t exist",
-        "commandnotfound"
-      ]
     loweredFirstLine = (T.toLower . head . T.lines . T.stripStart) text
-    xs = filter mayContainVersion . map T.strip . T.lines $ text
 
--- | Check if a text contains version information
-mayContainVersion :: Text -> Bool
-mayContainVersion x =
-  (not . T.null) x
-    && (not . ("error" `T.isInfixOf`)) lowered
-    && (not . ("invalid" `T.isInfixOf`)) lowered
-    && (not . ("unrecognized" `T.isInfixOf`)) lowered
-    && (not . ("command not found" `T.isInfixOf`)) lowered
-    && (not . ("unknown" `T.isInfixOf`)) lowered
-    && (not . ("fatal" `T.isInfixOf`)) lowered
+errKeywords :: [Text]
+errKeywords =
+  [ "error",
+    "invalid",
+    "unrecognized",
+    "not found",
+    "unknown",
+    "missing",
+    "not understood",
+    "fatal",
+    "no such file",
+    "not exist",
+    "doesn\'t exist",
+    "commandnotfound"
+  ]
+
+mayContainUseful :: Text -> Bool
+mayContainUseful text = length xs >= 2
   where
-    lowered = T.toLower x
+    xs = filter isNotNullAndErrorMessageAbsent . T.lines $ text
+
+-- | Check if a text is free from error-like words
+isNotNullAndErrorMessageAbsent :: Text -> Bool
+isNotNullAndErrorMessageAbsent text =
+  (not . T.null . T.strip) lowered && not (any (`T.isInfixOf` lowered) errKeywords)
+  where
+    lowered = (T.toLower . T.strip) text
 
 -- | splitsAt ... like Data.List.splitAt but multiple indices
 --

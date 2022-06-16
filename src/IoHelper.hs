@@ -42,7 +42,6 @@ getHelpTemplateMeta isGood name (args : argsBag) = do
       Nothing -> getHelpTemplateMeta isGood name argsBag
 
 -- | Get a CLI help page
--- [TODO] the criteria `Utils.mayContainUseful` needs scrutiny
 getHelpTemplate :: String -> [[String]] -> IO Text
 getHelpTemplate = getHelpTemplateMeta Utils.mayContainUseful
 
@@ -52,7 +51,9 @@ fetchHelpInfo isGood name args = do
   let stdoutText = TL.toStrict . TLE.decodeUtf8 $ stdout
   let stderrText = TL.toStrict . TLE.decodeUtf8 $ stderr
   let res
-        | isCommandNotFound exitCode = Utils.warnMsg "CommandNotFound" Nothing
+        | isCommandNotFound exitCode = Utils.warnTrace "CommandNotFound" Nothing
+        | any Utils.hasErrorMessageAtTop [stdoutText, stderrText] =
+          Utils.warnTrace ("The command seems invalid: " ++ unwords (name : args)) Nothing
         | isGood stdoutText = Utils.debugTrace ("Using stdout: " ++ unwords (name : args)) $ Just stdoutText
         | isGood stderrText = Utils.debugTrace ("Using stderr: " ++ unwords (name : args)) $ Just stderrText
         | otherwise = Nothing
@@ -108,4 +109,4 @@ isManAvailableIO name = do
     pc = Process.shell $ printf "man -w %s" name
 
 getVersion :: String -> IO Text
-getVersion name = getHelpTemplateMeta Utils.mayContainVersion name [["--version"], ["version"], ["-version"]]
+getVersion name = getHelpTemplateMeta Utils.isNotNullAndErrorMessageAbsent name [["--version"], ["version"], ["-version"]]
