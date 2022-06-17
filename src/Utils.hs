@@ -218,10 +218,10 @@ isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s
 -- [TODO] Scrutinize this as it's now used for critical purposes
 hasErrorMessageAtTop :: Text -> Bool
 hasErrorMessageAtTop text
-  | (T.null . T.strip) text = False
+  | (T.null . T.stripStart) text = False
   | otherwise = any (`T.isInfixOf` loweredFirstLine) errKeywords
   where
-    loweredFirstLine = (T.toLower . head . T.lines . T.stripStart) text
+    loweredFirstLine = (T.toLower . T.take 100 . head . T.lines . T.stripStart) text
 
 errKeywords :: [Text]
 errKeywords =
