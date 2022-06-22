@@ -110,4 +110,4 @@ isManAvailableIO name = do
     pc = Process.shell $ printf "man -w %s" name
 
 getVersion :: String -> IO Text
-getVersion name = getHelpTemplateMeta Utils.isNotNullAndErrorMessageAbsent name [["--version"], ["version"], ["-version"]]
+getVersion name = getHelpTemplateMeta Utils.isNotNullAndErrorMessageAbsent name Config.versionOptions
