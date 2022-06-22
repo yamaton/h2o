@@ -16,6 +16,7 @@ import qualified Data.Map as Map
 import Data.Text (Text)
 import qualified Data.Text as T
 import Debug.Trace (trace)
+import qualified Constants as Const
 
 getMostFrequent :: (Ord a) => [a] -> Maybe a
 getMostFrequent = fmap fst . getMostFrequentWithCount
@@ -219,25 +220,10 @@ isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s
 hasErrorMessageAtTop :: Text -> Bool
 hasErrorMessageAtTop text
   | (T.null . T.stripStart) text = False
-  | otherwise = any (`T.isInfixOf` loweredFirstLine) errKeywords
+  | otherwise = any (`T.isInfixOf` loweredFirstLine) Const.errKeywords
   where
     loweredFirstLine = (T.toLower . T.take 100 . head . T.lines . T.stripStart) text
 
-errKeywords :: [Text]
-errKeywords =
-  [ "error",
-    "invalid",
-    "unrecognized",
-    "not found",
-    "unknown",
-    "missing",
-    "not understood",
-    "fatal",
-    "no such file",
-    "not exist",
-    "doesn\'t exist",
-    "commandnotfound"
-  ]
 
 mayContainUseful :: Text -> Bool
 mayContainUseful text = length xs >= 2
@@ -247,7 +233,7 @@ mayContainUseful text = length xs >= 2
 -- | Check if a text is free from error-like words
 isNotNullAndErrorMessageAbsent :: Text -> Bool
 isNotNullAndErrorMessageAbsent text =
-  (not . T.null . T.strip) lowered && not (any (`T.isInfixOf` lowered) errKeywords)
+  (not . T.null . T.strip) lowered && not (any (`T.isInfixOf` lowered) Const.errKeywords)
   where
     lowered = (T.toLower . T.strip) text
 

@@ -6,7 +6,6 @@
 module Io where
 
 import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat (..))
-import qualified Constants
 import qualified Data.Aeson as Aeson
 import qualified Data.Map.Ordered as OMap
 import Data.Text (Text)
@@ -32,11 +31,12 @@ import System.FilePath (takeBaseName)
 import Text.Printf (printf)
 import Type (Command (..), Opt, Subcommand (..), asSubcommand)
 import qualified Utils
+import qualified Version
 
 -- | Main function processing ConfigOrVersion
 run :: ConfigOrVersion -> IO Text
 -- Just return version
-run Version = return (T.concat ["h2o ", Constants.versionStr, "\n"])
+run Version = return (T.concat ["h2o ", Version.versionStr, "\n"])
 -- Or, do some utility work
 run (C_ (Config input _ isExportingJSON isConvertingTabsToSpaces isListingSubcommands isPreprocessOnly depth))
   | isExportingJSON =

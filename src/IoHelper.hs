@@ -15,6 +15,7 @@ import qualified System.Exit
 import qualified System.Process.Typed as Process
 import Text.Printf (printf)
 import qualified Utils
+import qualified Config
 
 getManSub :: [String] -> IO Text
 getManSub names = getMan $ List.intercalate "-" names
@@ -66,14 +67,14 @@ isCommandNotFound :: System.Exit.ExitCode -> Bool
 isCommandNotFound exitCode = exitCode == System.Exit.ExitFailure 127
 
 getHelp :: String -> IO Text
-getHelp name = getHelpTemplate name [["--help"], ["help"], ["-help"], ["-h"]]
+getHelp name = getHelpTemplate name Config.helpOptions
 
 getHelpSub :: [String] -> IO Text
 getHelpSub names
   | null names = return T.empty
   | length names == 1 = getHelp (head names)
   | name == "bazel" = getHelpTemplate name [["help", subname, "--long"]]
-  | otherwise = getHelpTemplate name [[subname, "--help"], ["help", subname], [subname, "-help"], [subname, "-h"]]
+  | otherwise = getHelpTemplate name (Config.helpOptionsSub subname)
   where
     name = unwords (init names)
     subname = last names

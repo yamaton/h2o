@@ -25,6 +25,7 @@ source-repository head
 library
   exposed-modules:
       CommandArgs
+      Config
       Constants
       GenBashCompletions
       GenFishCompletions
@@ -38,6 +39,7 @@ library
       Subcommand
       Type
       Utils
+      Version
   other-modules:
       Paths_h2o
   hs-source-dirs:

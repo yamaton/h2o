@@ -18,7 +18,7 @@ data Input
 
 data Config = Config
   { _input :: Input,
-    _shell :: OutputFormat,
+    _outputFormat :: OutputFormat,
     _isOutputJSON :: Bool,
     _isConvertingTabsToSpaces :: Bool,
     _isListingSubcommands :: Bool,

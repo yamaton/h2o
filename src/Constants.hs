@@ -4,6 +4,21 @@ module Constants where
 
 import Data.Text (Text)
 
--- [FIXME] Isn't there a good way to get it from package.yaml?
-versionStr :: Text
-versionStr = "0.3.3"
+-- If any of the following word appear in the first line of the output,
+-- the command will be discarded as invalid.
+errKeywords :: [Text]
+errKeywords =
+  [
+    "error",
+    "invalid",
+    "unrecognized",
+    "not found",
+    "unknown",
+    "missing",
+    "not understood",
+    "fatal",
+    "no such file",
+    "not exist",
+    "doesn\'t exist",
+    "commandnotfound"
+  ]
