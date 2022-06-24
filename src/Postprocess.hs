@@ -1,5 +1,5 @@
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Postprocess
   ( fixCommand,
@@ -13,9 +13,9 @@ import Data.List.Extra (concatUnzip)
 import qualified Data.Set as Set
 import Data.Text (Text)
 import qualified Data.Text as T
+import IoHelper (getVersion)
 import Type (Command (..), Opt (..), OptName (..), OptNameType (..))
 import qualified Utils
-import IoHelper (getVersion)
 
 fixOptName :: String -> OptName -> OptName
 fixOptName arg_ (OptName raw t) =
@@ -27,7 +27,6 @@ fixOptName arg_ (OptName raw t) =
 --
 -- Example: For option names ["-Ttagsfile", "--tag-file"] with arg "tagsfile",
 -- it's highly likely that the correct names are ["-T", "--tag-file"].
---
 fixShortOptWithArgWithoutSpace :: Opt -> Opt
 fixShortOptWithArgWithoutSpace (Opt names arg desc) = optFixed
   where
@@ -39,12 +38,13 @@ tallyDuplicates opts = Utils.count optnames
   where
     optnames = concatMap _names opts
 
+-- | Fix duplicates in options
+-- [FIXME] inefficient
 fixDuplicateOpts :: [Opt] -> [Opt]
 fixDuplicateOpts opts
   | null optNamesOfConcern = opts
-  | otherwise = warnTrace optsFixed
+  | otherwise = Utils.warnTrace msg optsFixed
   where
-    -- [NOTE] inefficient for now
     pairs = [(optname, count) | (optname, count) <- tallyDuplicates opts, count > 1]
     (optNamesOfConcern, _) = unzip pairs
     relevantOptsList =
@@ -59,7 +59,7 @@ fixDuplicateOpts opts
         "============================="
       ]
     opnameOptsPairs = zip optNamesOfConcern relevantOptsScoreList
-    pairsSorted = List.sortOn (\(name, xs) -> (- length xs, name)) opnameOptsPairs
+    pairsSorted = List.sortOn (\(name, xs) -> (-length xs, name)) opnameOptsPairs
     pairsStrList =
       concatMap
         (\(OptName raw _, xs) -> delim raw : ("  " ++ raw) : delim raw : map showPair xs)
@@ -84,7 +84,6 @@ fixDuplicateOpts opts
     showPair :: (Opt, Int) -> String
     showPair (opt_, score_) = show score_ ++ "\n" ++ show opt_
     msg = unlines (msgHeader ++ pairsStrList)
-    warnTrace = Utils.warnShow msg ""
 
 score :: Opt -> Int
 score (Opt names arg desc) =
@@ -97,12 +96,9 @@ score (Opt names arg desc) =
     descScore :: Text -> Int
     descScore t
       | T.null t = -10
-      | T.pack "[-" `T.isPrefixOf` t = -5
-      | T.pack "(-" `T.isPrefixOf` t = -5
-      | T.pack "((-" `T.isPrefixOf` t = -5
-      | T.pack "(((" `T.isPrefixOf` t = -5
+      | any (`T.isPrefixOf` t) ["[-", "(-", "((-", "((("] = -5
       | length (T.words t) == 1 = -4
-      | T.pack "-" `T.isPrefixOf` t = -4
+      | "-" `T.isPrefixOf` t = -4
       | Char.isLower (T.head t) = -1
       | (T.length . head . T.split (== '.')) t > 80 = -1
       | T.last t == '.' = 1

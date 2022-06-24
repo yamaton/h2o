@@ -5,15 +5,15 @@ import qualified Data.List as List
 import Data.List.Extra (nubSort)
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TLE
-import GenBashCompletions (genBashScript)
-import GenFishCompletions (makeFishLineOption, truncateAfterPeriod)
-import GenZshCompletions (genZshScript)
+import qualified GenBashCompletions as GenBash
+import qualified GenFishCompletions as GenFish
+import qualified GenZshCompletions as GenZsh
 import Hedgehog (Property, forAll, property, (===))
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 import HelpParser (optName, optPart)
 import Io (getInputContent, pageToCommandSimple, run, toScript)
-import Layout (makeRanges, mergeRanges, mergeRangesFast, parseMany)
+import qualified Layout
 import qualified Postprocess
 import Subcommand (firstTwoWordsLoc)
 import System.Environment (setEnv)
@@ -480,13 +480,13 @@ miscTests =
       testCase "toRanges [2, 3, 4, 8, 10, 11] == [(2, 5), (8, 9), (10, 12)]" $
         toRanges [2, 3, 4, 8, 10, 11] @?= [(2, 5), (8, 9), (10, 12)],
       testCase "truncateAfterPeriod 1" $
-        truncateAfterPeriod "hello, i.e. good bye!" @?= "hello, i.e. good bye!",
+        GenFish.truncateAfterPeriod "hello, i.e. good bye!" @?= "hello, i.e. good bye!",
       testCase "truncateAfterPeriod 2" $
-        truncateAfterPeriod "baba. keke" @?= "baba.",
+        GenFish.truncateAfterPeriod "baba. keke" @?= "baba.",
       testCase "truncateAfterPeriod 3" $
-        truncateAfterPeriod "baba... keke" @?= "baba...",
+        GenFish.truncateAfterPeriod "baba... keke" @?= "baba...",
       testCase "truncateAfterPeriod 4" $
-        truncateAfterPeriod "baba .. keke" @?= "baba ..",
+        GenFish.truncateAfterPeriod "baba .. keke" @?= "baba ..",
       testCase "fixOpt 1" $
         Postprocess.fixShortOptWithArgWithoutSpace
           (Opt [OptName "-Ttagsfile" OldType, OptName "--tag-file" LongType] "tagsfile" "Specifies a tags file...")
@@ -498,11 +498,11 @@ shellCompTests =
   testGroup
     "\n ============= Test Fish script generation ============"
     [ testCase "basic fish comp" $
-        makeFishLineOption cmd opt @?= fishExpected,
+        GenFish.makeFishLineOption cmd opt @?= fishExpected,
       testCase "zsh script generation" $
-        genZshScript cmd opts @?= zshScriptExpected,
+        GenZsh.genZshScript cmd opts @?= zshScriptExpected,
       testCase "bash script generation" $
-        genBashScript cmd opts @?= bashScriptExpected
+        GenBash.genBashScript cmd opts @?= bashScriptExpected
     ]
   where
     cmd = "nanachi"
@@ -669,8 +669,13 @@ prop_mergeRanges =
     let num = Gen.int (Range.constant 0 200)
     xs <- forAll $ Gen.list (Range.constant 0 300) num
     ys <- forAll $ Gen.list (Range.constant 0 300) num
-    let (xRanges, yRanges) = makeRanges (nubSort xs) (nubSort ys)
-    mergeRanges xRanges yRanges === mergeRangesFast xRanges yRanges
+    let (xRanges, yRanges) = Layout.makeRanges (nubSort xs) (nubSort ys)
+    mergeRangesSlow xRanges yRanges === Layout.mergeRanges xRanges yRanges
+
+-- | O(N^2): Only for testing purposes
+mergeRangesSlow :: [(Int, Int)] -> [(Int, Int)] -> [(Int, Int, Int, Int)]
+mergeRangesSlow xs ys = [(x1, x2, y1, y2) | (x1, x2) <- xs, (y1, y2) <- ys, x1 <= y1 && y1 <= x2 && x2 <= y2]
+
 
 makeOpt :: [String] -> String -> String -> Opt
 makeOpt names = Opt (map getOptName names)
@@ -700,7 +705,7 @@ test_parser s (names, args, desc) =
   testCase s $ do
     actual @?= expected
   where
-    actual = List.sort $ parseMany s
+    actual = List.sort $ Layout.parseMany s
     expected = List.sort [makeOpt names args desc]
 
 test_parseMany :: String -> [([String], String, String)] -> TestTree
@@ -708,5 +713,5 @@ test_parseMany s tuples =
   testCase s $ do
     actual @?= expected
   where
-    actual = List.sort $ parseMany s
+    actual = List.sort $ Layout.parseMany s
     expected = List.sort [makeOpt names args desc | (names, args, desc) <- tuples]

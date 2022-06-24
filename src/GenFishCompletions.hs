@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module GenFishCompletions where
+module GenFishCompletions (toFishScript, truncateAfterPeriod, makeFishLineOption) where
 
 import qualified Data.List as List
 import Data.List.Extra (nubOrd)

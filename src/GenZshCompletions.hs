@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module GenZshCompletions where
+module GenZshCompletions (toZshScript, genZshScript) where
 
 import qualified Data.List as List
 import Data.Text (Text)

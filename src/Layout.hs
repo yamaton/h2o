@@ -1,7 +1,15 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE TupleSections #-}
 
-module Layout where
+module Layout
+  ( parseBlockwise,
+    preprocessBlockwise,
+    getDescriptionOffset,
+    makeRanges,
+    mergeRanges,
+    parseMany,
+  )
+where
 
 import Control.Exception (assert)
 import qualified Data.Bifunctor as Bifunctor
@@ -203,15 +211,6 @@ takeHangingDesc lineIdxBase optLocs descLocs = descLocSelected
         (\chunk -> takeWhile (\(_, c) -> (not . null) chunk && c == snd (head chunk)) chunk)
         descLocChunks'
 
--- | Get empty line numbers.
--- Here an empty line inclues line filled with whitespaces.
-getEmptyLines :: String -> [Int]
-getEmptyLines s = res
-  where
-    xs = lines s
-    numLinePairs = zip [0 ..] xs
-    (res, _) = unzip $ filter (\(_, x) -> null . trim $ x) numLinePairs
-
 -- | Estimate offset of description part from the lines with options.
 -- Returns Just (offset size, match count) if matches
 descOffsetWithCountInOptionLines :: Int -> String -> [Location] -> Maybe (Int, Int)
@@ -238,17 +237,6 @@ isWordStartingWithIndentation n x =
     (before, after) = splitAt n x
     condBefore = isSpacesOnly before
     condAfter = (not . null) after && head after /= ' '
-
--- | Check if a word starting at the horizontal position.
--- [NOTE] Assume word delimiter is a whitespace.
-isWordStartingAtOffset :: Int -> String -> Bool
-isWordStartingAtOffset _ "" = False
-isWordStartingAtOffset 0 (c : _) = c /= ' '
-isWordStartingAtOffset n x =
-  assert ('\n' `notElem` x && '\t' `notElem` x) $
-    (not . null) before && (not . null) after && last before == ' ' && head after /= ' '
-  where
-    (before, after) = splitAt n x
 
 -- | Check if a word starting around the horizontal position.
 -- Ambiguity is set by margin value.
@@ -411,7 +399,7 @@ toConsecutiveRangeQuartets xs ys =
   (res, droppedOptLines)
   where
     (xRanges, yRanges) = makeRanges xs ys
-    res = mergeRangesFast xRanges yRanges
+    res = mergeRanges xRanges yRanges
     resXRanges = [(x1, x2) | (x1, x2, _, _) <- res]
     droppedOptLines = filter (not . Utils.contains resXRanges) xs
 
@@ -436,38 +424,35 @@ makeRanges xs ys =
     g acc x = span (< x) acc
     yRanges = concatMap Utils.toRanges yss
 
--- | [deprecated] O(N^2) so replaced with mergeRangesFast
-mergeRanges :: [(Int, Int)] -> [(Int, Int)] -> [(Int, Int, Int, Int)]
-mergeRanges xs ys = [(x1, x2, y1, y2) | (x1, x2) <- xs, (y1, y2) <- ys, x1 <= y1 && y1 <= x2 && x2 <= y2]
 
 -- | Create quartets (x1, x2, y1, y2) as overlapping boundaries
 --
 -- [Note] As a special case, x2 == y1 is considered as a overlap
 -- although [x1, x2) and [y1, y2) have empty intersection.treatedd
-mergeRangesFast :: [(Int, Int)] -> [(Int, Int)] -> [(Int, Int, Int, Int)]
-mergeRangesFast _ [] = []
-mergeRangesFast [] _ = []
-mergeRangesFast ((x1, x2) : xs) ((y1, y2) : ys)
-  | x2 < y1 = mergeRangesFast xs ((y1, y2) : ys)
-  | y2 <= x1 = mergeRangesFast ((x1, x2) : xs) ys
-  | otherwise = assert cond $ (x1, x2, y1, y2) : mergeRangesFast xs ys
+mergeRanges :: [(Int, Int)] -> [(Int, Int)] -> [(Int, Int, Int, Int)]
+mergeRanges _ [] = []
+mergeRanges [] _ = []
+mergeRanges ((x1, x2) : xs) ((y1, y2) : ys)
+  | x2 < y1 = mergeRanges xs ((y1, y2) : ys)
+  | y2 <= x1 = mergeRanges ((x1, x2) : xs) ys
+  | otherwise = assert cond $ (x1, x2, y1, y2) : mergeRanges xs ys
   where
     cond = x1 <= y1 && y1 <= x2 && x2 <= y2
 
--- |  idxRange idxColFrom (inclusive) lines
---  extractRectangleToRight (2, 5) 3
---  ........
---  ........
---  ...xxxxx
---  ...xxxxx
---  ...xxxxx
---  ........
-extractRectangleToRight :: (Int, Int) -> Int -> [String] -> String
-extractRectangleToRight (rowFrom, rowTo) idxCol xs =
-  unwords zs
-  where
-    ys = take (rowTo - rowFrom) (drop rowFrom xs)
-    zs = map (drop idxCol) ys
+-- -- |  idxRange idxColFrom (inclusive) lines
+-- --  extractRectangleToRight (2, 5) 3
+-- --  ........
+-- --  ........
+-- --  ...xxxxx
+-- --  ...xxxxx
+-- --  ...xxxxx
+-- --  ........
+-- extractRectangleToRight :: (Int, Int) -> Int -> [String] -> String
+-- extractRectangleToRight (rowFrom, rowTo) idxCol xs =
+--   unwords zs
+--   where
+--     ys = take (rowTo - rowFrom) (drop rowFrom xs)
+--     zs = map (drop idxCol) ys
 
 -- | Get line indices of headers
 getHeadingIndices :: [String] -> [Int]

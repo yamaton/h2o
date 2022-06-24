@@ -3,8 +3,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module IoHelper where
+module IoHelper
+  ( getHelp,
+    getHelpSub,
+    getMan,
+    getManSub,
+    getManAndHelp,
+    getManAndHelpSub,
+    isManAvailableIO,
+    getVersion
+  )
+where
 
+import qualified Config
 import Control.Exception (SomeException, try)
 import qualified Data.List as List
 import Data.Text (Text)
@@ -15,7 +26,6 @@ import qualified System.Exit
 import qualified System.Process.Typed as Process
 import Text.Printf (printf)
 import qualified Utils
-import qualified Config
 
 getManSub :: [String] -> IO Text
 getManSub names = getMan $ List.intercalate "-" names

@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module GenBashCompletions where
+module GenBashCompletions (toBashScript, genBashScript) where
 
 import qualified Data.Char as Char
 import qualified Data.List as List

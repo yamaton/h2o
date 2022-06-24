@@ -1,6 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Version where
+module Version
+  ( versionStr,
+  )
+where
 
 import Data.Text (Text)
 
