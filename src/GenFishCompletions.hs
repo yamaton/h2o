@@ -19,33 +19,29 @@ escapeSpecialSymbols s = T.foldl' f s symbols
     f acc c = T.replace (T.singleton c) ("\\" `T.append` T.singleton c) acc
     symbols = "!?#$%&"
 
-optToFlg :: Opt -> Text
-optToFlg (Opt _ arg desc)
+optArgToFlag :: Opt -> Text
+optArgToFlag (Opt _ arg desc)
   | arg == "" = ""
-  | "file" `T.isInfixOf` arg' = " -r"
-  | "dir" `T.isInfixOf` arg' = " -r"
-  | "path" `T.isInfixOf` arg' = " -r"
-  | "archive" `T.isInfixOf` arg' = " -r" -- respect tar
-  | "file" `T.isInfixOf` desc' = " -r"
-  | "dir" `T.isInfixOf` desc' = " -r"
-  | "path" `T.isInfixOf` desc' = " -r"
-  | otherwise = " -x"
+  | any (`T.isInfixOf` argLowered) ["file", "dir", "path", "archive"] = "-r"
+  | any (`T.isInfixOf` descLowered) ["file", "dir", "path"] = "-r"
+  | otherwise = "-x"
   where
-    arg' = T.toLower (T.pack arg)
-    desc' = T.toLower (T.pack desc)
+    argLowered = T.toLower (T.pack arg)
+    descLowered = T.toLower (T.pack desc)
 
-toFishCompPart :: OptName -> Text
-toFishCompPart (OptName raw t) = escapedStr
+-- | Get option name for fish completion.
+optNameToFishArg :: OptName -> Text
+optNameToFishArg (OptName raw t) = escapedStr
   where
     dashlessName = T.dropWhile (== '-') (T.pack raw)
-    chunk = T.unwords $ filter (not . T.null) [toFlag t, dashlessName]
+    chunk = T.unwords $ filter (not . T.null) [optTypeToFlag t, dashlessName]
     escapedStr = escapeSpecialSymbols chunk
 
-toFlag :: OptNameType -> Text
-toFlag LongType = "-l"
-toFlag ShortType = "-s"
-toFlag OldType = "-o"
-toFlag _ = ""
+optTypeToFlag :: OptNameType -> Text
+optTypeToFlag LongType = "-l"
+optTypeToFlag ShortType = "-s"
+optTypeToFlag OldType = "-o"
+optTypeToFlag _ = ""
 
 truncateAfterPeriod :: Text -> Text
 truncateAfterPeriod line
@@ -66,21 +62,21 @@ truncateAfterPeriod line
 
 -- | make a fish-completion line for an option
 makeFishLineOption :: String -> Opt -> Text
-makeFishLineOption cmd opt@(Opt names _ desc) = line
+makeFishLineOption cmd opt@(Opt optnames _ desc) = line
   where
-    parts = T.unwords $ map toFishCompPart names
+    optnameAsArgs = T.unwords $ map optNameToFishArg optnames
     quotedDesc = T.replace "'" "\\'" (truncateAfterPeriod (T.pack desc))
-    line = T.pack $ printf "complete -c %s %s -d '%s'%s" cmd parts quotedDesc (optToFlg opt)
+    line = T.strip . T.pack $ printf "complete -c %s %s -d '%s' %s" cmd optnameAsArgs quotedDesc (optArgToFlag opt)
 
 -- | make a fish-completion line for a root-level option suppressed after a subcommand
 makeFishLineRootOption :: String -> [String] -> Opt -> Text
 makeFishLineRootOption cmd subcmds opt@(Opt names _ desc) = line
   where
-    parts = T.unwords $ map toFishCompPart names
+    parts = T.unwords $ map optNameToFishArg names
     quotedDesc = T.replace "'" "\\'" (truncateAfterPeriod (T.pack desc))
     subcmdsAsTxt = T.unwords $ map T.pack subcmds
     cond = T.pack $ printf "-n \"not __fish_seen_subcommand_from %s\"" subcmdsAsTxt
-    line = T.pack $ printf "complete -c %s %s %s -d '%s'%s" cmd cond parts quotedDesc (optToFlg opt)
+    line = T.strip . T.pack $ printf "complete -c %s %s %s -d '%s' %s" cmd cond parts quotedDesc (optArgToFlag opt)
 
 -- | make a fish-completion line for a subcommand name:: String
 makeFishLineSubcommand :: String -> Subcommand -> Text
@@ -94,10 +90,10 @@ makeFishLineSubcommand cmd (Subcommand subcmd desc) = line
 makeFishLineSubcommandOption :: String -> String -> Opt -> Text
 makeFishLineSubcommandOption cmd subcmd opt@(Opt names _ desc) = line
   where
-    parts = T.unwords $ map toFishCompPart names
+    parts = T.unwords $ map optNameToFishArg names
     quotedDesc = T.replace "'" "\\'" (truncateAfterPeriod (T.pack desc))
     subcmdCondition = T.pack $ printf "-n \"__fish_seen_subcommand_from %s\"" subcmd
-    line = T.pack $ printf "complete -c %s %s %s -d '%s'%s" cmd subcmdCondition parts quotedDesc (optToFlg opt)
+    line = T.strip . T.pack $ printf "complete -c %s %s %s -d '%s' %s" cmd subcmdCondition parts quotedDesc (optArgToFlag opt)
 
 -- | Generate simple fish completion script WITHOUT subcommands
 genFishScriptSimple :: String -> [Opt] -> Text
@@ -109,7 +105,7 @@ genFishScriptRootOptions name subnames opts = T.unlines . nubOrd $ [makeFishLine
 
 -- | Generate fish completion script for subcommand names
 --
--- [NOTE] The order is reversed because of fish's complete -k specification; the last line comes the first.
+-- [NOTE] The order is reversed because of fish's complete -k specification; last call is displayed first.
 genFishScriptSubcommands :: String -> [Subcommand] -> Text
 genFishScriptSubcommands name subcmds = T.unlines . nubOrd $ [makeFishLineSubcommand name sub | sub <- List.reverse subcmds]
 
