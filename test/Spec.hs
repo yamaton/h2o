@@ -373,7 +373,15 @@ optPartTests =
       ---- robotframework ----
       test_optPart
         "--expandkeywords name:<pattern>|tag:<pattern> *"
-        (["--expandkeywords"], "name:<pattern>|tag:<pattern> *")
+        (["--expandkeywords"], "name:<pattern>|tag:<pattern> *"),
+      ---- nox ----
+      test_optPart
+        "-s [SESSIONS ...], -e [SESSIONS ...], --sessions [SESSIONS ...], --session [SESSIONS ...]"
+        (["-s", "-e", "--sessions", "--session"], "[SESSIONS ...]"),
+      ---- agat ----
+      test_optPart
+        " -o , --output , --out or --outfile"
+        (["-o", "--output", "--out", "--outfile"], "")
     ]
 
 unsupportedCases :: TestTree
@@ -399,7 +407,7 @@ unsupportedCases =
         ---- blastn ----
         test_optPart
           " -task <String, Permissible values: 'blastn' 'blastn-short' 'dc-megablast'\n          'megablast' 'rmblastn' >\n"
-          (["-task"], "<String, Permissible values: 'blastn' 'blastn-short' 'dc-megablast' ...>"),
+          (["-task"], "<String, Permissible values: 'blastn' 'blastn-short' 'dc-megablast' 'megablast' 'rmblastn'>"),
         ---- delly ----
         test_optPart
           "-o [ --outfile ] arg (=\"sv.bcf\") "
