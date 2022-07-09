@@ -54,7 +54,7 @@ getHelpTemplateMeta isGood name (args : argsBag) = do
 
 -- | Get a CLI help page
 getHelpTemplate :: String -> [[String]] -> IO Text
-getHelpTemplate = getHelpTemplateMeta Utils.mayContainUseful
+getHelpTemplate cmd = getHelpTemplateMeta (Utils.mayContainUseful (T.pack cmd)) cmd
 
 fetchHelpInfo :: (Text -> Bool) -> String -> [String] -> IO (Maybe Text)
 fetchHelpInfo isGood name args = do
@@ -63,14 +63,15 @@ fetchHelpInfo isGood name args = do
   let stderrText = TL.toStrict . TLE.decodeUtf8 $ stderr
   let res
         | isCommandNotFound exitCode = Utils.warnTrace "CommandNotFound" Nothing
-        | any Utils.hasErrorMessageAtTop [stdoutText, stderrText] =
-          Utils.warnTrace ("The command seems invalid: " ++ unwords (name : args)) Nothing
-        | isGood stdoutText = Utils.debugTrace ("Using stdout: " ++ unwords (name : args)) $ Just stdoutText
-        | isGood stderrText = Utils.debugTrace ("Using stderr: " ++ unwords (name : args)) $ Just stderrText
+        | any (Utils.hasErrorMessageAtTop (T.pack name)) [stdoutText, stderrText] =
+          Utils.warnTrace ("The command seems invalid: " ++ unwords cmdSeq) Nothing
+        | isGood stdoutText = Utils.debugTrace ("Using stdout: " ++ unwords cmdSeq) $ Just stdoutText
+        | isGood stderrText = Utils.debugTrace ("Using stderr: " ++ unwords cmdSeq) $ Just stderrText
         | otherwise = Nothing
   return res
   where
-    pc = Process.shell $ unwords (name : args) ++ removeColorPostfix
+    cmdSeq = name : args
+    pc = Process.shell $ unwords cmdSeq ++ removeColorPostfix
     removeColorPostfix = " | sed -r 's/.\x08//g' | sed -r 's/\x1B\\[(([0-9]{1,2})?(;)?([0-9]{1,2})?)?[m,K,H,f,J]//g'"
 
 isCommandNotFound :: System.Exit.ExitCode -> Bool
@@ -120,4 +121,4 @@ isManAvailableIO name = do
     pc = Process.shell $ printf "man -w %s" name
 
 getVersion :: String -> IO Text
-getVersion name = getHelpTemplateMeta Utils.isNotNullAndErrorMessageAbsent name Config.versionOptions
+getVersion name = getHelpTemplateMeta (Utils.isNotNullAndErrorMessageAbsent (T.pack name)) name Config.versionOptions

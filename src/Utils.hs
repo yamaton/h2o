@@ -217,24 +217,27 @@ isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s
 
 -- | A speculative criteria for non-critical purposes
 -- [TODO] Scrutinize this as it's now used for critical purposes
-hasErrorMessageAtTop :: Text -> Bool
-hasErrorMessageAtTop text
+hasErrorMessageAtTop :: Text -> Text -> Bool
+hasErrorMessageAtTop name text
   | (T.null . T.stripStart) text = False
-  | otherwise = any (`T.isInfixOf` loweredFirstLine) Const.errKeywords
+  | otherwise = any (`T.isInfixOf` loweredFirstLine) errKeywords
   where
+    --
+    errKeywords = filter (\k -> not (k `T.isInfixOf` name)) Const.errKeywords
     loweredFirstLine = (T.toLower . T.take 100 . head . T.lines . T.stripStart) text
 
 
-mayContainUseful :: Text -> Bool
-mayContainUseful text = length xs >= 2
+mayContainUseful :: Text -> Text -> Bool
+mayContainUseful name text  = length xs >= 2
   where
-    xs = filter isNotNullAndErrorMessageAbsent . T.lines $ text
+    xs = filter (isNotNullAndErrorMessageAbsent name) . T.lines $ text
 
 -- | Check if a text is free from error-like words
-isNotNullAndErrorMessageAbsent :: Text -> Bool
-isNotNullAndErrorMessageAbsent text =
-  (not . T.null . T.strip) lowered && not (any (`T.isInfixOf` lowered) Const.errKeywords)
+isNotNullAndErrorMessageAbsent :: Text -> Text -> Bool
+isNotNullAndErrorMessageAbsent name text =
+  (not . T.null . T.strip) lowered && not (any (`T.isInfixOf` lowered) errKeywords)
   where
+    errKeywords = filter (\k -> not (k `T.isInfixOf` name)) Const.errKeywords
     lowered = (T.toLower . T.strip) text
 
 -- | splitsAt ... like Data.List.splitAt but multiple indices
