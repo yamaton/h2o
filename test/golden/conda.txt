@@ -102,10 +102,10 @@ Use once for info, twice for debug, three times for trace.
 Do not display progress bar.
 
 (conda config) --system  ::  
-Write to the system .condarc file at '/home/vierbein/miniconda3/.condarc'.
+Write to the system .condarc file at '/home/vierbein/mambaforge/.condarc'.
 
 (conda config) --env  ::  
-Write to the active conda environment .condarc file (/home/vierbein/miniconda3). If no environment is active, write to the user config file (/home/vierbein/.condarc).
+Write to the active conda environment .condarc file (/home/vierbein/mambaforge). If no environment is active, write to the user config file (/home/vierbein/.condarc).
 
 (conda config) --file  ::  FILE
 Write to the given file.
