@@ -220,6 +220,7 @@ isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s
 hasErrorMessageAtTop :: Text -> Text -> Bool
 hasErrorMessageAtTop name text
   | (T.null . T.stripStart) text = False
+  | Utils.isUsageBlock loweredFirstLine = False
   | otherwise = any (`T.isInfixOf` loweredFirstLine) errKeywords
   where
     --
@@ -232,13 +233,17 @@ mayContainUseful name text  = length xs >= 2
   where
     xs = filter (isNotNullAndErrorMessageAbsent name) . T.lines $ text
 
--- | Check if a text is free from error-like words
+-- | Check if a text is free from error-like words at the bottom of the page.
 isNotNullAndErrorMessageAbsent :: Text -> Text -> Bool
 isNotNullAndErrorMessageAbsent name text =
-  (not . T.null . T.strip) lowered && not (any (`T.isInfixOf` lowered) errKeywords)
+  isNotNull && (isUsageBlock bottomLine || isBottomWithoutError)
   where
     errKeywords = filter (\k -> not (k `T.isInfixOf` name)) Const.errKeywords
-    lowered = (T.toLower . T.strip) text
+    lowered =  (T.toLower . T.strip) text
+    isNotNull = (not . T.null) lowered
+    bottomLine = last (T.lines lowered)
+    isBottomWithoutError = not (any (`T.isInfixOf` bottomLine) errKeywords)
+
 
 -- | splitsAt ... like Data.List.splitAt but multiple indices
 --
