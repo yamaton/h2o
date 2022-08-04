@@ -494,11 +494,12 @@ preprocessBlockwise :: String -> [(String, String)]
 preprocessBlockwise content = Utils.infoTrace decoratedMsg $ concatMap (uncurry preprocessAll) indexBlockWoHeaderPairs
   where
     xs = lines content
+    -- TODO: Unsure of indexBlockPairs or improve indexBlockPairsWoUsage
     indexBlockPairs = splitByHeaders xs
-    indexBlockPairsWoUsage = filter (not . Utils.isUsageBlock . T.pack . snd) indexBlockPairs
+    -- indexBlockPairsWoUsage = filter (not . Utils.isUsageBlock . T.pack . snd) indexBlockPairs
     -- fix indices to compensate header-less content
-    indexBlockWoHeaderPairs = map (\(i, s) -> (i + 1, tail s)) indexBlockPairsWoUsage
-    msg = printf "Found %d header-based blocks" (length indexBlockWoHeaderPairs)
+    indexBlockWoHeaderPairs = map (\(i, s) -> (i + 1, tail s)) indexBlockPairs
+    msg = printf "Found %d header-based blocks" (length indexBlockPairs)
     decoratedMsg = "-------- " ++ msg ++ " --------"
 
 -- | Parse options from text
