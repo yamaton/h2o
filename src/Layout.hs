@@ -17,7 +17,6 @@ import qualified Data.List as List
 import Data.List.Extra (breakOnEnd, nubSort, trim, trimEnd)
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
-import qualified Data.Text as T
 import Debug.Trace (trace)
 import qualified HelpParser
 import Text.Printf (printf)
