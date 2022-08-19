@@ -13,16 +13,18 @@ compare                   (Compare packages between conda environments.)
 config                    (Modify configuration values in .condarc. This is modeled after the git config command. Writes to the user .condarc file (/home/vierbein/.condarc) by default.)
 create                    (Create a new conda environment from a list of specified packages.)
 info                      (Display information about current conda install.)
-init                      (Initialize conda for shell interaction. [Experimental])
+init                      (Initialize conda for shell interaction.)
 install                   (Installs a list of packages into a specified conda environment.)
 list                      (List linked packages in a conda environment.)
 package                   (Low-level conda package utility. (EXPERIMENTAL))
 remove                    (Remove a list of packages from a specified conda environment.)
-uninstall                 (Alias for conda remove.)
+rename                    (Renames an existing environment)
 run                       (Run an executable in a conda environment.)
 search                    (Search for packages and display associated information. The input is a MatchSpec, a query language for conda packages. See examples below.)
+uninstall                 (Alias for conda remove.)
 update                    (Updates conda packages to the latest compatible version.)
 upgrade                   (Alias for conda update.)
+notices                   (Retrieves latest channel notifications.)
 
 
 
@@ -274,6 +276,15 @@ Initialize all currently available shells.
 
 (conda init) -d --dry-run  ::  
 Only display what would have been done.
+
+(conda init) --user  ::  
+Initialize conda for the current user (default).
+
+(conda init) --no-user  ::  
+Don't initialize conda for the current user (default).
+
+(conda init) --system  ::  
+Initialize conda for all users on the system.
 
 (conda init) --reverse  ::  
 Undo past effects of conda init.
@@ -539,68 +550,20 @@ Do not ask for confirmation.
 
 
 
-(conda uninstall) -h --help  ::  
+(conda rename) -h --help  ::  
 Show this help message and exit.
 
-(conda uninstall) --dev  ::  
-Use `sys.executable -m conda` in wrapper scripts instead of CONDA_EXE. This is mainly for use during tests where we test new conda source against old Python versions.
+(conda rename) --force  ::  
+Force rename of an environment
 
-(conda uninstall) -n --name  ::  ENVIRONMENT
+(conda rename) -d --dry-run  ::  
+Only display what would have been done
+
+(conda rename) -n --name  ::  ENVIRONMENT
 Name of environment.
 
-(conda uninstall) -p --prefix  ::  PATH
+(conda rename) -p --prefix  ::  PATH
 Full path to environment location (i.e. prefix).
-
-(conda uninstall) -c --channel  ::  CHANNEL
-Additional channel to search for packages. These are URLs searched in the order they are given (including local directories using the 'file://' syntax or simply a path like '/home/conda/mychan' or '../mychan'). Then, the defaults or channels from .condarc are searched (unless --override-channels is given). You can use 'defaults' to get the default packages for conda. You can also use any name and the .condarc channel_alias value will be prepended. The default channel_alias is https://conda.anaconda.org/.
-
-(conda uninstall) --use-local  ::  
-Use locally built packages. Identical to '-c local'.
-
-(conda uninstall) --override-channels  ::  
-Do not search default or .condarc channels. Requires --channel.
-
-(conda uninstall) --repodata-fn  ::  REPODATA_FNS
-Specify name of repodata on remote server. Conda will try whatever you specify, but will ultimately fall back to repodata.json if your specs are not satisfiable with what you specify here. This is used to employ repodata that is reduced in time scope. You may pass this flag more than once. Leftmost entries are tried first, and the fallback to repodata.json is added for you automatically.
-
-(conda uninstall) --all  ::  
-Uninstall all packages, i.e., the entire environment.
-
-(conda uninstall) --features  ::  
-Uninstall features (instead of packages).
-
-(conda uninstall) --force-remove --force  ::  
-Forces removal of a package without removing packages that depend on it. Using this option will usually leave your environment in a broken and inconsistent state.
-
-(conda uninstall) --no-pin  ::  
-Ignore pinned file.
-
-(conda uninstall) --experimental-solver  ::  {classic,libmamba,libmamba-draft}
-EXPERIMENTAL. Choose which solver backend to use.
-
-(conda uninstall) -C --use-index-cache  ::  
-Use cache of channel index files, even if it has expired.
-
-(conda uninstall) -k --insecure  ::  
-Allow conda to perform "insecure" SSL connections and transfers. Equivalent to setting 'ssl_verify' to 'false'.
-
-(conda uninstall) --offline  ::  
-Offline mode. Don't connect to the Internet.
-
-(conda uninstall) -d --dry-run  ::  
-Only display what would have been done.
-
-(conda uninstall) --json  ::  
-Report all output as json. Suitable for using conda programmatically.
-
-(conda uninstall) -q --quiet  ::  
-Do not display progress bar.
-
-(conda uninstall) -v --verbose  ::  
-Can be used multiple times. Once for INFO, twice for DEBUG, three times for TRACE.
-
-(conda uninstall) -y --yes  ::  
-Do not ask for confirmation.
 
 
 
@@ -673,6 +636,72 @@ Use once for info, twice for debug, three times for trace.
 
 (conda search) -q --quiet  ::  
 Do not display progress bar.
+
+
+
+
+(conda uninstall) -h --help  ::  
+Show this help message and exit.
+
+(conda uninstall) --dev  ::  
+Use `sys.executable -m conda` in wrapper scripts instead of CONDA_EXE. This is mainly for use during tests where we test new conda source against old Python versions.
+
+(conda uninstall) -n --name  ::  ENVIRONMENT
+Name of environment.
+
+(conda uninstall) -p --prefix  ::  PATH
+Full path to environment location (i.e. prefix).
+
+(conda uninstall) -c --channel  ::  CHANNEL
+Additional channel to search for packages. These are URLs searched in the order they are given (including local directories using the 'file://' syntax or simply a path like '/home/conda/mychan' or '../mychan'). Then, the defaults or channels from .condarc are searched (unless --override-channels is given). You can use 'defaults' to get the default packages for conda. You can also use any name and the .condarc channel_alias value will be prepended. The default channel_alias is https://conda.anaconda.org/.
+
+(conda uninstall) --use-local  ::  
+Use locally built packages. Identical to '-c local'.
+
+(conda uninstall) --override-channels  ::  
+Do not search default or .condarc channels. Requires --channel.
+
+(conda uninstall) --repodata-fn  ::  REPODATA_FNS
+Specify name of repodata on remote server. Conda will try whatever you specify, but will ultimately fall back to repodata.json if your specs are not satisfiable with what you specify here. This is used to employ repodata that is reduced in time scope. You may pass this flag more than once. Leftmost entries are tried first, and the fallback to repodata.json is added for you automatically.
+
+(conda uninstall) --all  ::  
+Uninstall all packages, i.e., the entire environment.
+
+(conda uninstall) --features  ::  
+Uninstall features (instead of packages).
+
+(conda uninstall) --force-remove --force  ::  
+Forces removal of a package without removing packages that depend on it. Using this option will usually leave your environment in a broken and inconsistent state.
+
+(conda uninstall) --no-pin  ::  
+Ignore pinned file.
+
+(conda uninstall) --experimental-solver  ::  {classic,libmamba,libmamba-draft}
+EXPERIMENTAL. Choose which solver backend to use.
+
+(conda uninstall) -C --use-index-cache  ::  
+Use cache of channel index files, even if it has expired.
+
+(conda uninstall) -k --insecure  ::  
+Allow conda to perform "insecure" SSL connections and transfers. Equivalent to setting 'ssl_verify' to 'false'.
+
+(conda uninstall) --offline  ::  
+Offline mode. Don't connect to the Internet.
+
+(conda uninstall) -d --dry-run  ::  
+Only display what would have been done.
+
+(conda uninstall) --json  ::  
+Report all output as json. Suitable for using conda programmatically.
+
+(conda uninstall) -q --quiet  ::  
+Do not display progress bar.
+
+(conda uninstall) -v --verbose  ::  
+Can be used multiple times. Once for INFO, twice for DEBUG, three times for TRACE.
+
+(conda uninstall) -y --yes  ::  
+Do not ask for confirmation.
 
 
 
@@ -871,4 +900,22 @@ Solve an environment and ensure package caches are populated, but exit prior to 
 
 (conda upgrade) --show-channel-urls  ::  
 Show channel urls. Overrides the value given by `conda config --show show_channel_urls`.
+
+
+
+
+(conda notices) -h --help  ::  
+Show this help message and exit.
+
+(conda notices) -c --channel  ::  CHANNEL
+Additional channel to search for packages. These are URLs searched in the order they are given (including local directories using the 'file://' syntax or simply a path like '/home/conda/mychan' or '../mychan'). Then, the defaults or channels from .condarc are searched (unless --override-channels is given). You can use 'defaults' to get the default packages for conda. You can also use any name and the .condarc channel_alias value will be prepended. The default channel_alias is https://conda.anaconda.org/.
+
+(conda notices) --use-local  ::  
+Use locally built packages. Identical to '-c local'.
+
+(conda notices) --override-channels  ::  
+Do not search default or .condarc channels. Requires --channel.
+
+(conda notices) --repodata-fn  ::  REPODATA_FNS
+Specify name of repodata on remote server. Conda will try whatever you specify, but will ultimately fall back to repodata.json if your specs are not satisfiable with what you specify here. This is used to employ repodata that is reduced in time scope. You may pass this flag more than once. Leftmost entries are tried first, and the fallback to repodata.json is added for you automatically.
 
