@@ -518,7 +518,7 @@ shellCompTests =
     arg = "<file>"
     desc = "Specify the filename to save"
     opt = Opt names arg desc
-    fishExpected = "complete -c nanachi -s o -l output -d 'Specify the filename to save' -r"
+    fishExpected = "complete -c nanachi -s \"o\" -l \"output\" -d \"Specify the filename to save\" -r"
 
     names2 = [OptName "--help" LongType]
     args2 = ""
