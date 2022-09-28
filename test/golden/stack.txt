@@ -31,6 +31,12 @@ Enable/disable inclusion of timings in logs, for the purposes of using diff with
 (stack) --no-time-in-log  ::  
 Enable/disable inclusion of timings in logs, for the purposes of using diff with logs (default: enabled)
 
+(stack) --rsl-in-log  ::  
+Enable/disable inclusion of raw snapshot layer (rsl) in logs (default: disabled)
+
+(stack) --no-rsl-in-log  ::  
+Enable/disable inclusion of raw snapshot layer (rsl) in logs (default: disabled)
+
 (stack) --stack-root  ::  STACK-ROOT
 Absolute path to the global stack root directory (Overrides any STACK_ROOT environment variable)
 
@@ -53,7 +59,7 @@ Enable/disable downloading and installing GHC if necessary (can be done manually
 System architecture, e.g. i386, x86_64
 
 (stack) --ghc-variant  ::  VARIANT
-Specialized GHC variant, e.g. integersimple (incompatible with --system-ghc)
+Specialized GHC variant, e.g. int-native or integersimple (incompatible with --system-ghc)
 
 (stack) --ghc-build  ::  BUILD
 Specialized GHC build, e.g. 'gmp4' or 'standard' (usually auto-detected)
@@ -118,6 +124,12 @@ Specify when to use color in output; WHEN is 'always', 'never', or 'auto'. On Wi
 (stack) --snapshot-location-base  ::  URL
 The base location of LTS/Nightly snapshots
 
+(stack) --script-no-run-compile  ::  
+Enable/disable the use of options `--no-run --compile` with `stack script` (default: disabled)
+
+(stack) --no-script-no-run-compile  ::  
+Enable/disable the use of options `--no-run --compile` with `stack script` (default: disabled)
+
 (stack) --resolver  ::  RESOLVER
 Override resolver in project file
 
@@ -151,7 +163,7 @@ query Query general build information (experimental)
 (stack)
 build                     (Build the package(s) in this directory/configuration)
 install                   (Shortcut for 'build --copy-bins')
-uninstall                 (DEPRECATED: This command performs no actions, and is)
+uninstall                 (Show how to uninstall Stack. This command does not)
 test                      (Shortcut for 'build --test')
 bench                     (Shortcut for 'build --bench')
 haddock                   (Shortcut for 'build --haddock')
@@ -160,7 +172,7 @@ templates                 (Show how to find templates available for `stack new'.
 init                      (Create stack project config from cabal or hpack)
 setup                     (Get the appropriate GHC for your project)
 path                      (Print out handy path information)
-ls                        (List command. (Supports snapshots, dependencies and)
+ls                        (List command. (Supports snapshots, dependencies,)
 unpack                    (Unpack one or more packages locally)
 update                    (Update the package index)
 upgrade                   (Upgrade to the latest stack)
@@ -374,6 +386,9 @@ Enable/disable Perform the configure step even if unnecessary. Useful in some co
 (stack build) --no-reconfigure  ::  
 Enable/disable Perform the configure step even if unnecessary. Useful in some corner cases with custom Setup.hs files (default: disabled)
 
+(stack build) --cabal-verbosity  ::  VERBOSITY
+Cabal verbosity (accepts Cabal's numerical and extended syntax)
+
 (stack build) --cabal-verbose  ::  
 Enable/disable Ask Cabal to be verbose in its output (default: disabled)
 
@@ -387,7 +402,7 @@ Enable/disable Enable split-objs, to reduce output size (at the cost of build ti
 Enable/disable Enable split-objs, to reduce output size (at the cost of build time). Note that this feature is EXPERIMENTAL, and its behavior may be changed and improved. You will need to clean your workdirs before use. If you want to compile all dependencies with split-objs, you will need to delete the snapshot (and all snapshots that could reference that snapshot). (default: disabled)
 
 (stack build) --skip  ::  ARG
-Skip given component, can be specified multiple times
+Skip given component (can be specified multiple times)
 
 (stack build) --interleaved-output  ::  
 Enable/disable Print concurrent GHC output to the console with a prefix for the package name (default: enabled)
@@ -596,6 +611,9 @@ Enable/disable Perform the configure step even if unnecessary. Useful in some co
 (stack install) --no-reconfigure  ::  
 Enable/disable Perform the configure step even if unnecessary. Useful in some corner cases with custom Setup.hs files (default: disabled)
 
+(stack install) --cabal-verbosity  ::  VERBOSITY
+Cabal verbosity (accepts Cabal's numerical and extended syntax)
+
 (stack install) --cabal-verbose  ::  
 Enable/disable Ask Cabal to be verbose in its output (default: disabled)
 
@@ -609,7 +627,7 @@ Enable/disable Enable split-objs, to reduce output size (at the cost of build ti
 Enable/disable Enable split-objs, to reduce output size (at the cost of build time). Note that this feature is EXPERIMENTAL, and its behavior may be changed and improved. You will need to clean your workdirs before use. If you want to compile all dependencies with split-objs, you will need to delete the snapshot (and all snapshots that could reference that snapshot). (default: disabled)
 
 (stack install) --skip  ::  ARG
-Skip given component, can be specified multiple times
+Skip given component (can be specified multiple times)
 
 (stack install) --interleaved-output  ::  
 Enable/disable Print concurrent GHC output to the console with a prefix for the package name (default: enabled)
@@ -830,6 +848,9 @@ Enable/disable Perform the configure step even if unnecessary. Useful in some co
 (stack test) --no-reconfigure  ::  
 Enable/disable Perform the configure step even if unnecessary. Useful in some corner cases with custom Setup.hs files (default: disabled)
 
+(stack test) --cabal-verbosity  ::  VERBOSITY
+Cabal verbosity (accepts Cabal's numerical and extended syntax)
+
 (stack test) --cabal-verbose  ::  
 Enable/disable Ask Cabal to be verbose in its output (default: disabled)
 
@@ -843,7 +864,7 @@ Enable/disable Enable split-objs, to reduce output size (at the cost of build ti
 Enable/disable Enable split-objs, to reduce output size (at the cost of build time). Note that this feature is EXPERIMENTAL, and its behavior may be changed and improved. You will need to clean your workdirs before use. If you want to compile all dependencies with split-objs, you will need to delete the snapshot (and all snapshots that could reference that snapshot). (default: disabled)
 
 (stack test) --skip  ::  ARG
-Skip given component, can be specified multiple times
+Skip given component (can be specified multiple times)
 
 (stack test) --interleaved-output  ::  
 Enable/disable Print concurrent GHC output to the console with a prefix for the package name (default: enabled)
@@ -1052,6 +1073,9 @@ Enable/disable Perform the configure step even if unnecessary. Useful in some co
 (stack bench) --no-reconfigure  ::  
 Enable/disable Perform the configure step even if unnecessary. Useful in some corner cases with custom Setup.hs files (default: disabled)
 
+(stack bench) --cabal-verbosity  ::  VERBOSITY
+Cabal verbosity (accepts Cabal's numerical and extended syntax)
+
 (stack bench) --cabal-verbose  ::  
 Enable/disable Ask Cabal to be verbose in its output (default: disabled)
 
@@ -1065,7 +1089,7 @@ Enable/disable Enable split-objs, to reduce output size (at the cost of build ti
 Enable/disable Enable split-objs, to reduce output size (at the cost of build time). Note that this feature is EXPERIMENTAL, and its behavior may be changed and improved. You will need to clean your workdirs before use. If you want to compile all dependencies with split-objs, you will need to delete the snapshot (and all snapshots that could reference that snapshot). (default: disabled)
 
 (stack bench) --skip  ::  ARG
-Skip given component, can be specified multiple times
+Skip given component (can be specified multiple times)
 
 (stack bench) --interleaved-output  ::  
 Enable/disable Print concurrent GHC output to the console with a prefix for the package name (default: enabled)
@@ -1274,6 +1298,9 @@ Enable/disable Perform the configure step even if unnecessary. Useful in some co
 (stack haddock) --no-reconfigure  ::  
 Enable/disable Perform the configure step even if unnecessary. Useful in some corner cases with custom Setup.hs files (default: disabled)
 
+(stack haddock) --cabal-verbosity  ::  VERBOSITY
+Cabal verbosity (accepts Cabal's numerical and extended syntax)
+
 (stack haddock) --cabal-verbose  ::  
 Enable/disable Ask Cabal to be verbose in its output (default: disabled)
 
@@ -1287,7 +1314,7 @@ Enable/disable Enable split-objs, to reduce output size (at the cost of build ti
 Enable/disable Enable split-objs, to reduce output size (at the cost of build time). Note that this feature is EXPERIMENTAL, and its behavior may be changed and improved. You will need to clean your workdirs before use. If you want to compile all dependencies with split-objs, you will need to delete the snapshot (and all snapshots that could reference that snapshot). (default: disabled)
 
 (stack haddock) --skip  ::  ARG
-Skip given component, can be specified multiple times
+Skip given component (can be specified multiple times)
 
 (stack haddock) --interleaved-output  ::  
 Enable/disable Print concurrent GHC output to the console with a prefix for the package name (default: enabled)
@@ -1317,13 +1344,13 @@ Do not create a subdirectory for the project
 Parameter for the template in the format key:value
 
 (stack new) --omit-packages  ::  
-Exclude conflicting or incompatible user packages
+Exclude conflicting or incompatible user packages, when initialising.
 
 (stack new) --force  ::  
-Force overwriting an existing stack.yaml
+Force an initialisation that overwrites any existing stack.yaml file.
 
 (stack new) --ignore-subdirs  ::  
-Do not search for .cabal files in sub directories
+Do not search for .cabal files in subdirectories, when initialising.
 
 (stack new) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
@@ -1350,13 +1377,13 @@ Show this help text
 
 
 (stack init) --omit-packages  ::  
-Exclude conflicting or incompatible user packages
+Exclude conflicting or incompatible user packages, when initialising.
 
 (stack init) --force  ::  
-Force overwriting an existing stack.yaml
+Force an initialisation that overwrites any existing stack.yaml file.
 
 (stack init) --ignore-subdirs  ::  
-Do not search for .cabal files in sub directories
+Do not search for .cabal files in subdirectories, when initialising.
 
 (stack init) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
@@ -1413,7 +1440,7 @@ Configuration location (where the stack.yaml file is)
 PATH environment variable
 
 (stack path) --programs  ::  
-Install location for GHC and other core tools
+Install location for GHC and other core tools (see 'stack ls tools' command)
 
 (stack path) --compiler-exe  ::  
 Compiler binary (e.g. ghc)
@@ -1500,10 +1527,11 @@ Show this help text
 
 
 (stack ls)
-snapshots                 (View local snapshot (default option))
+snapshots                 (View snapshots (local by default))
 dependencies              (View the dependencies)
 stack-colors              (View stack's output styles)
 stack-colours             (View stack's output styles (alias for 'stack-colors'))
+tools                     (View stack's installed tools)
 
 
 
@@ -1520,8 +1548,8 @@ Show this help text
 
 
 (stack ls snapshots)
-remote                    (View remote snapshot)
-local                     (View local snapshot)
+remote                    (View remote snapshots)
+local                     (View local snapshots)
 
 
 
@@ -1630,6 +1658,15 @@ Show this help text
 
 
 
+(stack ls tools) --filter  ::  TOOL_NAME
+Filter by a tool name (eg 'ghc', 'ghc-git' or 'msys2') - case sensitive. The default is no filter
+
+(stack ls tools) -h --help  ::  
+Show this help text
+
+
+
+
 (stack unpack) --to  ::  ARG
 Optional path to unpack the package into (will unpack into subdirectory)
 
@@ -1670,10 +1707,10 @@ Download the latest available stack executable
 Download a specific stack version
 
 (stack upgrade) --github-org  ::  ARG
-Github organization name
+GitHub organization name
 
 (stack upgrade) --github-repo  ::  ARG
-Github repository name
+GitHub repository name
 
 (stack upgrade) --binary-only  ::  
 Do not use a source upgrade path
@@ -1810,8 +1847,8 @@ Enable/disable setting the STACK_EXE environment variable to the path for the st
 (stack ghc) --no-stack-exe  ::  
 Enable/disable setting the STACK_EXE environment variable to the path for the stack executable (default: enabled)
 
-(stack ghc) --package  ::  PACKAGE(S)
-Additional package(s) that must be installed
+(stack ghc) --package  ::  PACKAGE
+Add a package (can be specified multiple times)
 
 (stack ghc) --rts-options  ::  RTSFLAG
 Explicit RTS options to pass to application
@@ -1867,8 +1904,8 @@ Enable/disable setting the STACK_EXE environment variable to the path for the st
 (stack exec) --no-stack-exe  ::  
 Enable/disable setting the STACK_EXE environment variable to the path for the stack executable (default: enabled)
 
-(stack exec) --package  ::  PACKAGE(S)
-Additional package(s) that must be installed
+(stack exec) --package  ::  PACKAGE
+Add a package (can be specified multiple times)
 
 (stack exec) --rts-options  ::  RTSFLAG
 Explicit RTS options to pass to application
@@ -1900,8 +1937,8 @@ Enable/disable setting the STACK_EXE environment variable to the path for the st
 (stack run) --no-stack-exe  ::  
 Enable/disable setting the STACK_EXE environment variable to the path for the stack executable (default: enabled)
 
-(stack run) --package  ::  PACKAGE(S)
-Additional package(s) that must be installed
+(stack run) --package  ::  PACKAGE
+Add a package (can be specified multiple times)
 
 (stack run) --rts-options  ::  RTSFLAG
 Explicit RTS options to pass to application
@@ -1942,8 +1979,8 @@ Enable/disable load modules on start-up (default: enabled)
 (stack ghci) --no-load  ::  
 Enable/disable load modules on start-up (default: enabled)
 
-(stack ghci) --package  ::  PACKAGE(S)
-Additional package(s) that must be installed
+(stack ghci) --package  ::  PACKAGE
+Add a package (can be specified multiple times)
 
 (stack ghci) --main-is  ::  TARGET
 Specify which target should contain the main module to load, such as for an executable for test suite or benchmark.
@@ -2014,8 +2051,8 @@ Enable/disable load modules on start-up (default: enabled)
 (stack repl) --no-load  ::  
 Enable/disable load modules on start-up (default: enabled)
 
-(stack repl) --package  ::  PACKAGE(S)
-Additional package(s) that must be installed
+(stack repl) --package  ::  PACKAGE
+Add a package (can be specified multiple times)
 
 (stack repl) --main-is  ::  TARGET
 Specify which target should contain the main module to load, such as for an executable for test suite or benchmark.
@@ -2077,8 +2114,8 @@ Enable/disable setting the STACK_EXE environment variable to the path for the st
 (stack runghc) --no-stack-exe  ::  
 Enable/disable setting the STACK_EXE environment variable to the path for the stack executable (default: enabled)
 
-(stack runghc) --package  ::  PACKAGE(S)
-Additional package(s) that must be installed
+(stack runghc) --package  ::  PACKAGE
+Add a package (can be specified multiple times)
 
 (stack runghc) --rts-options  ::  RTSFLAG
 Explicit RTS options to pass to application
@@ -2110,8 +2147,8 @@ Enable/disable setting the STACK_EXE environment variable to the path for the st
 (stack runhaskell) --no-stack-exe  ::  
 Enable/disable setting the STACK_EXE environment variable to the path for the stack executable (default: enabled)
 
-(stack runhaskell) --package  ::  PACKAGE(S)
-Additional package(s) that must be installed
+(stack runhaskell) --package  ::  PACKAGE
+Add a package (can be specified multiple times)
 
 (stack runhaskell) --rts-options  ::  RTSFLAG
 Explicit RTS options to pass to application
@@ -2131,8 +2168,8 @@ Show this help text
 
 
 
-(stack script) --package  ::  PACKAGE(S)
-Additional package(s) that must be installed
+(stack script) --package  ::  PACKAGE
+Add a package (can be specified multiple times)
 
 (stack script) --compile  ::  
 Compile the script without optimization and run the executable
@@ -2173,8 +2210,8 @@ Enable/disable setting the STACK_EXE environment variable to the path for the st
 (stack eval) --no-stack-exe  ::  
 Enable/disable setting the STACK_EXE environment variable to the path for the stack executable (default: enabled)
 
-(stack eval) --package  ::  PACKAGE(S)
-Additional package(s) that must be installed
+(stack eval) --package  ::  PACKAGE
+Add a package (can be specified multiple times)
 
 (stack eval) --rts-options  ::  RTSFLAG
 Explicit RTS options to pass to application
@@ -2354,7 +2391,7 @@ Show this help text
 
 
 (stack config)
-set                       (Sets a field in the project's stack.yaml to value)
+set                       (Sets a key in YAML configuration file to value)
 env                       (Print environment variables for use in a shell)
 
 
@@ -2372,9 +2409,9 @@ Show this help text
 
 
 (stack config set)
-resolver                  (Change the resolver of the current project. See)
-system-ghc                (Configure whether stack should use a system GHC)
-install-ghc               (Configure whether stack should automatically install)
+resolver                  (Change the resolver of the current project.)
+system-ghc                (Configure whether Stack should use a system GHC)
+install-ghc               (Configure whether Stack should automatically install)
 
 
 
@@ -2385,7 +2422,7 @@ Show this help text
 
 
 (stack config set system-ghc) --global  ::  
-Modify the global configuration (typically at "~/.stack/config.yaml") instead of the project stack.yaml.
+Modify the user-specific global configuration file ('config.yaml') instead of the project-level configuration file ('stack.yaml').
 
 (stack config set system-ghc) -h --help  ::  
 Show this help text
@@ -2394,7 +2431,7 @@ Show this help text
 
 
 (stack config set install-ghc) --global  ::  
-Modify the global configuration (typically at "~/.stack/config.yaml") instead of the project stack.yaml.
+Modify the user-specific global configuration file ('config.yaml') instead of the project-level configuration file ('stack.yaml').
 
 (stack config set install-ghc) -h --help  ::  
 Show this help text
@@ -2409,10 +2446,10 @@ Enable/disable include local package information (default: enabled)
 Enable/disable include local package information (default: enabled)
 
 (stack config env) --ghc-package-path  ::  
-Enable/disable set GHC_PACKAGE_PATH variable (default: enabled)
+Enable/disable set GHC_PACKAGE_PATH environment variable (default: enabled)
 
 (stack config env) --no-ghc-package-path  ::  
-Enable/disable set GHC_PACKAGE_PATH variable (default: enabled)
+Enable/disable set GHC_PACKAGE_PATH environment variable (default: enabled)
 
 (stack config env) --stack-exe  ::  
 Enable/disable set STACK_EXE environment variable (default: enabled)
@@ -2421,16 +2458,16 @@ Enable/disable set STACK_EXE environment variable (default: enabled)
 Enable/disable set STACK_EXE environment variable (default: enabled)
 
 (stack config env) --locale-utf8  ::  
-Enable/disable set the GHC_CHARENC environment variable to UTF8 (default: disabled)
+Enable/disable set the GHC_CHARENC environment variable to UTF-8 (default: disabled)
 
 (stack config env) --no-locale-utf8  ::  
-Enable/disable set the GHC_CHARENC environment variable to UTF8 (default: disabled)
+Enable/disable set the GHC_CHARENC environment variable to UTF-8 (default: disabled)
 
 (stack config env) --keep-ghc-rts  ::  
-Enable/disable keep any GHC_RTS environment variables (default: disabled)
+Enable/disable keep any GHCRTS environment variable (default: disabled)
 
 (stack config env) --no-keep-ghc-rts  ::  
-Enable/disable keep any GHC_RTS environment variables (default: disabled)
+Enable/disable keep any GHCRTS environment variable (default: disabled)
 
 (stack config env) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
