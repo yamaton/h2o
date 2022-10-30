@@ -22,7 +22,7 @@ import IoHelper
     getManSub,
     isManAvailableIO,
   )
-import Layout (parseBlockwise, preprocessBlockwise, parseUsage)
+import Layout (parseBlockwise, parseUsage, preprocessBlockwise)
 import qualified Postprocess
 import Subcommand (parseSubcommand)
 import System.FilePath (takeBaseName)
@@ -38,11 +38,11 @@ run Version = return (T.concat ["h2o ", Version.versionStr, "\n"])
 -- Or, do some utility work
 run (C_ (Config input _ isExportingJSON isPreprocessOnly depth))
   | isExportingJSON =
-    Utils.warnTrace "io: Deprecated: Use --format json instead" $
-      run (C_ (Config input Json False False depth))
+      Utils.warnTrace "io: Deprecated: Use --format json instead" $
+        run (C_ (Config input Json False False depth))
   | isPreprocessOnly =
-    Utils.infoTrace "io: processing (option+arg, description) splitting only" $
-      T.pack . formatStringPairs . preprocessBlockwise <$> getInputContent input
+      Utils.infoTrace "io: processing (option+arg, description) splitting only" $
+        T.pack . formatStringPairs . preprocessBlockwise <$> getInputContent input
   where
     formatStringPairs = unlines . map (\(a, b) -> unlines [a, b])
 
@@ -113,8 +113,8 @@ toNativeTextRec path cmd@(Command name desc usage _ subCmds _) =
   [nameText, descText, usageText, optsText, subcommandsText] ++ rest
   where
     currentPath = path ++ [name]
-    nameText  = "Name:  " `T.append` T.pack (concat currentPath)
-    descText  = "Desc:  " `T.append` T.pack desc
+    nameText = "Name:  " `T.append` T.intercalate " " (map T.pack currentPath)
+    descText = "Desc:  " `T.append` T.pack desc
     usageText = "Usage:\n" `T.append` T.pack usage
     optsText = toSubcommandOptionsText path cmd
     subcommandsText = toSubcommandsText currentPath subCmds
@@ -171,7 +171,8 @@ getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
 getSubcmdCandidates :: String -> [Subcommand]
 getSubcmdCandidates content =
   Utils.infoMsg "subcommand candidates: \n" $
-    removeHelp . uniqSubcommands . parseSubcommand $ content
+    removeHelp . uniqSubcommands . parseSubcommand $
+      content
   where
     sub2pair (Subcommand s1 s2) = (s1, s2)
     pair2sub = uncurry Subcommand

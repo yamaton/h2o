@@ -623,13 +623,13 @@ integratedGoldenTestsCommandInput =
     "Integrated tests"
     (map toTestTree commands)
   where
-    commands = ["h2o", "conda", "stack"]
+    commands = ["h2o", "stack", "gh"]
     toLazyByteString = TLE.encodeUtf8 . TL.fromStrict
     conf name = C_ (Config (CommandInput name True) Native False False 4)
     runWithCommand name = toLazyByteString <$> run (conf name)
     toTestTree name =
       goldenVsString
-        ("h2o --command " ++ name)
+        ("h2o --skip-man --command " ++ name)
         (printf "test/golden/%s.txt" name :: String)
         (runWithCommand name)
 

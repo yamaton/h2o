@@ -1,0 +1,5334 @@
+Name:  gh
+
+
+Desc:  gh
+
+
+Usage:
+
+
+
+(gh) --help  ::  
+Show help for command
+
+(gh) --version  ::  
+Show gh version
+
+
+
+
+(gh)
+auth                      (Authenticate gh and git with GitHub)
+browse                    (Open the repository in the browser)
+codespace                 (Connect to and manage codespaces)
+gist                      (Manage gists)
+issue                     (Manage issues)
+pr                        (Manage pull requests)
+release                   (Manage releases)
+repo                      (Manage repositories)
+run                       (View details about workflow runs)
+workflow                  (View details about GitHub Actions workflows)
+alias                     (Create command shortcuts)
+api                       (Make an authenticated GitHub API request)
+completion                (Generate shell completion scripts)
+config                    (Manage configuration for gh)
+extension                 (Manage gh extensions)
+gpg-key                   (Manage GPG keys)
+label                     (Manage labels)
+search                    (Search for repositories, issues, and pull requests)
+secret                    (Manage GitHub secrets)
+ssh-key                   (Manage SSH keys)
+status                    (Print information about relevant issues, pull requests, and notifications across repositories)
+actions                   (Learn about working with GitHub Actions)
+environment               (Environment variables that can be used with gh)
+exit-codes                (Exit codes used by gh)
+formatting                (Formatting options for JSON data exported from gh)
+mintty                    (Information about using gh with MinTTY)
+reference                 (A comprehensive reference of all gh commands)
+
+
+
+Name:  gh auth
+
+
+Desc:  Authenticate gh and git with GitHub
+
+
+Usage:
+
+
+
+(gh auth) --help  ::  
+Show help for command
+
+
+
+
+(gh auth)
+login                     (Authenticate with a GitHub host)
+logout                    (Log out of a GitHub host)
+refresh                   (Refresh stored authentication credentials)
+setup-git                 (Configure git to use GitHub CLI as a credential helper)
+status                    (View authentication status)
+token                     (Print the auth token gh is configured to use)
+
+
+
+Name:  gh auth login
+
+
+Desc:  Authenticate with a GitHub host
+
+
+Usage:
+
+
+
+(gh auth login) -p --git-protocol  ::  string
+The protocol to use for git operations: {ssh|https}
+
+(gh auth login) -h --hostname  ::  string
+The hostname of the GitHub instance to authenticate with
+
+(gh auth login) -s --scopes  ::  strings
+Additional authentication scopes to request
+
+(gh auth login) -w --web  ::  
+Open a browser to authenticate
+
+(gh auth login) --with-token  ::  
+Read token from standard input
+
+(gh auth login) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh auth logout
+
+
+Desc:  Log out of a GitHub host
+
+
+Usage:
+
+
+
+(gh auth logout) -h --hostname  ::  string
+The hostname of the GitHub instance to log out of
+
+(gh auth logout) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh auth refresh
+
+
+Desc:  Refresh stored authentication credentials
+
+
+Usage:
+
+
+
+(gh auth refresh) -h --hostname  ::  string
+The GitHub host to use for authentication
+
+(gh auth refresh) -s --scopes  ::  strings
+Additional authentication scopes for gh to have
+
+(gh auth refresh) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh auth setup-git
+
+
+Desc:  Configure git to use GitHub CLI as a credential helper
+
+
+Usage:
+
+
+
+(gh auth setup-git) -h --hostname  ::  string
+The hostname to configure git for
+
+(gh auth setup-git) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh auth status
+
+
+Desc:  View authentication status
+
+
+Usage:
+
+
+
+(gh auth status) -h --hostname  ::  string
+Check a specific hostname's auth status
+
+(gh auth status) -t --show-token  ::  
+Display the auth token
+
+(gh auth status) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh auth token
+
+
+Desc:  Print the auth token gh is configured to use
+
+
+Usage:
+
+
+
+(gh auth token) -h --hostname  ::  string
+The hostname of the GitHub instance authenticated with
+
+(gh auth token) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh browse
+
+
+Desc:  Open the repository in the browser
+
+
+Usage:
+
+
+
+(gh browse) -b --branch  ::  string
+Select another branch by passing in the branch name
+
+(gh browse) -c --commit  ::  
+Open the last commit
+
+(gh browse) -n --no-browser  ::  
+Print destination URL instead of opening the browser
+
+(gh browse) -p --projects  ::  
+Open repository projects
+
+(gh browse) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+(gh browse) -s --settings  ::  
+Open repository settings
+
+(gh browse) -w --wiki  ::  
+Open repository wiki
+
+(gh browse) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace
+
+
+Desc:  Connect to and manage codespaces
+
+
+Usage:
+
+
+
+(gh codespace) --help  ::  
+Show help for command
+
+
+
+
+(gh codespace)
+code                      (Open a codespace in Visual Studio Code)
+cp                        (Copy files between local and remote file systems)
+create                    (Create a codespace)
+delete                    (Delete codespaces)
+edit                      (Edit a codespace)
+jupyter                   (Open a codespace in JupyterLab)
+list                      (List codespaces)
+logs                      (Access codespace logs)
+ports                     (List ports in a codespace)
+rebuild                   (Rebuild a codespace)
+ssh                       (SSH into a codespace)
+stop                      (Stop a running codespace)
+
+
+
+Name:  gh codespace code
+
+
+Desc:  Open a codespace in Visual Studio Code
+
+
+Usage:
+
+
+
+(gh codespace code) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace code) --insiders  ::  
+Use the insiders version of Visual Studio Code
+
+(gh codespace code) -w --web  ::  
+Use the web version of Visual Studio Code
+
+(gh codespace code) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace cp
+
+
+Desc:  Copy files between local and remote file systems
+
+
+Usage:
+
+
+
+(gh codespace cp) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace cp) -e --expand  ::  
+Expand remote file names on remote shell
+
+(gh codespace cp) -p --profile  ::  string
+Name of the SSH profile to use
+
+(gh codespace cp) -r --recursive  ::  
+Recursively copy directories
+
+(gh codespace cp) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace create
+
+
+Desc:  Create a codespace
+
+
+Usage:
+
+
+
+(gh codespace create) -b --branch  ::  string
+repository branch
+
+(gh codespace create) --default-permissions  ::  
+do not prompt to accept additional permissions requested by the codespace
+
+(gh codespace create) --devcontainer-path  ::  string
+path to the devcontainer.json file to use when creating codespace
+
+(gh codespace create) --idle-timeout  ::  duration
+allowed inactivity before codespace is stopped, e.g. "10m", "1h"
+
+(gh codespace create) -l --location  ::  string
+location: {EastUs|SouthEastAsia|WestEurope|WestUs2} (determined automatically if not provided)
+
+(gh codespace create) -m --machine  ::  string
+hardware specifications for the VM
+
+(gh codespace create) -r --repo  ::  string
+repository name with owner: user/repo
+
+(gh codespace create) --retention-period  ::  duration
+allowed time after shutting down before the codespace is automatically deleted (maximum 30 days), e.g. "1h", "72h"
+
+(gh codespace create) -s --status  ::  
+show status of post-create command and dotfiles
+
+(gh codespace create) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace delete
+
+
+Desc:  Delete codespaces
+
+
+Usage:
+
+
+
+(gh codespace delete) --all  ::  
+Delete all codespaces
+
+(gh codespace delete) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace delete) --days  ::  N
+Delete codespaces older than N days
+
+(gh codespace delete) -f --force  ::  
+Skip confirmation for codespaces that contain unsaved changes
+
+(gh codespace delete) -o --org  ::  login
+The login handle of the organization (admin-only)
+
+(gh codespace delete) -r --repo  ::  repository
+Delete codespaces for a repository
+
+(gh codespace delete) -u --user  ::  username
+The username to delete codespaces for (used with --org)
+
+(gh codespace delete) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace edit
+
+
+Desc:  Edit a codespace
+
+
+Usage:
+
+
+
+(gh codespace edit) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace edit) -d --display-name  ::  string
+Set the display name
+
+(gh codespace edit) -m --machine  ::  string
+Set hardware specifications for the VM
+
+(gh codespace edit) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace jupyter
+
+
+Desc:  Open a codespace in JupyterLab
+
+
+Usage:
+
+
+
+(gh codespace jupyter) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace jupyter) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace list
+
+
+Desc:  List codespaces
+
+
+Usage:
+
+
+
+(gh codespace list) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh codespace list) --json  ::  fields
+Output JSON with the specified fields
+
+(gh codespace list) -L --limit  ::  int
+Maximum number of codespaces to list (default 30)
+
+(gh codespace list) -o --org  ::  login
+The login handle of the organization to list codespaces for (admin-only)
+
+(gh codespace list) -r --repo  ::  string
+Repository name with owner: user/repo
+
+(gh codespace list) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh codespace list) -u --user  ::  username
+The username to list codespaces for (used with --org)
+
+(gh codespace list) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace logs
+
+
+Desc:  Access codespace logs
+
+
+Usage:
+
+
+
+(gh codespace logs) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace logs) -f --follow  ::  
+Tail and follow the logs
+
+(gh codespace logs) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace ports
+
+
+Desc:  List ports in a codespace
+
+
+Usage:
+
+
+
+(gh codespace ports) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace ports) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh codespace ports) --json  ::  fields
+Output JSON with the specified fields
+
+(gh codespace ports) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh codespace ports) --help  ::  
+Show help for command
+
+
+
+
+(gh codespace ports)
+forward                   (Forward ports)
+visibility                (Change the visibility of the forwarded port)
+
+
+
+Name:  gh codespace ports forward
+
+
+Desc:  Forward ports
+
+
+Usage:
+
+
+
+(gh codespace ports forward) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace ports forward) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace ports visibility
+
+
+Desc:  Change the visibility of the forwarded port
+
+
+Usage:
+
+
+
+(gh codespace ports visibility) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace ports visibility) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace rebuild
+
+
+Desc:  Rebuild a codespace
+
+
+Usage:
+
+
+
+(gh codespace rebuild) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace rebuild) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace ssh
+
+
+Desc:  SSH into a codespace
+
+
+Usage:
+
+
+
+(gh codespace ssh) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace ssh) --config  ::  
+Write OpenSSH configuration to stdout
+
+(gh codespace ssh) -d --debug  ::  
+Log debug data to a file
+
+(gh codespace ssh) --debug-file  ::  string
+Path of the file log to
+
+(gh codespace ssh) --profile  ::  string
+Name of the SSH profile to use
+
+(gh codespace ssh) --server-port  ::  int
+SSH server port number (0 => pick unused)
+
+(gh codespace ssh) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh codespace stop
+
+
+Desc:  Stop a running codespace
+
+
+Usage:
+
+
+
+(gh codespace stop) -c --codespace  ::  string
+Name of the codespace
+
+(gh codespace stop) -o --org  ::  login
+The login handle of the organization (admin-only)
+
+(gh codespace stop) -u --user  ::  username
+The username to stop codespace for (used with --org)
+
+(gh codespace stop) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh gist
+
+
+Desc:  Manage gists
+
+
+Usage:
+
+
+
+(gh gist) --help  ::  
+Show help for command
+
+
+
+
+(gh gist)
+clone                     (Clone a gist locally)
+create                    (Create a new gist)
+delete                    (Delete a gist)
+edit                      (Edit one of your gists)
+list                      (List your gists)
+view                      (View a gist)
+
+
+
+Name:  gh gist clone
+
+
+Desc:  Clone a gist locally
+
+
+Usage:
+
+
+
+(gh gist clone) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh gist create
+
+
+Desc:  Create a new gist
+
+
+Usage:
+
+
+
+(gh gist create) -d --desc  ::  string
+A description for this gist
+
+(gh gist create) -f --filename  ::  string
+Provide a filename to be used when reading from standard input
+
+(gh gist create) -p --public  ::  
+List the gist publicly (default: secret)
+
+(gh gist create) -w --web  ::  
+Open the web browser with created gist
+
+(gh gist create) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh gist delete
+
+
+Desc:  Delete a gist
+
+
+Usage:
+
+
+
+(gh gist delete) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh gist edit
+
+
+Desc:  Edit one of your gists
+
+
+Usage:
+
+
+
+(gh gist edit) -a --add  ::  string
+Add a new file to the gist
+
+(gh gist edit) -d --desc  ::  string
+New description for the gist
+
+(gh gist edit) -f --filename  ::  string
+Select a file to edit
+
+(gh gist edit) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh gist list
+
+
+Desc:  List your gists
+
+
+Usage:
+
+
+
+(gh gist list) -L --limit  ::  int
+Maximum number of gists to fetch (default 10)
+
+(gh gist list) --public  ::  
+Show only public gists
+
+(gh gist list) --secret  ::  
+Show only secret gists
+
+(gh gist list) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh gist view
+
+
+Desc:  View a gist
+
+
+Usage:
+
+
+
+(gh gist view) -f --filename  ::  string
+Display a single file from the gist
+
+(gh gist view) --files  ::  
+List file names from the gist
+
+(gh gist view) -r --raw  ::  
+Print raw instead of rendered gist contents
+
+(gh gist view) -w --web  ::  
+Open gist in the browser
+
+(gh gist view) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh issue
+
+
+Desc:  Manage issues
+
+
+Usage:
+
+
+
+(gh issue) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+(gh issue) --help  ::  
+Show help for command
+
+
+
+
+(gh issue)
+close                     (Close issue)
+comment                   (Add a comment to an issue)
+create                    (Create a new issue)
+delete                    (Delete issue)
+edit                      (Edit an issue)
+list                      (List issues in a repository)
+pin                       (Pin a issue)
+reopen                    (Reopen issue)
+status                    (Show status of relevant issues)
+transfer                  (Transfer issue to another repository)
+unpin                     (Unpin a issue)
+view                      (View an issue)
+
+
+
+Name:  gh issue close
+
+
+Desc:  Close issue
+
+
+Usage:
+
+
+
+(gh issue close) -c --comment  ::  string
+Leave a closing comment
+
+(gh issue close) -r --reason  ::  string
+Reason for closing: {completed|not planned}
+
+(gh issue close) --help  ::  
+Show help for command
+
+(gh issue close) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue comment
+
+
+Desc:  Add a comment to an issue
+
+
+Usage:
+
+
+
+(gh issue comment) -b --body  ::  text
+The comment body text
+
+(gh issue comment) -F --body-file  ::  file
+Read body text from file (use "-" to read from standard input)
+
+(gh issue comment) --edit-last  ::  
+Edit the last comment of the same author
+
+(gh issue comment) -e --editor  ::  
+Skip prompts and open the text editor to write the body in
+
+(gh issue comment) -w --web  ::  
+Open the web browser to write the comment
+
+(gh issue comment) --help  ::  
+Show help for command
+
+(gh issue comment) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue create
+
+
+Desc:  Create a new issue
+
+
+Usage:
+
+
+
+(gh issue create) -a --assignee  ::  login
+Assign people by their login. Use "@me" to self-assign.
+
+(gh issue create) -b --body  ::  string
+Supply a body. Will prompt for one otherwise.
+
+(gh issue create) -F --body-file  ::  file
+Read body text from file (use "-" to read from standard input)
+
+(gh issue create) -l --label  ::  name
+Add labels by name
+
+(gh issue create) -m --milestone  ::  name
+Add the issue to a milestone by name
+
+(gh issue create) -p --project  ::  name
+Add the issue to projects by name
+
+(gh issue create) --recover  ::  string
+Recover input from a failed run of create
+
+(gh issue create) -t --title  ::  string
+Supply a title. Will prompt for one otherwise.
+
+(gh issue create) -w --web  ::  
+Open the browser to create an issue
+
+(gh issue create) --help  ::  
+Show help for command
+
+(gh issue create) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue delete
+
+
+Desc:  Delete issue
+
+
+Usage:
+
+
+
+(gh issue delete) --confirm  ::  
+confirm deletion without prompting
+
+(gh issue delete) --help  ::  
+Show help for command
+
+(gh issue delete) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue edit
+
+
+Desc:  Edit an issue
+
+
+Usage:
+
+
+
+(gh issue edit) --add-assignee  ::  login
+Add assigned users by their login. Use "@me" to assign yourself.
+
+(gh issue edit) --add-label  ::  name
+Add labels by name
+
+(gh issue edit) --add-project  ::  name
+Add the issue to projects by name
+
+(gh issue edit) -b --body  ::  string
+Set the new body.
+
+(gh issue edit) -F --body-file  ::  file
+Read body text from file (use "-" to read from standard input)
+
+(gh issue edit) -m --milestone  ::  name
+Edit the milestone the issue belongs to by name
+
+(gh issue edit) --remove-assignee  ::  login
+Remove assigned users by their login. Use "@me" to unassign yourself.
+
+(gh issue edit) --remove-label  ::  name
+Remove labels by name
+
+(gh issue edit) --remove-project  ::  name
+Remove the issue from projects by name
+
+(gh issue edit) -t --title  ::  string
+Set the new title.
+
+(gh issue edit) --help  ::  
+Show help for command
+
+(gh issue edit) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue list
+
+
+Desc:  List issues in a repository
+
+
+Usage:
+
+
+
+(gh issue list) --app  ::  string
+Filter by GitHub App author
+
+(gh issue list) -a --assignee  ::  string
+Filter by assignee
+
+(gh issue list) -A --author  ::  string
+Filter by author
+
+(gh issue list) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh issue list) --json  ::  fields
+Output JSON with the specified fields
+
+(gh issue list) -l --label  ::  strings
+Filter by label
+
+(gh issue list) -L --limit  ::  int
+Maximum number of issues to fetch (default 30)
+
+(gh issue list) --mention  ::  string
+Filter by mention
+
+(gh issue list) -m --milestone  ::  string
+Filter by milestone number or title
+
+(gh issue list) -S --search  ::  query
+Search issues with query
+
+(gh issue list) -s --state  ::  string
+Filter by state: {open|closed|all} (default "open")
+
+(gh issue list) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh issue list) -w --web  ::  
+List issues in the web browser
+
+(gh issue list) --help  ::  
+Show help for command
+
+(gh issue list) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue pin
+
+
+Desc:  Pin a issue
+
+
+Usage:
+
+
+
+(gh issue pin) --help  ::  
+Show help for command
+
+(gh issue pin) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue reopen
+
+
+Desc:  Reopen issue
+
+
+Usage:
+
+
+
+(gh issue reopen) -c --comment  ::  string
+Add a reopening comment
+
+(gh issue reopen) --help  ::  
+Show help for command
+
+(gh issue reopen) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue status
+
+
+Desc:  Show status of relevant issues
+
+
+Usage:
+
+
+
+(gh issue status) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh issue status) --json  ::  fields
+Output JSON with the specified fields
+
+(gh issue status) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh issue status) --help  ::  
+Show help for command
+
+(gh issue status) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue transfer
+
+
+Desc:  Transfer issue to another repository
+
+
+Usage:
+
+
+
+(gh issue transfer) --help  ::  
+Show help for command
+
+(gh issue transfer) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue unpin
+
+
+Desc:  Unpin a issue
+
+
+Usage:
+
+
+
+(gh issue unpin) --help  ::  
+Show help for command
+
+(gh issue unpin) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue view
+
+
+Desc:  View an issue
+
+
+Usage:
+
+
+
+(gh issue view) -c --comments  ::  
+View issue comments
+
+(gh issue view) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh issue view) --json  ::  fields
+Output JSON with the specified fields
+
+(gh issue view) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh issue view) -w --web  ::  
+Open an issue in the browser
+
+(gh issue view) --help  ::  
+Show help for command
+
+(gh issue view) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr
+
+
+Desc:  Manage pull requests
+
+
+Usage:
+
+
+
+(gh pr) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+(gh pr) --help  ::  
+Show help for command
+
+
+
+
+(gh pr)
+checkout                  (Check out a pull request in git)
+checks                    (Show CI status for a single pull request)
+close                     (Close a pull request)
+comment                   (Add a comment to a pull request)
+create                    (Create a pull request)
+diff                      (View changes in a pull request)
+edit                      (Edit a pull request)
+list                      (List pull requests in a repository)
+merge                     (Merge a pull request)
+ready                     (Mark a pull request as ready for review)
+reopen                    (Reopen a pull request)
+review                    (Add a review to a pull request)
+status                    (Show status of relevant pull requests)
+view                      (View a pull request)
+
+
+
+Name:  gh pr checkout
+
+
+Desc:  Check out a pull request in git
+
+
+Usage:
+
+
+
+(gh pr checkout) -b --branch  ::  string
+Local branch name to use (default: the name of the head branch)
+
+(gh pr checkout) --detach  ::  
+Checkout PR with a detached HEAD
+
+(gh pr checkout) -f --force  ::  
+Reset the existing local branch to the latest state of the pull request
+
+(gh pr checkout) --recurse-submodules  ::  
+Update all submodules after checkout
+
+(gh pr checkout) --help  ::  
+Show help for command
+
+(gh pr checkout) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr checks
+
+
+Desc:  Show CI status for a single pull request
+
+
+Usage:
+
+
+
+(gh pr checks) -i --interval --watch  ::  
+Refresh interval in seconds when using --watch flag (default 10)
+
+(gh pr checks) --required  ::  
+Only show checks that are required
+
+(gh pr checks) --watch  ::  
+Watch checks until they finish
+
+(gh pr checks) -w --web  ::  
+Open the web browser to show details about checks
+
+(gh pr checks) --help  ::  
+Show help for command
+
+(gh pr checks) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr close
+
+
+Desc:  Close a pull request
+
+
+Usage:
+
+
+
+(gh pr close) -c --comment  ::  string
+Leave a closing comment
+
+(gh pr close) -d --delete-branch  ::  
+Delete the local and remote branch after close
+
+(gh pr close) --help  ::  
+Show help for command
+
+(gh pr close) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr comment
+
+
+Desc:  Add a comment to a pull request
+
+
+Usage:
+
+
+
+(gh pr comment) -b --body  ::  text
+The comment body text
+
+(gh pr comment) -F --body-file  ::  file
+Read body text from file (use "-" to read from standard input)
+
+(gh pr comment) --edit-last  ::  
+Edit the last comment of the same author
+
+(gh pr comment) -e --editor  ::  
+Skip prompts and open the text editor to write the body in
+
+(gh pr comment) -w --web  ::  
+Open the web browser to write the comment
+
+(gh pr comment) --help  ::  
+Show help for command
+
+(gh pr comment) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr create
+
+
+Desc:  Create a pull request
+
+
+Usage:
+
+
+
+(gh pr create) -a --assignee  ::  login
+Assign people by their login. Use "@me" to self-assign.
+
+(gh pr create) -B --base  ::  branch
+The branch into which you want your code merged
+
+(gh pr create) -b --body  ::  string
+Body for the pull request
+
+(gh pr create) -F --body-file  ::  file
+Read body text from file (use "-" to read from standard input)
+
+(gh pr create) -d --draft  ::  
+Mark pull request as a draft
+
+(gh pr create) -f --fill  ::  
+Do not prompt for title/body and just use commit info
+
+(gh pr create) -H --head  ::  branch
+The branch that contains commits for your pull request (default: current branch)
+
+(gh pr create) -l --label  ::  name
+Add labels by name
+
+(gh pr create) -m --milestone  ::  name
+Add the pull request to a milestone by name
+
+(gh pr create) --no-maintainer-edit  ::  
+Disable maintainer's ability to modify pull request
+
+(gh pr create) -p --project  ::  name
+Add the pull request to projects by name
+
+(gh pr create) --recover  ::  string
+Recover input from a failed run of create
+
+(gh pr create) -r --reviewer  ::  handle
+Request reviews from people or teams by their handle
+
+(gh pr create) -t --title  ::  string
+Title for the pull request
+
+(gh pr create) -w --web  ::  
+Open the web browser to create a pull request
+
+(gh pr create) --help  ::  
+Show help for command
+
+(gh pr create) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr diff
+
+
+Desc:  View changes in a pull request
+
+
+Usage:
+
+
+
+(gh pr diff) --color  ::  string
+Use color in diff output: {always|never|auto} (default "auto")
+
+(gh pr diff) --name-only  ::  
+Display only names of changed files
+
+(gh pr diff) --patch  ::  
+Display diff in patch format
+
+(gh pr diff) -w --web  ::  
+Open the pull request diff in the browser
+
+(gh pr diff) --help  ::  
+Show help for command
+
+(gh pr diff) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr edit
+
+
+Desc:  Edit a pull request
+
+
+Usage:
+
+
+
+(gh pr edit) --add-assignee  ::  login
+Add assigned users by their login. Use "@me" to assign yourself.
+
+(gh pr edit) --add-label  ::  name
+Add labels by name
+
+(gh pr edit) --add-project  ::  name
+Add the pull request to projects by name
+
+(gh pr edit) --add-reviewer  ::  login
+Add reviewers by their login.
+
+(gh pr edit) -B --base  ::  branch
+Change the base branch for this pull request
+
+(gh pr edit) -b --body  ::  string
+Set the new body.
+
+(gh pr edit) -F --body-file  ::  file
+Read body text from file (use "-" to read from standard input)
+
+(gh pr edit) -m --milestone  ::  name
+Edit the milestone the pull request belongs to by name
+
+(gh pr edit) --remove-assignee  ::  login
+Remove assigned users by their login. Use "@me" to unassign yourself.
+
+(gh pr edit) --remove-label  ::  name
+Remove labels by name
+
+(gh pr edit) --remove-project  ::  name
+Remove the pull request from projects by name
+
+(gh pr edit) --remove-reviewer  ::  login
+Remove reviewers by their login.
+
+(gh pr edit) -t --title  ::  string
+Set the new title.
+
+(gh pr edit) --help  ::  
+Show help for command
+
+(gh pr edit) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr list
+
+
+Desc:  List pull requests in a repository
+
+
+Usage:
+
+
+
+(gh pr list) --app  ::  string
+Filter by GitHub App author
+
+(gh pr list) -a --assignee  ::  string
+Filter by assignee
+
+(gh pr list) -A --author  ::  string
+Filter by author
+
+(gh pr list) -B --base  ::  string
+Filter by base branch
+
+(gh pr list) -d --draft  ::  
+Filter by draft state
+
+(gh pr list) -H --head  ::  string
+Filter by head branch
+
+(gh pr list) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh pr list) --json  ::  fields
+Output JSON with the specified fields
+
+(gh pr list) -l --label  ::  strings
+Filter by label
+
+(gh pr list) -L --limit  ::  int
+Maximum number of items to fetch (default 30)
+
+(gh pr list) -S --search  ::  query
+Search pull requests with query
+
+(gh pr list) -s --state  ::  string
+Filter by state: {open|closed|merged|all} (default "open")
+
+(gh pr list) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh pr list) -w --web  ::  
+List pull requests in the web browser
+
+(gh pr list) --help  ::  
+Show help for command
+
+(gh pr list) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr merge
+
+
+Desc:  Merge a pull request
+
+
+Usage:
+
+
+
+(gh pr merge) --admin  ::  
+Use administrator privileges to merge a pull request that does not meet requirements
+
+(gh pr merge) -A --author-email  ::  text
+Email text for merge commit author
+
+(gh pr merge) --auto  ::  
+Automatically merge only after necessary requirements are met
+
+(gh pr merge) -b --body  ::  text
+Body text for the merge commit
+
+(gh pr merge) -F --body-file  ::  file
+Read body text from file (use "-" to read from standard input)
+
+(gh pr merge) -d --delete-branch  ::  
+Delete the local and remote branch after merge
+
+(gh pr merge) --disable-auto  ::  
+Disable auto-merge for this pull request
+
+(gh pr merge) --match-head-commit  ::  SHA
+Commit SHA that the pull request head must match to allow merge
+
+(gh pr merge) -m --merge  ::  
+Merge the commits with the base branch
+
+(gh pr merge) -r --rebase  ::  
+Rebase the commits onto the base branch
+
+(gh pr merge) -s --squash  ::  
+Squash the commits into one commit and merge it into the base branch
+
+(gh pr merge) -t --subject  ::  text
+Subject text for the merge commit
+
+(gh pr merge) --help  ::  
+Show help for command
+
+(gh pr merge) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr ready
+
+
+Desc:  Mark a pull request as ready for review
+
+
+Usage:
+
+
+
+(gh pr ready) --undo  ::  
+Convert a pull request to "draft"
+
+(gh pr ready) --help  ::  
+Show help for command
+
+(gh pr ready) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr reopen
+
+
+Desc:  Reopen a pull request
+
+
+Usage:
+
+
+
+(gh pr reopen) -c --comment  ::  string
+Add a reopening comment
+
+(gh pr reopen) --help  ::  
+Show help for command
+
+(gh pr reopen) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr review
+
+
+Desc:  Add a review to a pull request
+
+
+Usage:
+
+
+
+(gh pr review) -a --approve  ::  
+Approve pull request
+
+(gh pr review) -b --body  ::  string
+Specify the body of a review
+
+(gh pr review) -F --body-file  ::  file
+Read body text from file (use "-" to read from standard input)
+
+(gh pr review) -c --comment  ::  
+Comment on a pull request
+
+(gh pr review) -r --request-changes  ::  
+Request changes on a pull request
+
+(gh pr review) --help  ::  
+Show help for command
+
+(gh pr review) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr status
+
+
+Desc:  Show status of relevant pull requests
+
+
+Usage:
+
+
+
+(gh pr status) -c --conflict-status  ::  
+Display the merge conflict status of each pull request
+
+(gh pr status) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh pr status) --json  ::  fields
+Output JSON with the specified fields
+
+(gh pr status) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh pr status) --help  ::  
+Show help for command
+
+(gh pr status) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh pr view
+
+
+Desc:  View a pull request
+
+
+Usage:
+
+
+
+(gh pr view) -c --comments  ::  
+View pull request comments
+
+(gh pr view) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh pr view) --json  ::  fields
+Output JSON with the specified fields
+
+(gh pr view) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh pr view) -w --web  ::  
+Open a pull request in the browser
+
+(gh pr view) --help  ::  
+Show help for command
+
+(gh pr view) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh release
+
+
+Desc:  Manage releases
+
+
+Usage:
+
+
+
+(gh release) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+(gh release) --help  ::  
+Show help for command
+
+
+
+
+(gh release)
+create                    (Create a new release)
+delete                    (Delete a release)
+download                  (Download release assets)
+edit                      (Edit a release)
+list                      (List releases in a repository)
+upload                    (Upload assets to a release)
+view                      (View information about a release)
+
+
+
+Name:  gh release create
+
+
+Desc:  Create a new release
+
+
+Usage:
+
+
+
+(gh release create) --discussion-category  ::  string
+Start a discussion in the specified category
+
+(gh release create) -d --draft  ::  
+Save the release as a draft instead of publishing it
+
+(gh release create) --generate-notes  ::  
+Automatically generate title and notes for the release
+
+(gh release create) -n --notes  ::  string
+Release notes
+
+(gh release create) -F --notes-file  ::  file
+Read release notes from file (use "-" to read from standard input)
+
+(gh release create) --notes-start-tag  ::  string
+Tag to use as the starting point for generating release notes
+
+(gh release create) -p --prerelease  ::  
+Mark the release as a prerelease
+
+(gh release create) --target  ::  branch
+Target branch or full commit SHA (default: main branch)
+
+(gh release create) -t --title  ::  string
+Release title
+
+(gh release create) --help  ::  
+Show help for command
+
+(gh release create) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh release delete
+
+
+Desc:  Delete a release
+
+
+Usage:
+
+
+
+(gh release delete) --cleanup-tag  ::  
+Delete the specified tag in addition to its release
+
+(gh release delete) -y --yes  ::  
+Skip the confirmation prompt
+
+(gh release delete) --help  ::  
+Show help for command
+
+(gh release delete) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh release download
+
+
+Desc:  Download release assets
+
+
+Usage:
+
+
+
+(gh release download) -A --archive  ::  format
+Download the source code archive in the specified format (zip or tar.gz)
+
+(gh release download) --clobber  ::  
+Overwrite existing files of the same name
+
+(gh release download) -D --dir  ::  string
+The directory to download files into (default ".")
+
+(gh release download) -p --pattern  ::  stringArray
+Download only assets that match a glob pattern
+
+(gh release download) --skip-existing  ::  
+Skip downloading when files of the same name exist
+
+(gh release download) --help  ::  
+Show help for command
+
+(gh release download) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh release edit
+
+
+Desc:  Edit a release
+
+
+Usage:
+
+
+
+(gh release edit) --discussion-category  ::  string
+Start a discussion in the specified category when publishing a draft
+
+(gh release edit) --draft  ::  
+Save the release as a draft instead of publishing it
+
+(gh release edit) -n --notes  ::  string
+Release notes
+
+(gh release edit) -F --notes-file  ::  file
+Read release notes from file (use "-" to read from standard input)
+
+(gh release edit) --prerelease  ::  
+Mark the release as a prerelease
+
+(gh release edit) --tag  ::  string
+The name of the tag
+
+(gh release edit) --target  ::  branch
+Target branch or full commit SHA (default: main branch)
+
+(gh release edit) -t --title  ::  string
+Release title
+
+(gh release edit) --help  ::  
+Show help for command
+
+(gh release edit) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh release list
+
+
+Desc:  List releases in a repository
+
+
+Usage:
+
+
+
+(gh release list) --exclude-drafts  ::  
+Exclude draft releases
+
+(gh release list) -L --limit  ::  int
+Maximum number of items to fetch (default 30)
+
+(gh release list) --help  ::  
+Show help for command
+
+(gh release list) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh release upload
+
+
+Desc:  Upload assets to a release
+
+
+Usage:
+
+
+
+(gh release upload) --clobber  ::  
+Overwrite existing assets of the same name
+
+(gh release upload) --help  ::  
+Show help for command
+
+(gh release upload) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh release view
+
+
+Desc:  View information about a release
+
+
+Usage:
+
+
+
+(gh release view) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh release view) --json  ::  fields
+Output JSON with the specified fields
+
+(gh release view) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh release view) -w --web  ::  
+Open the release in the browser
+
+(gh release view) --help  ::  
+Show help for command
+
+(gh release view) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh repo
+
+
+Desc:  Manage repositories
+
+
+Usage:
+
+
+
+(gh repo) --help  ::  
+Show help for command
+
+
+
+
+(gh repo)
+archive                   (Archive a repository)
+clone                     (Clone a repository locally)
+create                    (Create a new repository)
+delete                    (Delete a repository)
+deploy-key                (Manage deploy keys in a repository)
+edit                      (Edit repository settings)
+fork                      (Create a fork of a repository)
+list                      (List repositories owned by user or organization)
+rename                    (Rename a repository)
+sync                      (Sync a repository)
+view                      (View a repository)
+
+
+
+Name:  gh repo archive
+
+
+Desc:  Archive a repository
+
+
+Usage:
+
+
+
+(gh repo archive) -y --confirm  ::  
+Skip the confirmation prompt
+
+(gh repo archive) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh repo clone
+
+
+Desc:  Clone a repository locally
+
+
+Usage:
+
+
+
+(gh repo clone) -u --upstream-remote-name  ::  string
+Upstream remote name when cloning a fork (default "upstream")
+
+(gh repo clone) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh repo create
+
+
+Desc:  Create a new repository
+
+
+Usage:
+
+
+
+(gh repo create) --add-readme  ::  
+Add a README file to the new repository
+
+(gh repo create) -c --clone  ::  
+Clone the new repository to the current directory
+
+(gh repo create) -d --description  ::  string
+Description of the repository
+
+(gh repo create) --disable-issues  ::  
+Disable issues in the new repository
+
+(gh repo create) --disable-wiki  ::  
+Disable wiki in the new repository
+
+(gh repo create) -g --gitignore  ::  string
+Specify a gitignore template for the repository
+
+(gh repo create) -h --homepage  ::  URL
+Repository home page URL
+
+(gh repo create) --include-all-branches  ::  
+Include all branches from template repository
+
+(gh repo create) --internal  ::  
+Make the new repository internal
+
+(gh repo create) -l --license  ::  string
+Specify an Open Source License for the repository
+
+(gh repo create) --private  ::  
+Make the new repository private
+
+(gh repo create) --public  ::  
+Make the new repository public
+
+(gh repo create) --push  ::  
+Push local commits to the new repository
+
+(gh repo create) -r --remote  ::  string
+Specify remote name for the new repository
+
+(gh repo create) -s --source  ::  string
+Specify path to local repository to use as source
+
+(gh repo create) -t --team  ::  name
+The name of the organization team to be granted access
+
+(gh repo create) -p --template  ::  repository
+Make the new repository based on a template repository
+
+(gh repo create) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh repo delete
+
+
+Desc:  Delete a repository
+
+
+Usage:
+
+
+
+(gh repo delete) --confirm  ::  
+confirm deletion without prompting
+
+(gh repo delete) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh repo deploy-key
+
+
+Desc:  Manage deploy keys in a repository
+
+
+Usage:
+
+
+
+(gh repo deploy-key) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+(gh repo deploy-key) --help  ::  
+Show help for command
+
+
+
+
+(gh repo deploy-key)
+add                       (Add a deploy key to a GitHub repository)
+delete                    (Delete a deploy key from a GitHub repository)
+list                      (List deploy keys in a GitHub repository)
+
+
+
+Name:  gh repo deploy-key add
+
+
+Desc:  Add a deploy key to a GitHub repository
+
+
+Usage:
+
+
+
+(gh repo deploy-key add) -w --allow-write  ::  
+Allow write access for the key
+
+(gh repo deploy-key add) -t --title  ::  string
+Title of the new key
+
+(gh repo deploy-key add) --help  ::  
+Show help for command
+
+(gh repo deploy-key add) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh repo deploy-key delete
+
+
+Desc:  Delete a deploy key from a GitHub repository
+
+
+Usage:
+
+
+
+(gh repo deploy-key delete) --help  ::  
+Show help for command
+
+(gh repo deploy-key delete) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh repo deploy-key list
+
+
+Desc:  List deploy keys in a GitHub repository
+
+
+Usage:
+
+
+
+(gh repo deploy-key list) --help  ::  
+Show help for command
+
+(gh repo deploy-key list) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh repo edit
+
+
+Desc:  Edit repository settings
+
+
+Usage:
+
+
+
+(gh repo edit) --add-topic  ::  strings
+Add repository topic
+
+(gh repo edit) --allow-forking  ::  
+Allow forking of an organization repository
+
+(gh repo edit) --default-branch  ::  name
+Set the default branch name for the repository
+
+(gh repo edit) --delete-branch-on-merge  ::  
+Delete head branch when pull requests are merged
+
+(gh repo edit) -d --description  ::  string
+Description of the repository
+
+(gh repo edit) --enable-auto-merge  ::  
+Enable auto-merge functionality
+
+(gh repo edit) --enable-issues  ::  
+Enable issues in the repository
+
+(gh repo edit) --enable-merge-commit  ::  
+Enable merging pull requests via merge commit
+
+(gh repo edit) --enable-projects  ::  
+Enable projects in the repository
+
+(gh repo edit) --enable-rebase-merge  ::  
+Enable merging pull requests via rebase
+
+(gh repo edit) --enable-squash-merge  ::  
+Enable merging pull requests via squashed commit
+
+(gh repo edit) --enable-wiki  ::  
+Enable wiki in the repository
+
+(gh repo edit) -h --homepage  ::  URL
+Repository home page URL
+
+(gh repo edit) --remove-topic  ::  strings
+Remove repository topic
+
+(gh repo edit) --template  ::  
+Make the repository available as a template repository
+
+(gh repo edit) --visibility  ::  string
+Change the visibility of the repository to {public,private,internal}
+
+(gh repo edit) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh repo fork
+
+
+Desc:  Create a fork of a repository
+
+
+Usage:
+
+
+
+(gh repo fork) --clone  ::  
+Clone the fork
+
+(gh repo fork) --fork-name  ::  string
+Rename the forked repository
+
+(gh repo fork) --org  ::  string
+Create the fork in an organization
+
+(gh repo fork) --remote  ::  
+Add a git remote for the fork
+
+(gh repo fork) --remote-name  ::  string
+Specify the name for the new remote (default "origin")
+
+(gh repo fork) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh repo list
+
+
+Desc:  List repositories owned by user or organization
+
+
+Usage:
+
+
+
+(gh repo list) --archived  ::  
+Show only archived repositories
+
+(gh repo list) --fork  ::  
+Show only forks
+
+(gh repo list) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh repo list) --json  ::  fields
+Output JSON with the specified fields
+
+(gh repo list) -l --language  ::  string
+Filter by primary coding language
+
+(gh repo list) -L --limit  ::  int
+Maximum number of repositories to list (default 30)
+
+(gh repo list) --no-archived  ::  
+Omit archived repositories
+
+(gh repo list) --source  ::  
+Show only non-forks
+
+(gh repo list) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh repo list) --topic  ::  string
+Filter by topic
+
+(gh repo list) --visibility  ::  string
+Filter by repository visibility: {public|private|internal}
+
+(gh repo list) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh repo rename
+
+
+Desc:  Rename a repository
+
+
+Usage:
+
+
+
+(gh repo rename) -y --confirm  ::  
+skip confirmation prompt
+
+(gh repo rename) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+(gh repo rename) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh repo sync
+
+
+Desc:  Sync a repository
+
+
+Usage:
+
+
+
+(gh repo sync) -b --branch  ::  string
+Branch to sync (default: main branch)
+
+(gh repo sync) --force  ::  
+Hard reset the branch of the destination repository to match the source repository
+
+(gh repo sync) -s --source  ::  string
+Source repository
+
+(gh repo sync) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh repo view
+
+
+Desc:  View a repository
+
+
+Usage:
+
+
+
+(gh repo view) -b --branch  ::  string
+View a specific branch of the repository
+
+(gh repo view) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh repo view) --json  ::  fields
+Output JSON with the specified fields
+
+(gh repo view) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh repo view) -w --web  ::  
+Open a repository in the browser
+
+(gh repo view) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh run
+
+
+Desc:  View details about workflow runs
+
+
+Usage:
+
+
+
+(gh run) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+(gh run) --help  ::  
+Show help for command
+
+
+
+
+(gh run)
+cancel                    (Cancel a workflow run)
+download                  (Download artifacts generated by a workflow run)
+list                      (List recent workflow runs)
+rerun                     (Rerun a failed run)
+view                      (View a summary of a workflow run)
+watch                     (Watch a run until it completes, showing its progress)
+
+
+
+Name:  gh run cancel
+
+
+Desc:  Cancel a workflow run
+
+
+Usage:
+
+
+
+(gh run cancel) --help  ::  
+Show help for command
+
+(gh run cancel) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh run download
+
+
+Desc:  Download artifacts generated by a workflow run
+
+
+Usage:
+
+
+
+(gh run download) -D --dir  ::  string
+The directory to download artifacts into (default ".")
+
+(gh run download) -n --name  ::  stringArray
+Download artifacts that match any of the given names
+
+(gh run download) -p --pattern  ::  stringArray
+Download artifacts that match a glob pattern
+
+(gh run download) --help  ::  
+Show help for command
+
+(gh run download) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh run list
+
+
+Desc:  List recent workflow runs
+
+
+Usage:
+
+
+
+(gh run list) -b --branch  ::  string
+Filter runs by branch
+
+(gh run list) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh run list) --json  ::  fields
+Output JSON with the specified fields
+
+(gh run list) -L --limit  ::  int
+Maximum number of runs to fetch (default 20)
+
+(gh run list) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh run list) -u --user  ::  string
+Filter runs by user who triggered the run
+
+(gh run list) -w --workflow  ::  string
+Filter runs by workflow
+
+(gh run list) --help  ::  
+Show help for command
+
+(gh run list) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh run rerun
+
+
+Desc:  Rerun a failed run
+
+
+Usage:
+
+
+
+(gh run rerun) -d --debug  ::  
+Rerun with debug logging
+
+(gh run rerun) --failed  ::  
+Rerun only failed jobs, including dependencies
+
+(gh run rerun) -j --job  ::  string
+Rerun a specific job from a run, including dependencies
+
+(gh run rerun) --help  ::  
+Show help for command
+
+(gh run rerun) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh run view
+
+
+Desc:  View a summary of a workflow run
+
+
+Usage:
+
+
+
+(gh run view) --exit-status  ::  
+Exit with non-zero status if run failed
+
+(gh run view) -j --job  ::  string
+View a specific job ID from a run
+
+(gh run view) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh run view) --json  ::  fields
+Output JSON with the specified fields
+
+(gh run view) --log  ::  
+View full log for either a run or specific job
+
+(gh run view) --log-failed  ::  
+View the log for any failed steps in a run or specific job
+
+(gh run view) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh run view) -v --verbose  ::  
+Show job steps
+
+(gh run view) -w --web  ::  
+Open run in the browser
+
+(gh run view) --help  ::  
+Show help for command
+
+(gh run view) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh run watch
+
+
+Desc:  Watch a run until it completes, showing its progress
+
+
+Usage:
+
+
+
+(gh run watch) --exit-status  ::  
+Exit with non-zero status if run fails
+
+(gh run watch) -i --interval  ::  int
+Refresh interval in seconds (default 3)
+
+(gh run watch) --help  ::  
+Show help for command
+
+(gh run watch) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh workflow
+
+
+Desc:  View details about GitHub Actions workflows
+
+
+Usage:
+
+
+
+(gh workflow) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+(gh workflow) --help  ::  
+Show help for command
+
+
+
+
+(gh workflow)
+disable                   (Disable a workflow)
+enable                    (Enable a workflow)
+list                      (List workflows)
+run                       (Run a workflow by creating a workflow_dispatch event)
+view                      (View the summary of a workflow)
+
+
+
+Name:  gh workflow disable
+
+
+Desc:  Disable a workflow
+
+
+Usage:
+
+
+
+(gh workflow disable) --help  ::  
+Show help for command
+
+(gh workflow disable) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh workflow enable
+
+
+Desc:  Enable a workflow
+
+
+Usage:
+
+
+
+(gh workflow enable) --help  ::  
+Show help for command
+
+(gh workflow enable) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh workflow list
+
+
+Desc:  List workflows
+
+
+Usage:
+
+
+
+(gh workflow list) -a --all  ::  
+Show all workflows, including disabled workflows
+
+(gh workflow list) -L --limit  ::  int
+Maximum number of workflows to fetch (default 50)
+
+(gh workflow list) --help  ::  
+Show help for command
+
+(gh workflow list) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh workflow run
+
+
+Desc:  Run a workflow by creating a workflow_dispatch event
+
+
+Usage:
+
+
+
+(gh workflow run) -F --field  ::  key=value
+Add a string parameter in key=value format, respecting @ syntax
+
+(gh workflow run) --json  ::  
+Read workflow inputs as JSON via STDIN
+
+(gh workflow run) -f --raw-field  ::  key=value
+Add a string parameter in key=value format
+
+(gh workflow run) -r --ref  ::  string
+The branch or tag name which contains the version of the workflow file you'd like to run
+
+(gh workflow run) --help  ::  
+Show help for command
+
+(gh workflow run) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh workflow view
+
+
+Desc:  View the summary of a workflow
+
+
+Usage:
+
+
+
+(gh workflow view) -r --ref  ::  string
+The branch or tag name which contains the version of the workflow file you'd like to view
+
+(gh workflow view) -w --web  ::  
+Open workflow in the browser
+
+(gh workflow view) -y --yaml  ::  
+View the workflow yaml file
+
+(gh workflow view) --help  ::  
+Show help for command
+
+(gh workflow view) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh alias
+
+
+Desc:  Create command shortcuts
+
+
+Usage:
+
+
+
+(gh alias) --help  ::  
+Show help for command
+
+
+
+
+(gh alias)
+delete                    (Delete an alias)
+list                      (List your aliases)
+set                       (Create a shortcut for a gh command)
+
+
+
+Name:  gh alias delete
+
+
+Desc:  Delete an alias
+
+
+Usage:
+
+
+
+(gh alias delete) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh alias list
+
+
+Desc:  List your aliases
+
+
+Usage:
+
+
+
+(gh alias list) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh alias set
+
+
+Desc:  Create a shortcut for a gh command
+
+
+Usage:
+
+
+
+(gh alias set) -s --shell  ::  
+Declare an alias to be passed through a shell interpreter
+
+(gh alias set) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh api
+
+
+Desc:  Make an authenticated GitHub API request
+
+
+Usage:
+
+
+
+(gh api) --cache  ::  duration
+Cache the response, e.g. "3600s", "60m", "1h"
+
+(gh api) -F --field  ::  key=value
+Add a typed parameter in key=value format
+
+(gh api) -H --header  ::  key:value
+Add a HTTP request header in key:value format
+
+(gh api) --hostname  ::  string
+The GitHub hostname for the request (default "github.com")
+
+(gh api) -i --include  ::  
+Include HTTP response status line and headers in the output
+
+(gh api) --input  ::  file
+The file to use as body for the HTTP request (use "-" to read from standard input)
+
+(gh api) -q --jq  ::  string
+Query to select values from the response using jq syntax
+
+(gh api) -X --method  ::  string
+The HTTP method for the request (default "GET")
+
+(gh api) --paginate  ::  
+Make additional HTTP requests to fetch all pages of results
+
+(gh api) -p --preview  ::  names
+GitHub API preview names to request (without the "-preview" suffix)
+
+(gh api) -f --raw-field  ::  key=value
+Add a string parameter in key=value format
+
+(gh api) --silent  ::  
+Do not print the response body
+
+(gh api) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh api) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh completion
+
+
+Desc:  Generate shell completion scripts
+
+
+Usage:
+
+
+
+(gh completion) -s --shell  ::  string
+Shell type: {bash|zsh|fish|powershell}
+
+(gh completion) --help  ::  
+Show help for command
+
+
+
+
+(gh completion)
+autoload                  (-U compinit)
+compinit                  (-i)
+
+
+
+Name:  gh completion autoload
+
+
+Desc:  -U compinit
+
+
+Usage:
+
+
+
+Name:  gh completion compinit
+
+
+Desc:  -i
+
+
+Usage:
+
+
+
+Name:  gh config
+
+
+Desc:  Manage configuration for gh
+
+
+Usage:
+
+
+
+(gh config) --help  ::  
+Show help for command
+
+
+
+
+(gh config)
+get                       (Print the value of a given configuration key)
+list                      (Print a list of configuration keys and values)
+set                       (Update configuration with a value for the given key)
+
+
+
+Name:  gh config get
+
+
+Desc:  Print the value of a given configuration key
+
+
+Usage:
+
+
+
+(gh config get) -h --host  ::  string
+Get per-host setting
+
+(gh config get) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh config list
+
+
+Desc:  Print a list of configuration keys and values
+
+
+Usage:
+
+
+
+(gh config list) -h --host  ::  string
+Get per-host configuration
+
+(gh config list) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh config set
+
+
+Desc:  Update configuration with a value for the given key
+
+
+Usage:
+
+
+
+(gh config set) -h --host  ::  string
+Set per-host setting
+
+(gh config set) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh extension
+
+
+Desc:  Manage gh extensions
+
+
+Usage:
+
+
+
+(gh extension) --help  ::  
+Show help for command
+
+
+
+
+(gh extension)
+create                    (Create a new extension)
+exec                      (Execute an installed extension)
+install                   (Install a gh extension from a repository)
+list                      (List installed extension commands)
+remove                    (Remove an installed extension)
+upgrade                   (Upgrade installed extensions)
+
+
+
+Name:  gh extension create
+
+
+Desc:  Create a new extension
+
+
+Usage:
+
+
+
+(gh extension create) --precompiled  ::  string
+Create a precompiled extension. Possible values: go, other
+
+(gh extension create) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh extension exec
+
+
+Desc:  Execute an installed extension
+
+
+Usage:
+
+
+
+Name:  gh extension install
+
+
+Desc:  Install a gh extension from a repository
+
+
+Usage:
+
+
+
+(gh extension install) --pin  ::  string
+pin extension to a release tag or commit ref
+
+(gh extension install) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh extension list
+
+
+Desc:  List installed extension commands
+
+
+Usage:
+
+
+
+(gh extension list) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh extension remove
+
+
+Desc:  Remove an installed extension
+
+
+Usage:
+
+
+
+(gh extension remove) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh extension upgrade
+
+
+Desc:  Upgrade installed extensions
+
+
+Usage:
+
+
+
+(gh extension upgrade) --all  ::  
+Upgrade all extensions
+
+(gh extension upgrade) --dry-run  ::  
+Only display upgrades
+
+(gh extension upgrade) --force  ::  
+Force upgrade extension
+
+(gh extension upgrade) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh gpg-key
+
+
+Desc:  Manage GPG keys
+
+
+Usage:
+
+
+
+(gh gpg-key) --help  ::  
+Show help for command
+
+
+
+
+(gh gpg-key)
+add                       (Add a GPG key to your GitHub account)
+delete                    (Delete a GPG key from your GitHub account)
+list                      (Lists GPG keys in your GitHub account)
+
+
+
+Name:  gh gpg-key add
+
+
+Desc:  Add a GPG key to your GitHub account
+
+
+Usage:
+
+
+
+(gh gpg-key add) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh gpg-key delete
+
+
+Desc:  Delete a GPG key from your GitHub account
+
+
+Usage:
+
+
+
+(gh gpg-key delete) -y --confirm  ::  
+Skip the confirmation prompt
+
+(gh gpg-key delete) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh gpg-key list
+
+
+Desc:  Lists GPG keys in your GitHub account
+
+
+Usage:
+
+
+
+(gh gpg-key list) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh label
+
+
+Desc:  Manage labels
+
+
+Usage:
+
+
+
+(gh label) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+(gh label) --help  ::  
+Show help for command
+
+
+
+
+(gh label)
+clone                     (Clones labels from one repository to another)
+create                    (Create a new label)
+delete                    (Delete a label from a repository)
+edit                      (Edit a label)
+list                      (List labels in a repository)
+
+
+
+Name:  gh label clone
+
+
+Desc:  Clones labels from one repository to another
+
+
+Usage:
+
+
+
+(gh label clone) -f --force  ::  
+Overwrite labels in the destination repository
+
+(gh label clone) --help  ::  
+Show help for command
+
+(gh label clone) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh label create
+
+
+Desc:  Create a new label
+
+
+Usage:
+
+
+
+(gh label create) -c --color  ::  string
+Color of the label
+
+(gh label create) -d --description  ::  string
+Description of the label
+
+(gh label create) -f --force  ::  
+Update the label color and description if label already exists
+
+(gh label create) --help  ::  
+Show help for command
+
+(gh label create) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh label delete
+
+
+Desc:  Delete a label from a repository
+
+
+Usage:
+
+
+
+(gh label delete) --confirm  ::  
+Confirm deletion without prompting
+
+(gh label delete) --help  ::  
+Show help for command
+
+(gh label delete) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh label edit
+
+
+Desc:  Edit a label
+
+
+Usage:
+
+
+
+(gh label edit) -c --color  ::  string
+Color of the label
+
+(gh label edit) -d --description  ::  string
+Description of the label
+
+(gh label edit) -n --name  ::  string
+New name of the label
+
+(gh label edit) --help  ::  
+Show help for command
+
+(gh label edit) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh label list
+
+
+Desc:  List labels in a repository
+
+
+Usage:
+
+
+
+(gh label list) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh label list) --json  ::  fields
+Output JSON with the specified fields
+
+(gh label list) -L --limit  ::  int
+Maximum number of labels to fetch (default 30)
+
+(gh label list) --order  ::  string
+Order of labels returned: {asc|desc} (default "asc")
+
+(gh label list) -S --search  ::  string
+Search label names and descriptions
+
+(gh label list) --sort  ::  string
+Sort fetched labels: {created|name} (default "created")
+
+(gh label list) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh label list) -w --web  ::  
+List labels in the web browser
+
+(gh label list) --help  ::  
+Show help for command
+
+(gh label list) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh search
+
+
+Desc:  Search for repositories, issues, and pull requests
+
+
+Usage:
+
+
+
+(gh search) --help  ::  
+Show help for command
+
+
+
+
+(gh search)
+issues                    (Search for issues)
+prs                       (Search for pull requests)
+repos                     (Search for repositories)
+
+
+
+Name:  gh search issues
+
+
+Desc:  Search for issues
+
+
+Usage:
+
+
+
+(gh search issues) --app  ::  string
+Filter by GitHub App author
+
+(gh search issues) --archived  ::  
+Restrict search to archived repositories
+
+(gh search issues) --assignee  ::  string
+Filter by assignee
+
+(gh search issues) --author  ::  string
+Filter by author
+
+(gh search issues) --closed  ::  date
+Filter on closed at date
+
+(gh search issues) --commenter  ::  user
+Filter based on comments by user
+
+(gh search issues) --comments  ::  number
+Filter on number of comments
+
+(gh search issues) --created  ::  date
+Filter based on created at date
+
+(gh search issues) --include-prs  ::  
+Include pull requests in results
+
+(gh search issues) --interactions  ::  number
+Filter on number of reactions and comments
+
+(gh search issues) --involves  ::  user
+Filter based on involvement of user
+
+(gh search issues) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh search issues) --json  ::  fields
+Output JSON with the specified fields
+
+(gh search issues) --label  ::  strings
+Filter on label
+
+(gh search issues) --language  ::  string
+Filter based on the coding language
+
+(gh search issues) -L --limit  ::  int
+Maximum number of results to fetch (default 30)
+
+(gh search issues) --locked  ::  
+Filter on locked conversation status
+
+(gh search issues) --match  ::  strings
+Restrict search to specific field of issue: {title|body|comments}
+
+(gh search issues) --mentions  ::  user
+Filter based on user mentions
+
+(gh search issues) --milestone  ::  title
+Filter by milestone title
+
+(gh search issues) --no-assignee  ::  
+Filter on missing assignee
+
+(gh search issues) --no-label  ::  
+Filter on missing label
+
+(gh search issues) --no-milestone  ::  
+Filter on missing milestone
+
+(gh search issues) --no-project  ::  
+Filter on missing project
+
+(gh search issues) --order  ::  string
+Order of results returned, ignored unless '--sort' flag is specified: {asc|desc} (default "desc")
+
+(gh search issues) --owner  ::  string
+Filter on repository owner
+
+(gh search issues) --project  ::  number
+Filter on project board number
+
+(gh search issues) --reactions  ::  number
+Filter on number of reactions
+
+(gh search issues) --repo  ::  strings
+Filter on repository
+
+(gh search issues) --sort  ::  string
+Sort fetched results: {comments|created|interactions|reactions|reactions-+1|reactions--1|reactions-heart|reactions-smile|reactions-tada|reactions-thinking_face|updated} (default "best-match")
+
+(gh search issues) --state  ::  string
+Filter based on state: {open|closed}
+
+(gh search issues) --team-mentions  ::  string
+Filter based on team mentions
+
+(gh search issues) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh search issues) --updated  ::  date
+Filter on last updated at date
+
+(gh search issues) --visibility  ::  strings
+Filter based on repository visibility: {public|private|internal}
+
+(gh search issues) -w --web  ::  
+Open the search query in the web browser
+
+(gh search issues) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh search prs
+
+
+Desc:  Search for pull requests
+
+
+Usage:
+
+
+
+(gh search prs) --app  ::  string
+Filter by GitHub App author
+
+(gh search prs) --archived  ::  
+Restrict search to archived repositories
+
+(gh search prs) --assignee  ::  string
+Filter by assignee
+
+(gh search prs) --author  ::  string
+Filter by author
+
+(gh search prs) -B --base  ::  string
+Filter on base branch name
+
+(gh search prs) --checks  ::  string
+Filter based on status of the checks: {pending|success|failure}
+
+(gh search prs) --closed  ::  date
+Filter on closed at date
+
+(gh search prs) --commenter  ::  user
+Filter based on comments by user
+
+(gh search prs) --comments  ::  number
+Filter on number of comments
+
+(gh search prs) --created  ::  date
+Filter based on created at date
+
+(gh search prs) --draft  ::  
+Filter based on draft state
+
+(gh search prs) -H --head  ::  string
+Filter on head branch name
+
+(gh search prs) --interactions  ::  number
+Filter on number of reactions and comments
+
+(gh search prs) --involves  ::  user
+Filter based on involvement of user
+
+(gh search prs) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh search prs) --json  ::  fields
+Output JSON with the specified fields
+
+(gh search prs) --label  ::  strings
+Filter on label
+
+(gh search prs) --language  ::  string
+Filter based on the coding language
+
+(gh search prs) -L --limit  ::  int
+Maximum number of results to fetch (default 30)
+
+(gh search prs) --locked  ::  
+Filter on locked conversation status
+
+(gh search prs) --match  ::  strings
+Restrict search to specific field of issue: {title|body|comments}
+
+(gh search prs) --mentions  ::  user
+Filter based on user mentions
+
+(gh search prs) --merged  ::  
+Filter based on merged state
+
+(gh search prs) --merged-at  ::  date
+Filter on merged at date
+
+(gh search prs) --milestone  ::  title
+Filter by milestone title
+
+(gh search prs) --no-assignee  ::  
+Filter on missing assignee
+
+(gh search prs) --no-label  ::  
+Filter on missing label
+
+(gh search prs) --no-milestone  ::  
+Filter on missing milestone
+
+(gh search prs) --no-project  ::  
+Filter on missing project
+
+(gh search prs) --order  ::  string
+Order of results returned, ignored unless '--sort' flag is specified: {asc|desc} (default "desc")
+
+(gh search prs) --owner  ::  string
+Filter on repository owner
+
+(gh search prs) --project  ::  number
+Filter on project board number
+
+(gh search prs) --reactions  ::  number
+Filter on number of reactions
+
+(gh search prs) --repo  ::  strings
+Filter on repository
+
+(gh search prs) --review  ::  string
+Filter based on review status: {none|required|approved|changes_requested}
+
+(gh search prs) --review-requested  ::  user
+Filter on user or team requested to review
+
+(gh search prs) --reviewed-by  ::  user
+Filter on user who reviewed
+
+(gh search prs) --sort  ::  string
+Sort fetched results: {comments|reactions|reactions-+1|reactions--1|reactions-smile|reactions-thinking_face|reactions-heart|reactions-tada|interactions|created|updated} (default "best-match")
+
+(gh search prs) --state  ::  string
+Filter based on state: {open|closed}
+
+(gh search prs) --team-mentions  ::  string
+Filter based on team mentions
+
+(gh search prs) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh search prs) --updated  ::  date
+Filter on last updated at date
+
+(gh search prs) --visibility  ::  strings
+Filter based on repository visibility: {public|private|internal}
+
+(gh search prs) -w --web  ::  
+Open the search query in the web browser
+
+(gh search prs) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh search repos
+
+
+Desc:  Search for repositories
+
+
+Usage:
+
+
+
+(gh search repos) --archived  ::  
+Filter based on archive state
+
+(gh search repos) --created  ::  date
+Filter based on created at date
+
+(gh search repos) --followers  ::  number
+Filter based on number of followers
+
+(gh search repos) --forks  ::  number
+Filter on number of forks
+
+(gh search repos) --good-first-issues  ::  number
+Filter on number of issues with the 'good first issue' label
+
+(gh search repos) --help-wanted-issues  ::  number
+Filter on number of issues with the 'help wanted' label
+
+(gh search repos) --include-forks  ::  string
+Include forks in fetched repositories: {false|true|only}
+
+(gh search repos) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh search repos) --json  ::  fields
+Output JSON with the specified fields
+
+(gh search repos) --language  ::  string
+Filter based on the coding language
+
+(gh search repos) --license  ::  strings
+Filter based on license type
+
+(gh search repos) -L --limit  ::  int
+Maximum number of repositories to fetch (default 30)
+
+(gh search repos) --match  ::  strings
+Restrict search to specific field of repository: {name|description|readme}
+
+(gh search repos) --number-topics  ::  number
+Filter on number of topics
+
+(gh search repos) --order  ::  string
+Order of repositories returned, ignored unless '--sort' flag is specified: {asc|desc} (default "desc")
+
+(gh search repos) --owner  ::  string
+Filter on owner
+
+(gh search repos) --size  ::  string
+Filter on a size range, in kilobytes
+
+(gh search repos) --sort  ::  string
+Sort fetched repositories: {forks|help-wanted-issues|stars|updated} (default "best-match")
+
+(gh search repos) --stars  ::  number
+Filter on number of stars
+
+(gh search repos) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh search repos) --topic  ::  strings
+Filter on topic
+
+(gh search repos) --updated  ::  date
+Filter on last updated at date
+
+(gh search repos) --visibility  ::  strings
+Filter based on visibility: {public|private|internal}
+
+(gh search repos) -w --web  ::  
+Open the search query in the web browser
+
+(gh search repos) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh secret
+
+
+Desc:  Manage GitHub secrets
+
+
+Usage:
+
+
+
+(gh secret) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+(gh secret) --help  ::  
+Show help for command
+
+
+
+
+(gh secret)
+delete                    (Delete secrets)
+list                      (List secrets)
+set                       (Create or update secrets)
+
+
+
+Name:  gh secret delete
+
+
+Desc:  Delete secrets
+
+
+Usage:
+
+
+
+(gh secret delete) -a --app  ::  string
+Delete a secret for a specific application: {actions|codespaces|dependabot}
+
+(gh secret delete) -e --env  ::  string
+Delete a secret for an environment
+
+(gh secret delete) -o --org  ::  string
+Delete a secret for an organization
+
+(gh secret delete) -u --user  ::  
+Delete a secret for your user
+
+(gh secret delete) --help  ::  
+Show help for command
+
+(gh secret delete) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh secret list
+
+
+Desc:  List secrets
+
+
+Usage:
+
+
+
+(gh secret list) -a --app  ::  string
+List secrets for a specific application: {actions|codespaces|dependabot}
+
+(gh secret list) -e --env  ::  string
+List secrets for an environment
+
+(gh secret list) -o --org  ::  string
+List secrets for an organization
+
+(gh secret list) -u --user  ::  
+List a secret for your user
+
+(gh secret list) --help  ::  
+Show help for command
+
+(gh secret list) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh secret set
+
+
+Desc:  Create or update secrets
+
+
+Usage:
+
+
+
+(gh secret set) -a --app  ::  string
+Set the application for a secret: {actions|codespaces|dependabot}
+
+(gh secret set) -b --body  ::  string
+The value for the secret (reads from standard input if not specified)
+
+(gh secret set) -e --env  ::  environment
+Set deployment environment secret
+
+(gh secret set) -f --env-file  ::  file
+Load secret names and values from a dotenv-formatted file
+
+(gh secret set) --no-store  ::  
+Print the encrypted, base64-encoded value instead of storing it on Github
+
+(gh secret set) -o --org  ::  organization
+Set organization secret
+
+(gh secret set) -r --repos  ::  repositories
+List of repositories that can access an organization or user secret
+
+(gh secret set) -u --user  ::  
+Set a secret for your user
+
+(gh secret set) -v --visibility  ::  string
+Set visibility for an organization secret: {all|private|selected} (default "private")
+
+(gh secret set) --help  ::  
+Show help for command
+
+(gh secret set) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh ssh-key
+
+
+Desc:  Manage SSH keys
+
+
+Usage:
+
+
+
+(gh ssh-key) --help  ::  
+Show help for command
+
+
+
+
+(gh ssh-key)
+add                       (Add an SSH key to your GitHub account)
+delete                    (Delete an SSH key from your GitHub account)
+list                      (Lists SSH keys in your GitHub account)
+
+
+
+Name:  gh ssh-key add
+
+
+Desc:  Add an SSH key to your GitHub account
+
+
+Usage:
+
+
+
+(gh ssh-key add) -t --title  ::  string
+Title for the new key
+
+(gh ssh-key add) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh ssh-key delete
+
+
+Desc:  Delete an SSH key from your GitHub account
+
+
+Usage:
+
+
+
+(gh ssh-key delete) -y --confirm  ::  
+Skip the confirmation prompt
+
+(gh ssh-key delete) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh ssh-key list
+
+
+Desc:  Lists SSH keys in your GitHub account
+
+
+Usage:
+
+
+
+(gh ssh-key list) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh status
+
+
+Desc:  Print information about relevant issues, pull requests, and notifications across repositories
+
+
+Usage:
+
+
+
+(gh status) -e --exclude  ::  strings
+Comma separated list of repos to exclude in owner/name format
+
+(gh status) -o --org  ::  string
+Report status within an organization
+
+(gh status) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh actions
+
+
+Desc:  Learn about working with GitHub Actions
+
+
+Usage:
+
+
+
+(gh actions) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh environment
+
+
+Desc:  Environment variables that can be used with gh
+
+
+Usage:
+
+
+
+Name:  gh exit-codes
+
+
+Desc:  Exit codes used by gh
+
+
+Usage:
+
+
+
+Name:  gh formatting
+
+
+Desc:  Formatting options for JSON data exported from gh
+
+
+Usage:
+
+
+
+Name:  gh mintty
+
+
+Desc:  Information about using gh with MinTTY
+
+
+Usage:
+
+
+
+Name:  gh reference
+
+
+Desc:  A comprehensive reference of all gh commands
+
+
+Usage:
+
+
+
+(gh reference) -s --shell  ::  
+Declare an alias to be passed through a shell interpreter
+
+(gh reference) --cache  ::  duration
+Cache the response, e.g. "3600s", "60m", "1h"
+
+(gh reference) -F --field  ::  key=value
+Add a typed parameter in key=value format
+
+(gh reference) -H --header  ::  key:value
+Add a HTTP request header in key:value format
+
+(gh reference) --hostname  ::  string
+The GitHub hostname for the request (default "github.com")
+
+(gh reference) -i --include  ::  
+Include HTTP response status line and headers in the output
+
+(gh reference) --input  ::  file
+The file to use as body for the HTTP request (use "-" to read from standard input)
+
+(gh reference) -q --jq  ::  string
+Query to select values from the response using jq syntax
+
+(gh reference) -X --method  ::  string
+The HTTP method for the request (default "GET")
+
+(gh reference) --paginate  ::  
+Make additional HTTP requests to fetch all pages of results
+
+(gh reference) -p --preview  ::  names
+GitHub API preview names to request (without the "-preview" suffix)
+
+(gh reference) -f --raw-field  ::  key=value
+Add a string parameter in key=value format
+
+(gh reference) --silent  ::  
+Do not print the response body
+
+(gh reference) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh reference) -p --git-protocol  ::  string
+The protocol to use for git operations: {ssh|https}
+
+(gh reference) -h --hostname  ::  string
+The hostname of the GitHub instance to authenticate with
+
+(gh reference) -s --scopes  ::  strings
+Additional authentication scopes to request
+
+(gh reference) -w --web  ::  
+Open a browser to authenticate
+
+(gh reference) --with-token  ::  
+Read token from standard input
+
+(gh reference) -h --hostname  ::  string
+The hostname of the GitHub instance to log out of
+
+(gh reference) -h --hostname  ::  string
+The GitHub host to use for authentication
+
+(gh reference) -s --scopes  ::  strings
+Additional authentication scopes for gh to have
+
+(gh reference) -h --hostname  ::  string
+The hostname to configure git for
+
+(gh reference) -h --hostname  ::  string
+Check a specific hostname's auth status
+
+(gh reference) -t --show-token  ::  
+Display the auth token
+
+(gh reference) -h --hostname  ::  string
+The hostname of the GitHub instance authenticated with
+
+(gh reference) -b --branch  ::  string
+Select another branch by passing in the branch name
+
+(gh reference) -c --commit  ::  
+Open the last commit
+
+(gh reference) -n --no-browser  ::  
+Print destination URL instead of opening the browser
+
+(gh reference) -p --projects  ::  
+Open repository projects
+
+(gh reference) -s --settings  ::  
+Open repository settings
+
+(gh reference) -w --wiki  ::  
+Open repository wiki
+
+(gh reference) -c --codespace  ::  string
+Name of the codespace
+
+(gh reference) --insiders  ::  
+Use the insiders version of Visual Studio Code
+
+(gh reference) -w --web  ::  
+Use the web version of Visual Studio Code
+
+(gh reference) -e --expand  ::  
+Expand remote file names on remote shell
+
+(gh reference) -p --profile  ::  string
+Name of the SSH profile to use
+
+(gh reference) -r --recursive  ::  
+Recursively copy directories
+
+(gh reference) -b --branch  ::  string
+repository branch
+
+(gh reference) --default-permissions  ::  
+do not prompt to accept additional permissions requested by the codespace
+
+(gh reference) --devcontainer-path  ::  string
+path to the devcontainer.json file to use when creating codespace
+
+(gh reference) --idle-timeout  ::  duration
+allowed inactivity before codespace is stopped, e.g. "10m", "1h"
+
+(gh reference) -l --location  ::  string
+location: {EastUs|SouthEastAsia|WestEurope|WestUs2} (determined automatically if not provided)
+
+(gh reference) -m --machine  ::  string
+hardware specifications for the VM
+
+(gh reference) -r --repo  ::  string
+repository name with owner: user/repo
+
+(gh reference) --retention-period  ::  duration
+allowed time after shutting down before the codespace is automatically deleted (maximum 30 days), e.g. "1h", "72h"
+
+(gh reference) -s --status  ::  
+show status of post-create command and dotfiles
+
+(gh reference) --all  ::  
+Delete all codespaces
+
+(gh reference) --days  ::  N
+Delete codespaces older than N days
+
+(gh reference) -f --force  ::  
+Skip confirmation for codespaces that contain unsaved changes
+
+(gh reference) -o --org  ::  login
+The login handle of the organization (admin-only)
+
+(gh reference) -r --repo  ::  repository
+Delete codespaces for a repository
+
+(gh reference) -u --user  ::  username
+The username to delete codespaces for (used with --org)
+
+(gh reference) -d --display-name  ::  string
+Set the display name
+
+(gh reference) -m --machine  ::  string
+Set hardware specifications for the VM
+
+(gh reference) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh reference) --json  ::  fields
+Output JSON with the specified fields
+
+(gh reference) -L --limit  ::  int
+Maximum number of codespaces to list (default 30)
+
+(gh reference) -o --org  ::  login
+The login handle of the organization to list codespaces for (admin-only)
+
+(gh reference) -r --repo  ::  string
+Repository name with owner: user/repo
+
+(gh reference) -u --user  ::  username
+The username to list codespaces for (used with --org)
+
+(gh reference) -f --follow  ::  
+Tail and follow the logs
+
+(gh reference) --config  ::  
+Write OpenSSH configuration to stdout
+
+(gh reference) -d --debug  ::  
+Log debug data to a file
+
+(gh reference) --debug-file  ::  string
+Path of the file log to
+
+(gh reference) --profile  ::  string
+Name of the SSH profile to use
+
+(gh reference) --server-port  ::  int
+SSH server port number (0 => pick unused)
+
+(gh reference) -u --user  ::  username
+The username to stop codespace for (used with --org)
+
+(gh reference) -s --shell  ::  string
+Shell type: {bash|zsh|fish|powershell}
+
+(gh reference) -h --host  ::  string
+Get per-host setting
+
+(gh reference) -h --host  ::  string
+Get per-host configuration
+
+(gh reference) -h --host  ::  string
+Set per-host setting
+
+(gh reference) --precompiled  ::  string
+Create a precompiled extension. Possible values: go, other
+
+(gh reference) --pin  ::  string
+pin extension to a release tag or commit ref
+
+(gh reference) --all  ::  
+Upgrade all extensions
+
+(gh reference) --dry-run  ::  
+Only display upgrades
+
+(gh reference) --force  ::  
+Force upgrade extension
+
+(gh reference) -d --desc  ::  string
+A description for this gist
+
+(gh reference) -f --filename  ::  string
+Provide a filename to be used when reading from standard input
+
+(gh reference) -p --public  ::  
+List the gist publicly (default: secret)
+
+(gh reference) -w --web  ::  
+Open the web browser with created gist
+
+(gh reference) -a --add  ::  string
+Add a new file to the gist
+
+(gh reference) -d --desc  ::  string
+New description for the gist
+
+(gh reference) -f --filename  ::  string
+Select a file to edit
+
+(gh reference) -L --limit  ::  int
+Maximum number of gists to fetch (default 10)
+
+(gh reference) --public  ::  
+Show only public gists
+
+(gh reference) --secret  ::  
+Show only secret gists
+
+(gh reference) -f --filename  ::  string
+Display a single file from the gist
+
+(gh reference) --files  ::  
+List file names from the gist
+
+(gh reference) -r --raw  ::  
+Print raw instead of rendered gist contents
+
+(gh reference) -w --web  ::  
+Open gist in the browser
+
+(gh reference) -y --confirm  ::  
+Skip the confirmation prompt
+
+(gh reference) -c --comment  ::  string
+Leave a closing comment
+
+(gh reference) -r --reason  ::  string
+Reason for closing: {completed|not planned}
+
+(gh reference) -b --body  ::  text
+The comment body text
+
+(gh reference) -F --body-file  ::  file
+Read body text from file (use "-" to read from standard input)
+
+(gh reference) --edit-last  ::  
+Edit the last comment of the same author
+
+(gh reference) -e --editor  ::  
+Skip prompts and open the text editor to write the body in
+
+(gh reference) -w --web  ::  
+Open the web browser to write the comment
+
+(gh reference) -a --assignee  ::  login
+Assign people by their login. Use "@me" to self-assign.
+
+(gh reference) -b --body  ::  string
+Supply a body. Will prompt for one otherwise.
+
+(gh reference) -l --label  ::  name
+Add labels by name
+
+(gh reference) -m --milestone  ::  name
+Add the issue to a milestone by name
+
+(gh reference) -p --project  ::  name
+Add the issue to projects by name
+
+(gh reference) --recover  ::  string
+Recover input from a failed run of create
+
+(gh reference) -t --title  ::  string
+Supply a title. Will prompt for one otherwise.
+
+(gh reference) -w --web  ::  
+Open the browser to create an issue
+
+(gh reference) --add-assignee  ::  login
+Add assigned users by their login. Use "@me" to assign yourself.
+
+(gh reference) --add-label  ::  name
+Add labels by name
+
+(gh reference) --add-project  ::  name
+Add the issue to projects by name
+
+(gh reference) -b --body  ::  string
+Set the new body.
+
+(gh reference) -m --milestone  ::  name
+Edit the milestone the issue belongs to by name
+
+(gh reference) --remove-assignee  ::  login
+Remove assigned users by their login. Use "@me" to unassign yourself.
+
+(gh reference) --remove-label  ::  name
+Remove labels by name
+
+(gh reference) --remove-project  ::  name
+Remove the issue from projects by name
+
+(gh reference) -t --title  ::  string
+Set the new title.
+
+(gh reference) --app  ::  string
+Filter by GitHub App author
+
+(gh reference) -a --assignee  ::  string
+Filter by assignee
+
+(gh reference) -A --author  ::  string
+Filter by author
+
+(gh reference) -l --label  ::  strings
+Filter by label
+
+(gh reference) -L --limit  ::  int
+Maximum number of issues to fetch (default 30)
+
+(gh reference) --mention  ::  string
+Filter by mention
+
+(gh reference) -m --milestone  ::  string
+Filter by milestone number or title
+
+(gh reference) -S --search  ::  query
+Search issues with query
+
+(gh reference) -s --state  ::  string
+Filter by state: {open|closed|all} (default "open")
+
+(gh reference) -w --web  ::  
+List issues in the web browser
+
+(gh reference) -c --comment  ::  string
+Add a reopening comment
+
+(gh reference) -c --comments  ::  
+View issue comments
+
+(gh reference) -w --web  ::  
+Open an issue in the browser
+
+(gh reference) -f --force  ::  
+Overwrite labels in the destination repository
+
+(gh reference) -c --color  ::  string
+Color of the label
+
+(gh reference) -d --description  ::  string
+Description of the label
+
+(gh reference) -f --force  ::  
+Update the label color and description if label already exists
+
+(gh reference) --confirm  ::  
+Confirm deletion without prompting
+
+(gh reference) -n --name  ::  string
+New name of the label
+
+(gh reference) -L --limit  ::  int
+Maximum number of labels to fetch (default 30)
+
+(gh reference) --order  ::  string
+Order of labels returned: {asc|desc} (default "asc")
+
+(gh reference) -S --search  ::  string
+Search label names and descriptions
+
+(gh reference) --sort  ::  string
+Sort fetched labels: {created|name} (default "created")
+
+(gh reference) -w --web  ::  
+List labels in the web browser
+
+(gh reference) -b --branch  ::  string
+Local branch name to use (default: the name of the head branch)
+
+(gh reference) --detach  ::  
+Checkout PR with a detached HEAD
+
+(gh reference) -f --force  ::  
+Reset the existing local branch to the latest state of the pull request
+
+(gh reference) --recurse-submodules  ::  
+Update all submodules after checkout
+
+(gh reference) -i --interval --watch  ::  
+Refresh interval in seconds when using --watch flag (default 10)
+
+(gh reference) --required  ::  
+Only show checks that are required
+
+(gh reference) --watch  ::  
+Watch checks until they finish
+
+(gh reference) -w --web  ::  
+Open the web browser to show details about checks
+
+(gh reference) -d --delete-branch  ::  
+Delete the local and remote branch after close
+
+(gh reference) -B --base  ::  branch
+The branch into which you want your code merged
+
+(gh reference) -b --body  ::  string
+Body for the pull request
+
+(gh reference) -d --draft  ::  
+Mark pull request as a draft
+
+(gh reference) -f --fill  ::  
+Do not prompt for title/body and just use commit info
+
+(gh reference) -H --head  ::  branch
+The branch that contains commits for your pull request (default: current branch)
+
+(gh reference) -m --milestone  ::  name
+Add the pull request to a milestone by name
+
+(gh reference) --no-maintainer-edit  ::  
+Disable maintainer's ability to modify pull request
+
+(gh reference) -p --project  ::  name
+Add the pull request to projects by name
+
+(gh reference) -r --reviewer  ::  handle
+Request reviews from people or teams by their handle
+
+(gh reference) -t --title  ::  string
+Title for the pull request
+
+(gh reference) -w --web  ::  
+Open the web browser to create a pull request
+
+(gh reference) --color  ::  string
+Use color in diff output: {always|never|auto} (default "auto")
+
+(gh reference) --name-only  ::  
+Display only names of changed files
+
+(gh reference) --patch  ::  
+Display diff in patch format
+
+(gh reference) -w --web  ::  
+Open the pull request diff in the browser
+
+(gh reference) --add-project  ::  name
+Add the pull request to projects by name
+
+(gh reference) --add-reviewer  ::  login
+Add reviewers by their login.
+
+(gh reference) -B --base  ::  branch
+Change the base branch for this pull request
+
+(gh reference) -m --milestone  ::  name
+Edit the milestone the pull request belongs to by name
+
+(gh reference) --remove-project  ::  name
+Remove the pull request from projects by name
+
+(gh reference) --remove-reviewer  ::  login
+Remove reviewers by their login.
+
+(gh reference) -B --base  ::  string
+Filter by base branch
+
+(gh reference) -d --draft  ::  
+Filter by draft state
+
+(gh reference) -H --head  ::  string
+Filter by head branch
+
+(gh reference) -L --limit  ::  int
+Maximum number of items to fetch (default 30)
+
+(gh reference) -S --search  ::  query
+Search pull requests with query
+
+(gh reference) -s --state  ::  string
+Filter by state: {open|closed|merged|all} (default "open")
+
+(gh reference) -w --web  ::  
+List pull requests in the web browser
+
+(gh reference) --admin  ::  
+Use administrator privileges to merge a pull request that does not meet requirements
+
+(gh reference) -A --author-email  ::  text
+Email text for merge commit author
+
+(gh reference) --auto  ::  
+Automatically merge only after necessary requirements are met
+
+(gh reference) -b --body  ::  text
+Body text for the merge commit
+
+(gh reference) -d --delete-branch  ::  
+Delete the local and remote branch after merge
+
+(gh reference) --disable-auto  ::  
+Disable auto-merge for this pull request
+
+(gh reference) --match-head-commit  ::  SHA
+Commit SHA that the pull request head must match to allow merge
+
+(gh reference) -m --merge  ::  
+Merge the commits with the base branch
+
+(gh reference) -r --rebase  ::  
+Rebase the commits onto the base branch
+
+(gh reference) -s --squash  ::  
+Squash the commits into one commit and merge it into the base branch
+
+(gh reference) -t --subject  ::  text
+Subject text for the merge commit
+
+(gh reference) --undo  ::  
+Convert a pull request to "draft"
+
+(gh reference) -a --approve  ::  
+Approve pull request
+
+(gh reference) -b --body  ::  string
+Specify the body of a review
+
+(gh reference) -c --comment  ::  
+Comment on a pull request
+
+(gh reference) -r --request-changes  ::  
+Request changes on a pull request
+
+(gh reference) -c --conflict-status  ::  
+Display the merge conflict status of each pull request
+
+(gh reference) -c --comments  ::  
+View pull request comments
+
+(gh reference) -w --web  ::  
+Open a pull request in the browser
+
+(gh reference) --discussion-category  ::  string
+Start a discussion in the specified category
+
+(gh reference) -d --draft  ::  
+Save the release as a draft instead of publishing it
+
+(gh reference) --generate-notes  ::  
+Automatically generate title and notes for the release
+
+(gh reference) -n --notes  ::  string
+Release notes
+
+(gh reference) -F --notes-file  ::  file
+Read release notes from file (use "-" to read from standard input)
+
+(gh reference) --notes-start-tag  ::  string
+Tag to use as the starting point for generating release notes
+
+(gh reference) -p --prerelease  ::  
+Mark the release as a prerelease
+
+(gh reference) --target  ::  branch
+Target branch or full commit SHA (default: main branch)
+
+(gh reference) -t --title  ::  string
+Release title
+
+(gh reference) --cleanup-tag  ::  
+Delete the specified tag in addition to its release
+
+(gh reference) -y --yes  ::  
+Skip the confirmation prompt
+
+(gh reference) -A --archive  ::  format
+Download the source code archive in the specified format (zip or tar.gz)
+
+(gh reference) --clobber  ::  
+Overwrite existing files of the same name
+
+(gh reference) -D --dir  ::  string
+The directory to download files into (default ".")
+
+(gh reference) -p --pattern  ::  stringArray
+Download only assets that match a glob pattern
+
+(gh reference) --skip-existing  ::  
+Skip downloading when files of the same name exist
+
+(gh reference) --discussion-category  ::  string
+Start a discussion in the specified category when publishing a draft
+
+(gh reference) --draft  ::  
+Save the release as a draft instead of publishing it
+
+(gh reference) --prerelease  ::  
+Mark the release as a prerelease
+
+(gh reference) --tag  ::  string
+The name of the tag
+
+(gh reference) --exclude-drafts  ::  
+Exclude draft releases
+
+(gh reference) --clobber  ::  
+Overwrite existing assets of the same name
+
+(gh reference) -w --web  ::  
+Open the release in the browser
+
+(gh reference) -u --upstream-remote-name  ::  string
+Upstream remote name when cloning a fork (default "upstream")
+
+(gh reference) --add-readme  ::  
+Add a README file to the new repository
+
+(gh reference) -c --clone  ::  
+Clone the new repository to the current directory
+
+(gh reference) -d --description  ::  string
+Description of the repository
+
+(gh reference) --disable-issues  ::  
+Disable issues in the new repository
+
+(gh reference) --disable-wiki  ::  
+Disable wiki in the new repository
+
+(gh reference) -g --gitignore  ::  string
+Specify a gitignore template for the repository
+
+(gh reference) -h --homepage  ::  URL
+Repository home page URL
+
+(gh reference) --include-all-branches  ::  
+Include all branches from template repository
+
+(gh reference) --internal  ::  
+Make the new repository internal
+
+(gh reference) -l --license  ::  string
+Specify an Open Source License for the repository
+
+(gh reference) --private  ::  
+Make the new repository private
+
+(gh reference) --public  ::  
+Make the new repository public
+
+(gh reference) --push  ::  
+Push local commits to the new repository
+
+(gh reference) -r --remote  ::  string
+Specify remote name for the new repository
+
+(gh reference) -s --source  ::  string
+Specify path to local repository to use as source
+
+(gh reference) -t --team  ::  name
+The name of the organization team to be granted access
+
+(gh reference) -p --template  ::  repository
+Make the new repository based on a template repository
+
+(gh reference) -w --allow-write  ::  
+Allow write access for the key
+
+(gh reference) -t --title  ::  string
+Title of the new key
+
+(gh reference) --add-topic  ::  strings
+Add repository topic
+
+(gh reference) --allow-forking  ::  
+Allow forking of an organization repository
+
+(gh reference) --default-branch  ::  name
+Set the default branch name for the repository
+
+(gh reference) --delete-branch-on-merge  ::  
+Delete head branch when pull requests are merged
+
+(gh reference) --enable-auto-merge  ::  
+Enable auto-merge functionality
+
+(gh reference) --enable-issues  ::  
+Enable issues in the repository
+
+(gh reference) --enable-merge-commit  ::  
+Enable merging pull requests via merge commit
+
+(gh reference) --enable-projects  ::  
+Enable projects in the repository
+
+(gh reference) --enable-rebase-merge  ::  
+Enable merging pull requests via rebase
+
+(gh reference) --enable-squash-merge  ::  
+Enable merging pull requests via squashed commit
+
+(gh reference) --enable-wiki  ::  
+Enable wiki in the repository
+
+(gh reference) --remove-topic  ::  strings
+Remove repository topic
+
+(gh reference) --template  ::  
+Make the repository available as a template repository
+
+(gh reference) --visibility  ::  string
+Change the visibility of the repository to {public,private,internal}
+
+(gh reference) --clone  ::  
+Clone the fork
+
+(gh reference) --fork-name  ::  string
+Rename the forked repository
+
+(gh reference) --org  ::  string
+Create the fork in an organization
+
+(gh reference) --remote  ::  
+Add a git remote for the fork
+
+(gh reference) --remote-name  ::  string
+Specify the name for the new remote (default "origin")
+
+(gh reference) --archived  ::  
+Show only archived repositories
+
+(gh reference) --fork  ::  
+Show only forks
+
+(gh reference) -l --language  ::  string
+Filter by primary coding language
+
+(gh reference) -L --limit  ::  int
+Maximum number of repositories to list (default 30)
+
+(gh reference) --no-archived  ::  
+Omit archived repositories
+
+(gh reference) --source  ::  
+Show only non-forks
+
+(gh reference) --topic  ::  string
+Filter by topic
+
+(gh reference) --visibility  ::  string
+Filter by repository visibility: {public|private|internal}
+
+(gh reference) -y --confirm  ::  
+skip confirmation prompt
+
+(gh reference) -b --branch  ::  string
+Branch to sync (default: main branch)
+
+(gh reference) -s --source  ::  string
+Source repository
+
+(gh reference) -b --branch  ::  string
+View a specific branch of the repository
+
+(gh reference) -w --web  ::  
+Open a repository in the browser
+
+(gh reference) -D --dir  ::  string
+The directory to download artifacts into (default ".")
+
+(gh reference) -n --name  ::  stringArray
+Download artifacts that match any of the given names
+
+(gh reference) -p --pattern  ::  stringArray
+Download artifacts that match a glob pattern
+
+(gh reference) -b --branch  ::  string
+Filter runs by branch
+
+(gh reference) -L --limit  ::  int
+Maximum number of runs to fetch (default 20)
+
+(gh reference) -u --user  ::  string
+Filter runs by user who triggered the run
+
+(gh reference) -w --workflow  ::  string
+Filter runs by workflow
+
+(gh reference) -d --debug  ::  
+Rerun with debug logging
+
+(gh reference) --failed  ::  
+Rerun only failed jobs, including dependencies
+
+(gh reference) -j --job  ::  string
+Rerun a specific job from a run, including dependencies
+
+(gh reference) --exit-status  ::  
+Exit with non-zero status if run failed
+
+(gh reference) -j --job  ::  string
+View a specific job ID from a run
+
+(gh reference) --log  ::  
+View full log for either a run or specific job
+
+(gh reference) --log-failed  ::  
+View the log for any failed steps in a run or specific job
+
+(gh reference) -v --verbose  ::  
+Show job steps
+
+(gh reference) -w --web  ::  
+Open run in the browser
+
+(gh reference) --exit-status  ::  
+Exit with non-zero status if run fails
+
+(gh reference) -i --interval  ::  int
+Refresh interval in seconds (default 3)
+
+(gh reference) --archived  ::  
+Restrict search to archived repositories
+
+(gh reference) --assignee  ::  string
+Filter by assignee
+
+(gh reference) --author  ::  string
+Filter by author
+
+(gh reference) --closed  ::  date
+Filter on closed at date
+
+(gh reference) --commenter  ::  user
+Filter based on comments by user
+
+(gh reference) --comments  ::  number
+Filter on number of comments
+
+(gh reference) --created  ::  date
+Filter based on created at date
+
+(gh reference) --include-prs  ::  
+Include pull requests in results
+
+(gh reference) --interactions  ::  number
+Filter on number of reactions and comments
+
+(gh reference) --involves  ::  user
+Filter based on involvement of user
+
+(gh reference) --label  ::  strings
+Filter on label
+
+(gh reference) --language  ::  string
+Filter based on the coding language
+
+(gh reference) -L --limit  ::  int
+Maximum number of results to fetch (default 30)
+
+(gh reference) --locked  ::  
+Filter on locked conversation status
+
+(gh reference) --match  ::  strings
+Restrict search to specific field of issue: {title|body|comments}
+
+(gh reference) --mentions  ::  user
+Filter based on user mentions
+
+(gh reference) --milestone  ::  title
+Filter by milestone title
+
+(gh reference) --no-assignee  ::  
+Filter on missing assignee
+
+(gh reference) --no-label  ::  
+Filter on missing label
+
+(gh reference) --no-milestone  ::  
+Filter on missing milestone
+
+(gh reference) --no-project  ::  
+Filter on missing project
+
+(gh reference) --order  ::  string
+Order of results returned, ignored unless '--sort' flag is specified: {asc|desc} (default "desc")
+
+(gh reference) --owner  ::  string
+Filter on repository owner
+
+(gh reference) --project  ::  number
+Filter on project board number
+
+(gh reference) --reactions  ::  number
+Filter on number of reactions
+
+(gh reference) --repo  ::  strings
+Filter on repository
+
+(gh reference) --sort  ::  string
+Sort fetched results: {comments|created|interactions|reactions|reactions-+1|reactions--1|reactions-heart|reactions-smile|reactions-tada|reactions-thinking_face|updated} (default "best-match")
+
+(gh reference) --state  ::  string
+Filter based on state: {open|closed}
+
+(gh reference) --team-mentions  ::  string
+Filter based on team mentions
+
+(gh reference) --updated  ::  date
+Filter on last updated at date
+
+(gh reference) --visibility  ::  strings
+Filter based on repository visibility: {public|private|internal}
+
+(gh reference) -w --web  ::  
+Open the search query in the web browser
+
+(gh reference) -B --base  ::  string
+Filter on base branch name
+
+(gh reference) --checks  ::  string
+Filter based on status of the checks: {pending|success|failure}
+
+(gh reference) --draft  ::  
+Filter based on draft state
+
+(gh reference) -H --head  ::  string
+Filter on head branch name
+
+(gh reference) --merged  ::  
+Filter based on merged state
+
+(gh reference) --merged-at  ::  date
+Filter on merged at date
+
+(gh reference) --review  ::  string
+Filter based on review status: {none|required|approved|changes_requested}
+
+(gh reference) --review-requested  ::  user
+Filter on user or team requested to review
+
+(gh reference) --reviewed-by  ::  user
+Filter on user who reviewed
+
+(gh reference) --sort  ::  string
+Sort fetched results: {comments|reactions|reactions-+1|reactions--1|reactions-smile|reactions-thinking_face|reactions-heart|reactions-tada|interactions|created|updated} (default "best-match")
+
+(gh reference) --archived  ::  
+Filter based on archive state
+
+(gh reference) --followers  ::  number
+Filter based on number of followers
+
+(gh reference) --forks  ::  number
+Filter on number of forks
+
+(gh reference) --good-first-issues  ::  number
+Filter on number of issues with the 'good first issue' label
+
+(gh reference) --help-wanted-issues  ::  number
+Filter on number of issues with the 'help wanted' label
+
+(gh reference) --include-forks  ::  string
+Include forks in fetched repositories: {false|true|only}
+
+(gh reference) --license  ::  strings
+Filter based on license type
+
+(gh reference) -L --limit  ::  int
+Maximum number of repositories to fetch (default 30)
+
+(gh reference) --match  ::  strings
+Restrict search to specific field of repository: {name|description|readme}
+
+(gh reference) --number-topics  ::  number
+Filter on number of topics
+
+(gh reference) --order  ::  string
+Order of repositories returned, ignored unless '--sort' flag is specified: {asc|desc} (default "desc")
+
+(gh reference) --owner  ::  string
+Filter on owner
+
+(gh reference) --size  ::  string
+Filter on a size range, in kilobytes
+
+(gh reference) --sort  ::  string
+Sort fetched repositories: {forks|help-wanted-issues|stars|updated} (default "best-match")
+
+(gh reference) --stars  ::  number
+Filter on number of stars
+
+(gh reference) --topic  ::  strings
+Filter on topic
+
+(gh reference) --visibility  ::  strings
+Filter based on visibility: {public|private|internal}
+
+(gh reference) -a --app  ::  string
+Delete a secret for a specific application: {actions|codespaces|dependabot}
+
+(gh reference) -e --env  ::  string
+Delete a secret for an environment
+
+(gh reference) -o --org  ::  string
+Delete a secret for an organization
+
+(gh reference) -u --user  ::  
+Delete a secret for your user
+
+(gh reference) -a --app  ::  string
+List secrets for a specific application: {actions|codespaces|dependabot}
+
+(gh reference) -e --env  ::  string
+List secrets for an environment
+
+(gh reference) -o --org  ::  string
+List secrets for an organization
+
+(gh reference) -u --user  ::  
+List a secret for your user
+
+(gh reference) -a --app  ::  string
+Set the application for a secret: {actions|codespaces|dependabot}
+
+(gh reference) -b --body  ::  string
+The value for the secret (reads from standard input if not specified)
+
+(gh reference) -e --env  ::  environment
+Set deployment environment secret
+
+(gh reference) -f --env-file  ::  file
+Load secret names and values from a dotenv-formatted file
+
+(gh reference) --no-store  ::  
+Print the encrypted, base64-encoded value instead of storing it on Github
+
+(gh reference) -o --org  ::  organization
+Set organization secret
+
+(gh reference) -r --repos  ::  repositories
+List of repositories that can access an organization or user secret
+
+(gh reference) -u --user  ::  
+Set a secret for your user
+
+(gh reference) -v --visibility  ::  string
+Set visibility for an organization secret: {all|private|selected} (default "private")
+
+(gh reference) -t --title  ::  string
+Title for the new key
+
+(gh reference) -e --exclude  ::  strings
+Comma separated list of repos to exclude in owner/name format
+
+(gh reference) -o --org  ::  string
+Report status within an organization
+
+(gh reference) -a --all  ::  
+Show all workflows, including disabled workflows
+
+(gh reference) -L --limit  ::  int
+Maximum number of workflows to fetch (default 50)
+
+(gh reference) -F --field  ::  key=value
+Add a string parameter in key=value format, respecting @ syntax
+
+(gh reference) --json  ::  
+Read workflow inputs as JSON via STDIN
+
+(gh reference) -r --ref  ::  string
+The branch or tag name which contains the version of the workflow file you'd like to run
+
+(gh reference) -r --ref  ::  string
+The branch or tag name which contains the version of the workflow file you'd like to view
+
+(gh reference) -w --web  ::  
+Open workflow in the browser
+
+(gh reference) -y --yaml  ::  
+View the workflow yaml file
+

@@ -225,7 +225,7 @@ hpc                       (Subcommands specific to Haskell Program Coverage)
 
 
 
-Name:  stackbuild
+Name:  stack build
 
 
 Desc:  Build the package(s) in this directory/configuration
@@ -482,7 +482,7 @@ Show this help text
 
 
 
-Name:  stackinstall
+Name:  stack install
 
 
 Desc:  Shortcut for 'build --copy-bins'
@@ -740,7 +740,7 @@ Show this help text
 
 
 
-Name:  stackuninstall
+Name:  stack uninstall
 
 
 Desc:  Show how to uninstall Stack. This command does not
@@ -763,7 +763,7 @@ Show this help text
 
 
 
-Name:  stacktest
+Name:  stack test
 
 
 Desc:  Shortcut for 'build --test'
@@ -1019,7 +1019,7 @@ Show this help text
 
 
 
-Name:  stackbench
+Name:  stack bench
 
 
 Desc:  Shortcut for 'build --bench'
@@ -1276,7 +1276,7 @@ Show this help text
 
 
 
-Name:  stackhaddock
+Name:  stack haddock
 
 
 Desc:  Shortcut for 'build --haddock'
@@ -1534,7 +1534,7 @@ Show this help text
 
 
 
-Name:  stacknew
+Name:  stack new
 
 
 Desc:  Create a new project from a template. Run `stack
@@ -1573,7 +1573,7 @@ Show this help text
 
 
 
-Name:  stacktemplates
+Name:  stack templates
 
 
 Desc:  Show how to find templates available for `stack new'.
@@ -1596,7 +1596,7 @@ Show this help text
 
 
 
-Name:  stackinit
+Name:  stack init
 
 
 Desc:  Create stack project config from cabal or hpack
@@ -1629,7 +1629,7 @@ Show this help text
 
 
 
-Name:  stacksetup
+Name:  stack setup
 
 
 Desc:  Get the appropriate GHC for your project
@@ -1672,7 +1672,7 @@ Show this help text
 
 
 
-Name:  stackpath
+Name:  stack path
 
 
 Desc:  Print out handy path information
@@ -1778,7 +1778,7 @@ Show this help text
 
 
 
-Name:  stackls
+Name:  stack ls
 
 
 Desc:  List command. (Supports snapshots, dependencies,
@@ -1810,7 +1810,7 @@ tools                     (View stack's installed tools)
 
 
 
-Name:  stacklssnapshots
+Name:  stack ls snapshots
 
 
 Desc:  View snapshots (local by default)
@@ -1838,7 +1838,7 @@ local                     (View local snapshots)
 
 
 
-Name:  stacklssnapshotsremote
+Name:  stack ls snapshots remote
 
 
 Desc:  View remote snapshots
@@ -1854,7 +1854,7 @@ Show this help text
 
 
 
-Name:  stacklssnapshotslocal
+Name:  stack ls snapshots local
 
 
 Desc:  View local snapshots
@@ -1870,7 +1870,7 @@ Show this help text
 
 
 
-Name:  stacklsdependencies
+Name:  stack ls dependencies
 
 
 Desc:  View the dependencies
@@ -1929,7 +1929,7 @@ Show this help text
 
 
 
-Name:  stacklsstack-colors
+Name:  stack ls stack-colors
 
 
 Desc:  View stack's output styles
@@ -1963,7 +1963,7 @@ Show this help text
 
 
 
-Name:  stacklsstack-colours
+Name:  stack ls stack-colours
 
 
 Desc:  View stack's output styles (alias for 'stack-colors')
@@ -1997,7 +1997,7 @@ Show this help text
 
 
 
-Name:  stacklstools
+Name:  stack ls tools
 
 
 Desc:  View stack's installed tools
@@ -2016,7 +2016,7 @@ Show this help text
 
 
 
-Name:  stackunpack
+Name:  stack unpack
 
 
 Desc:  Unpack one or more packages locally
@@ -2042,7 +2042,7 @@ Show this help text
 
 
 
-Name:  stackupdate
+Name:  stack update
 
 
 Desc:  Update the package index
@@ -2065,7 +2065,7 @@ Show this help text
 
 
 
-Name:  stackupgrade
+Name:  stack upgrade
 
 
 Desc:  Upgrade to the latest stack
@@ -2122,7 +2122,7 @@ Show this help text
 
 
 
-Name:  stackupload
+Name:  stack upload
 
 
 Desc:  Upload a package to Hackage
@@ -2165,7 +2165,7 @@ Show this help text
 
 
 
-Name:  stacksdist
+Name:  stack sdist
 
 
 Desc:  Create source distribution tarballs
@@ -2204,7 +2204,7 @@ Show this help text
 
 
 
-Name:  stackdot
+Name:  stack dot
 
 
 Desc:  Visualize your project's dependency graph using
@@ -2259,7 +2259,7 @@ Show this help text
 
 
 
-Name:  stackghc
+Name:  stack ghc
 
 
 Desc:  Run ghc
@@ -2305,7 +2305,7 @@ Show this help text
 
 
 
-Name:  stackhoogle
+Name:  stack hoogle
 
 
 Desc:  Run hoogle, the Haskell API search engine. Use the
@@ -2342,7 +2342,7 @@ Show this help text
 
 
 
-Name:  stackexec
+Name:  stack exec
 
 
 Desc:  Execute a command. If the command is absent, the
@@ -2390,7 +2390,7 @@ Show this help text
 
 
 
-Name:  stackrun
+Name:  stack run
 
 
 Desc:  Build and run an executable. Defaults to the first
@@ -2436,7 +2436,7 @@ Show this help text
 
 
 
-Name:  stackghci
+Name:  stack ghci
 
 
 Desc:  Run ghci in the context of package(s) (experimental)
@@ -2524,7 +2524,7 @@ Show this help text
 
 
 
-Name:  stackrepl
+Name:  stack repl
 
 
 Desc:  Run ghci in the context of package(s) (experimental)
@@ -2612,7 +2612,7 @@ Show this help text
 
 
 
-Name:  stackrunghc
+Name:  stack runghc
 
 
 Desc:  Run runghc
@@ -2659,7 +2659,7 @@ Show this help text
 
 
 
-Name:  stackrunhaskell
+Name:  stack runhaskell
 
 
 Desc:  Run runghc (alias for 'runghc')
@@ -2706,7 +2706,7 @@ Show this help text
 
 
 
-Name:  stackscript
+Name:  stack script
 
 
 Desc:  Run a Stack Script
@@ -2751,7 +2751,7 @@ Show this help text
 
 
 
-Name:  stackeval
+Name:  stack eval
 
 
 Desc:  Evaluate some haskell code inline. Shortcut for
@@ -2797,7 +2797,7 @@ Show this help text
 
 
 
-Name:  stackclean
+Name:  stack clean
 
 
 Desc:  Delete build artefacts for the project packages.
@@ -2823,7 +2823,7 @@ Show this help text
 
 
 
-Name:  stackpurge
+Name:  stack purge
 
 
 Desc:  Delete the project stack working directories
@@ -2846,7 +2846,7 @@ Show this help text
 
 
 
-Name:  stackquery
+Name:  stack query
 
 
 Desc:  Query general build information (experimental)
@@ -2869,7 +2869,7 @@ Show this help text
 
 
 
-Name:  stacklist
+Name:  stack list
 
 
 Desc:  List package id's in snapshot (experimental)
@@ -2892,7 +2892,7 @@ Show this help text
 
 
 
-Name:  stackide
+Name:  stack ide
 
 
 Desc:  IDE-specific commands
@@ -2921,7 +2921,7 @@ targets                   (List all available stack targets)
 
 
 
-Name:  stackidepackages
+Name:  stack ide packages
 
 
 Desc:  List all available local loadable packages
@@ -2950,7 +2950,7 @@ Show this help text
 
 
 
-Name:  stackidetargets
+Name:  stack ide targets
 
 
 Desc:  List all available stack targets
@@ -2976,7 +2976,7 @@ Show this help text
 
 
 
-Name:  stackdocker
+Name:  stack docker
 
 
 Desc:  Subcommands specific to Docker use
@@ -3006,7 +3006,7 @@ reset                     (Reset the Docker sandbox)
 
 
 
-Name:  stackdockerpull
+Name:  stack docker pull
 
 
 Desc:  Pull latest version of Docker image from registry
@@ -3029,7 +3029,7 @@ Show this help text
 
 
 
-Name:  stackdockerreset
+Name:  stack docker reset
 
 
 Desc:  Reset the Docker sandbox
@@ -3055,7 +3055,7 @@ Show this help text
 
 
 
-Name:  stackconfig
+Name:  stack config
 
 
 Desc:  Subcommands for accessing and modifying configuration
@@ -3085,7 +3085,7 @@ env                       (Print environment variables for use in a shell)
 
 
 
-Name:  stackconfigset
+Name:  stack config set
 
 
 Desc:  Sets a key in YAML configuration file to value
@@ -3115,7 +3115,7 @@ install-ghc               (Configure whether Stack should automatically install)
 
 
 
-Name:  stackconfigsetresolver
+Name:  stack config set resolver
 
 
 Desc:  Change the resolver of the current project.
@@ -3131,7 +3131,7 @@ Show this help text
 
 
 
-Name:  stackconfigsetsystem-ghc
+Name:  stack config set system-ghc
 
 
 Desc:  Configure whether Stack should use a system GHC
@@ -3150,7 +3150,7 @@ Show this help text
 
 
 
-Name:  stackconfigsetinstall-ghc
+Name:  stack config set install-ghc
 
 
 Desc:  Configure whether Stack should automatically install
@@ -3169,7 +3169,7 @@ Show this help text
 
 
 
-Name:  stackconfigenv
+Name:  stack config env
 
 
 Desc:  Print environment variables for use in a shell
@@ -3224,7 +3224,7 @@ Show this help text
 
 
 
-Name:  stackhpc
+Name:  stack hpc
 
 
 Desc:  Subcommands specific to Haskell Program Coverage
@@ -3252,7 +3252,7 @@ report                    (Generate unified HPC coverage report from tix files)
 
 
 
-Name:  stackhpcreport
+Name:  stack hpc report
 
 
 Desc:  Generate unified HPC coverage report from tix files

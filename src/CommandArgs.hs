@@ -7,6 +7,9 @@ module CommandArgs where
 import qualified Data.Text as T
 import Options.Applicative
 
+-- The boolean corresponds to `skipMan` meaning that
+-- it obtains texts from help pages if it's True
+-- otherwise it tries both man pages and help texts.
 data Input
   = CommandInput String Bool
   | FileInput FilePath Bool

@@ -6,19 +6,13 @@ jobs:
     runs-on: ubuntu-latest # or macOS-latest, or windows-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: conda-incubator/setup-miniconda@v2
-        name: Setup conda required in the test
-        with:
-          auto-update-conda: true
-          python-version: '3.10'
       - uses: haskell/actions/setup@v2
         with:
           ghc-version: '9.0.2' # Exact version of ghc to use
           enable-stack: true
           stack-version: 'latest'
       - run: |
-          conda update -y conda
-          conda --version
+          gh --version
       - run: |
           stack --version
       - run: |
