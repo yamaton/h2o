@@ -21,6 +21,7 @@ import Text.Printf (printf)
 data Command = Command
   { _name :: String, -- command name
     _description :: String, -- description of command itself
+    _usage :: String, -- usage
     _options :: [Opt], -- command options
     _subcommands :: [Command], -- subcommands
     _version :: String -- version
@@ -80,9 +81,12 @@ instance FromJSON Opt where
 
 instance FromJSON Command where
   parseJSON = withObject "Command" $ \v ->
-    Command <$> (T.unpack <$> v .: "name")
+    Command
+      <$> (T.unpack <$> v .: "name")
       <*> (T.unpack <$> v .: "description")
-      <*> v .: "options"
+      <*> (T.unpack <$> v .: "usage")
+      <*> v
+      .: "options"
       <*> (Maybe.fromMaybe [] <$> v .:? "subcommands")
       <*> (T.unpack . Maybe.fromMaybe "" <$> v .:? "version")
 
@@ -94,23 +98,23 @@ instance ToJSON Opt where
     pairs ("names" .= names <> "argument" .= arg <> "description" .= desc)
 
 instance ToJSON Command where
-  toJSON (Command name desc opts [] "") =
-    object ["name" .= name, "description" .= desc, "options" .= opts]
-  toJSON (Command name desc opts subcommands "") =
-    object ["name" .= name, "description" .= desc, "options" .= opts, "subcommands" .= subcommands]
-  toJSON (Command name desc opts [] version) =
-    object ["name" .= name, "description" .= desc, "options" .= opts, "version" .= version]
-  toJSON (Command name desc opts subcommands version) =
-    object ["name" .= name, "description" .= desc, "options" .= opts, "subcommands" .= subcommands, "version" .= version]
+  toJSON (Command name desc usage opts [] "" ) =
+    object ["name" .= name, "description" .= desc, "usage" .= usage, "options" .= opts]
+  toJSON (Command name desc usage opts subcommands "") =
+    object ["name" .= name, "description" .= desc, "usage" .= usage, "options" .= opts, "subcommands" .= subcommands]
+  toJSON (Command name desc usage opts [] version) =
+    object ["name" .= name, "description" .= desc, "usage" .= usage, "options" .= opts, "version" .= version]
+  toJSON (Command name desc usage opts subcommands version) =
+    object ["name" .= name, "description" .= desc, "usage" .= usage, "options" .= opts, "subcommands" .= subcommands, "version" .= version]
 
-  toEncoding (Command name desc opts [] "") =
-    pairs ("name" .= name <> "description" .= desc <> "options" .= opts)
-  toEncoding (Command name desc opts subcommands "") =
-    pairs ("name" .= name <> "description" .= desc <> "options" .= opts <> "subcommands" .= subcommands)
-  toEncoding (Command name desc opts [] version) =
-    pairs ("name" .= name <> "description" .= desc <> "options" .= opts <> "version" .= version)
-  toEncoding (Command name desc opts subcommands version) =
-    pairs ("name" .= name <> "description" .= desc <> "options" .= opts <> "subcommands" .= subcommands <> "version" .= version)
+  toEncoding (Command name desc usage opts [] "") =
+    pairs ("name" .= name <> "description" .= desc <> "usage" .= usage <> "options" .= opts)
+  toEncoding (Command name desc usage opts subcommands "") =
+    pairs ("name" .= name <> "description" .= desc <> "usage" .= usage <> "options" .= opts <> "subcommands" .= subcommands)
+  toEncoding (Command name desc usage opts [] version) =
+    pairs ("name" .= name <> "description" .= desc <> "usage" .= usage <> "options" .= opts <> "version" .= version)
+  toEncoding (Command name desc usage opts subcommands version) =
+    pairs ("name" .= name <> "description" .= desc <> "usage" .= usage <> "options" .= opts <> "subcommands" .= subcommands <> "version" .= version)
 
 toOptionNameType :: Text -> OptNameType
 toOptionNameType "-" = SingleDashAlone
@@ -122,4 +126,4 @@ toOptionNameType s
   | otherwise = error "Invalid option name!"
 
 asSubcommand :: Command -> Subcommand
-asSubcommand (Command n desc _ _ _) = Subcommand n desc
+asSubcommand (Command n desc _ _ _ _) = Subcommand n desc

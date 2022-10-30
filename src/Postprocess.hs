@@ -124,13 +124,13 @@ score (Opt names arg desc) =
         topElem = Set.elemAt 0 types
 
 fixOpts :: Command -> Command
-fixOpts (Command name desc opts subcmds version) = Command name desc optsFixed subcmdsFixed version
+fixOpts (Command name desc usage opts subcmds version) = Command name desc usage optsFixed subcmdsFixed version
   where
     optsFixed = fixDuplicateOpts $ map fixShortOptWithArgWithoutSpace opts
     subcmdsFixed = map fixOpts subcmds
 
 addVersion :: Command -> IO Command
-addVersion (Command name desc opts subcmds _) = Command name desc opts subcmds <$> version
+addVersion (Command name desc usage opts subcmds _) = Command name desc usage opts subcmds <$> version
   where
     raw = getVersion name
     version = T.unpack . T.strip . (\xs -> if null xs then T.empty else head xs) . T.lines <$> raw

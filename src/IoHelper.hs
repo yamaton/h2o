@@ -121,3 +121,4 @@ isManAvailableIO name = do
 
 getVersion :: String -> IO Text
 getVersion name = getHelpTemplateMeta (Utils.isNotNullAndErrorMessageAbsent (T.pack name)) name Config.versionOptions
+

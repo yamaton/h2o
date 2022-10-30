@@ -120,11 +120,11 @@ genFishScriptSubcommands name subcmds =
 
 -- | Generate fish completion script for options under a subcommand
 genFishScriptSubcommandOptions :: String -> Command -> Text
-genFishScriptSubcommandOptions name (Command subname _ opts _ _) =
+genFishScriptSubcommandOptions name (Command subname _ _ opts _ _) =
   unlineFishCommands [makeFishLineSubcommandOption name subname opt | opt <- opts]
 
 toFishScript :: Command -> Text
-toFishScript (Command name _ opts subcmds _)
+toFishScript (Command name _ _ opts subcmds _)
   | null subcmds = addMeta $ genFishScriptSimple name opts
   | otherwise = addMeta $ T.intercalate "\n\n\n" (filter (not . T.null) scriptsAll)
   where

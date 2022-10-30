@@ -101,7 +101,7 @@ genZshBodySubcommands subcommands = res
     res = T.unlines $ concat [textPrefix, textCore, textSuffix]
 
 zshSubcommandOptionFunction :: String -> Command -> Text
-zshSubcommandOptionFunction name (Command subname _ opts _ _) =
+zshSubcommandOptionFunction name (Command subname _ _ opts _ _) =
   T.concat $ map T.unlines [linesPrefix, linesCore, linesSuffix]
   where
     linesPrefix =
@@ -130,7 +130,7 @@ genZshBodySubcommandOptions :: String -> [Command] -> Text
 genZshBodySubcommandOptions cmd subcommands =
   T.concat [textPrefix, textCore, textSuffix]
   where
-    subnames = [subname | (Command subname _ _ _ _) <- subcommands]
+    subnames = [subname | (Command subname _ _ _ _ _) <- subcommands]
     textPrefix =
       T.unlines
         [ "    case $state in",
@@ -159,7 +159,7 @@ genZshScript cmd opts = T.concat [header, meta, body]
     body = genZshBodyOptions cmd opts
 
 toZshScript :: Command -> Text
-toZshScript (Command name _ opts subcmds _) =
+toZshScript (Command name _ _ opts subcmds _) =
   T.concat [textHeader, meta, textSubcmdFuncs, textFunctionOpening, textSubcommands, textRootOptions, textSubcommandOptionCalls, textFunctionClosing]
   where
     subcommands = map asSubcommand subcmds

@@ -7,13 +7,14 @@ module Layout
     makeRanges,
     mergeRanges,
     parseMany,
+    parseUsage,
   )
 where
 
 import Control.Exception (assert)
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.List as List
-import Data.List.Extra (breakOnEnd, nubSort, trim, trimEnd)
+import Data.List.Extra (breakOnEnd, nubSort, trim, trimEnd, trimStart)
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import Debug.Trace (trace)
@@ -138,7 +139,8 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
   where
     descLocs =
       infoMsg (printf "descLocs (line+%d): lineIdxBase" lineIdxBase) $
-        takeHangingDesc lineIdxBase optLocs $ getNonoptLocations s
+        takeHangingDesc lineIdxBase optLocs $
+          getNonoptLocations s
     (_, descOffsets) = unzip descLocs
     (optLines, optOffsets) = unzip optLocs
     offsetOverlaps = Set.toList $ Set.intersection (Set.fromList optOffsets) (Set.fromList descOffsets)
@@ -308,15 +310,15 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
     isOptionAndDescriptionLine idx
       | not (isOptionLine idx) = False
       | otherwise =
-        (not (isOptionLine (idx + 1)) && not (isDescriptionOnly (idx + 1)))
-          || (isDescriptionOnly (idx + 1) && (length (xs !! idx) + 6 > descLineWidthTop10Percentile))
-          || isOptionLine (idx + 1) && descOffset >= 2 && last optSegment == ' ' && length (words descSegment) >= 2 -- [FIXME] too heuristic
-          || isParsedAsOptDescLine && (length (xs !! idx) + 25 > descLineWidthTop10Percentile)
+          not (isOptionLine (idx + 1)) && not (isDescriptionOnly (idx + 1))
+            || isDescriptionOnly (idx + 1) && (length (xs !! idx) + 6 > descLineWidthTop10Percentile)
+            || isOptionLine (idx + 1) && descOffset >= 2 && last optSegment == ' ' && length (words descSegment) >= 2 -- [FIXME] too heuristic
+            || isParsedAsOptDescLine && length (xs !! idx) + 25 > descLineWidthTop10Percentile
       where
         isOptionLine i = i `Set.member` optLinesSet
         isDescriptionOnly i = i `Set.member` descLinesWithoutOptionsSet
         (optSegment, descSegment) = splitAt descOffset (xs !! idx)
-        isParsedAsOptDescLine = not . null . HelpParser.parseLine $ (xs !! idx)
+        isParsedAsOptDescLine = not . null . HelpParser.parseLine $ xs !! idx
 
     descLinesWithOptions =
       infoMsg
@@ -422,7 +424,6 @@ makeRanges xs ys =
     g acc x = span (< x) acc
     yRanges = concatMap Utils.toRanges yss
 
-
 -- | Create quartets (x1, x2, y1, y2) as overlapping boundaries
 --
 -- [Note] As a special case, x2 == y1 is considered as a overlap
@@ -453,13 +454,15 @@ mergeRanges ((x1, x2) : xs) ((y1, y2) : ys)
 --     zs = map (drop idxCol) ys
 
 -- | Get line indices of headers
+-- [NOTE] If there is only one shallowest-indented line,
+-- it will look for second-shallowest lines
 getHeadingIndices :: [String] -> [Int]
 getHeadingIndices [] = []
 getHeadingIndices xs
   | count >= 2 || null indentations' = [idx | (idx, indentation) <- zip [0 ..] indentations, indentation == minval]
   | otherwise = [idx | (idx, indentation) <- zip [0 ..] indentations, indentation == secondMinval]
   where
-    indentations = debugMsg "indentations: " $ map (\x -> if null x then 80 else length . takeWhile (== ' ') $ x) xs
+    indentations = debugMsg "indentations: " $ map (\x -> if null (trim x) then 80 else length . takeWhile (== ' ') $ x) xs
     minval = List.minimum indentations
     count = length $ filter (== minval) indentations
     indentations' = filter (/= minval) indentations
@@ -484,7 +487,8 @@ splitByHeaders xs
     chunks =
       map (Bifunctor.second unlines) $
         filter (\(_, lines_) -> length lines_ > 1 && any Utils.startsWithDash lines_) $
-          zip blockIndicesRaw $ Utils.splitsAt xs blockIndicesRaw
+          zip blockIndicesRaw $
+            Utils.splitsAt xs blockIndicesRaw
 
 -- | Parse (option-and-argument, description) pairs from text by applying
 -- preprocessAll to each header-based block.
@@ -556,3 +560,59 @@ parseMany s = List.nub . concat $ results
         | (optStr, descStr) <- pairs,
           (optStr, descStr) /= ("", "")
       ]
+
+-- | Parse Usage or SYNOPSYS
+parseUsage :: String -> String
+parseUsage content
+  | null blockFiltered = Utils.debugShow "[parseUsage] NOT FOUND" blocks ""
+  | foundSynopsys = Utils.debugMsg "[parseUsage] SYNOPSYS: " synopsys
+  | foundUsage = Utils.debugMsg "[parseUsage] Usage: " usage
+  | otherwise = Utils.debugTrace "[parseUsage] something is wrong" ""
+  where
+    headerMan = "SYNOPSYS"
+    headerHelp = "Usage:"
+    criteria :: String -> Bool
+    criteria s = any (`List.isPrefixOf` trimStart s) [headerMan, headerHelp]
+    blocks = (map snd . splitByHeadersForUsage . lines) content
+    blockFiltered = filter criteria blocks
+    theBlock = Utils.debugMsg "[parseUsage] theBlock:" $ head blockFiltered
+    foundSynopsys = headerMan `List.isPrefixOf` trimStart theBlock
+    foundUsage = headerHelp `List.isPrefixOf` trimStart theBlock
+    getBody = trimEnd . unlines . trimFixedIndents . tail . lines
+    synopsys = getBody theBlock
+
+    xs = lines theBlock
+    firstLine = head xs
+    usage
+      | (null . trim) firstLineRest = getBody theBlock
+      | otherwise = trimEnd (unlines ys)
+      where
+        indentation = length (takeWhile (== ' ') firstLine)
+        preOffset = indentation + length headerHelp
+        firstLineRest = drop preOffset firstLine
+        offset = preOffset + length (takeWhile (== ' ') firstLineRest)
+        pairs = map (splitAt (Utils.debugMsg "[parseUsage: offset]" offset)) xs
+        ys = snd (head pairs) : map snd (takeWhile (null . trim . fst) (tail pairs))
+
+-- | Split text by top-level headers
+-- where headers are recognized by the least indentations
+-- NOTE: the top-level headers are **included** in the output
+--       this is not exclude headings starting with "- Hey this is heading!"
+splitByHeadersForUsage :: [String] -> [(Int, String)]
+splitByHeadersForUsage xs = chunks
+  where
+    sepIndices = getHeadingIndices xs -- separater indices
+    blockHeadIndices =
+      if null sepIndices || 0 `notElem` sepIndices
+        then 0 : sepIndices
+        else sepIndices
+    chunks = zip blockHeadIndices (map unlines (Utils.splitsAt xs blockHeadIndices))
+
+-- | Drop by the shallowest indentation in the given lines
+trimFixedIndents :: [String] -> [String]
+trimFixedIndents xs
+  | null ys = Utils.debugMsg "[parseUsage] what's wrong?" xs
+  | otherwise = Utils.debugMsg "[parseUsage] looks okay" $ map (drop size) xs
+  where
+    ys = filter (not . null . trim) xs
+    size = minimum (map (length . takeWhile (== ' ')) ys)

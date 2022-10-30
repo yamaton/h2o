@@ -23,7 +23,7 @@ import IoHelper
     getManSub,
     isManAvailableIO,
   )
-import Layout (parseBlockwise, preprocessBlockwise)
+import Layout (parseBlockwise, preprocessBlockwise, parseUsage)
 import qualified Postprocess
 import Subcommand (parseSubcommand)
 import System.FilePath (takeBaseName)
@@ -96,7 +96,7 @@ toSubcommandsText path cmds =
     main = T.unlines . map (T.pack . show . asSubcommand) $ cmds
 
 toSubcommandOptionsText :: [String] -> Command -> Text
-toSubcommandOptionsText nameSeq (Command subname _ opts _ _) =
+toSubcommandOptionsText nameSeq (Command subname _ _ opts _ _) =
   T.unlines $ map (\opt -> prefix `T.append` T.pack (show opt)) opts
   where
     prefix = T.pack . printf "(%s) " . T.unwords . map T.pack $ nameSeq ++ [subname]
@@ -122,14 +122,14 @@ toScript Json = toJSONText
 toScript Native = toNativeText
 
 toNativeText :: Command -> Text
-toNativeText (Command _ _ opts [] _) =
+toNativeText (Command _ _ _ opts [] _) =
   Utils.warnTrace "No subcommands" $
     T.unlines $ map (T.pack . show) opts
 toNativeText cmd =
   T.intercalate "\n\n\n" . filter (not . T.null) $ toNativeTextRec [] cmd
 
 toNativeTextRec :: [String] -> Command -> [Text]
-toNativeTextRec path cmd@(Command name _ _ subCmds _) =
+toNativeTextRec path cmd@(Command name _ _ _ subCmds _) =
   [optsText, subcommandsText] ++ rest
   where
     optsText = toSubcommandOptionsText path cmd
@@ -177,7 +177,8 @@ getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
   let subCommandsM = map fst . filter snd <$> subCommandCandidsM
   let opts = parseBlockwise content
   subCommands <- subCommandsM
-  let result = Command (last cmdSeq) desc opts subCommands ""
+  let usage = parseUsage content
+  let result = Command (last cmdSeq) desc usage opts subCommands ""
   return (result, Utils.infoMsg ("getCommandRec isSuccess: " ++ unwords cmdSeq) isSuccess)
   where
     readFunc = if useMan then getManSub else getHelpSub
@@ -198,9 +199,10 @@ pageToCommandSimple :: String -> String -> IO Command
 pageToCommandSimple name content =
   if null rootOptions
     then error ("Failed to extract information for a Command: " ++ name)
-    else Postprocess.fixCommand $ Command name name rootOptions [] ""
+    else Postprocess.fixCommand $ Command name name usage rootOptions [] ""
   where
     rootOptions = parseBlockwise content
+    usage = parseUsage content
 
 listSubcommandsIO :: Input -> IO [Text]
 listSubcommandsIO input = getSubnames <$> (pageToCommandIO name skipMan 1 =<< getInputContent input)

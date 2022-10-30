@@ -26,7 +26,7 @@ import Test.Tasty.Hedgehog (testProperty)
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
 import Type (Opt (..), OptName (..), OptNameType (..))
-import Utils (convertTabsToSpaces, getMostFrequent, toContiguousChunks, toRanges)
+import Utils (convertTabsToSpaces, getMostFrequent, toContiguousChunks, toRanges, splitsAt)
 
 main :: IO ()
 main = do
@@ -34,7 +34,12 @@ main = do
   defaultMain $
     testGroup
       "Tests"
-      [optNameTests, propertyTests, outdatedTests, devTests, optPartTests, unsupportedCases, miscTests, shellCompTests, shellCompGoldenTests, integratedGoldenTestsCommandInput, integratedGoldenTestsFileInput, layoutTests]
+      [
+        optNameTests, propertyTests, outdatedTests, devTests, optPartTests,
+        unsupportedCases, miscTests, shellCompTests, shellCompGoldenTests,
+        integratedGoldenTestsCommandInput, integratedGoldenTestsFileInput,
+        layoutTests, parseUsageTests
+      ]
 
 outdatedTests :: TestTree
 outdatedTests =
@@ -424,6 +429,16 @@ unsupportedCases =
           (["-c", "--contaminants"], "", "Specifies a non-default file which contains the list of contaminants to screen overrepresented sequences against.")
       ]
 
+parseUsageTests :: TestTree
+parseUsageTests =
+  testGroup
+    "\n ============= Test usage parser ============"
+    [
+      test_parseUsage "  Usage:  cat [OPTION]... [FILE]...  \n" "cat [OPTION]... [FILE]...",
+      test_parseUsage "SYNOPSYS\n    cat dog \nOTHER HEADER\n  baba\n" "cat dog",
+      test_parseUsage "  Usage: \n    cat [OPTION]... [FILE]...\n    cat dog  \n  Other header:  keke\n\n" "cat [OPTION]... [FILE]...\ncat dog"
+    ]
+
 devTests :: TestTree
 devTests =
   testGroup
@@ -487,6 +502,12 @@ miscTests =
         toContiguousChunks [2, 3, 4, 8, 10, 11] @?= [[2, 3, 4], [8], [10, 11]],
       testCase "toRanges [2, 3, 4, 8, 10, 11] == [(2, 5), (8, 9), (10, 12)]" $
         toRanges [2, 3, 4, 8, 10, 11] @?= [(2, 5), (8, 9), (10, 12)],
+      testCase "splitsAt \"0123456789\" [0, 3, 5] == [\"012\", \"34\", \"56789\"]" $
+        splitsAt "0123456789" [0, 3, 5] @?= ["012", "34", "56789"],
+      testCase "splitsAt \"0123456789\" [0] == [\"0123456789\"]" $
+        splitsAt "0123456789" [0] @?= ["0123456789"],
+      testCase "splitsAt \"0123456789\" [] == [\"0123456789\"]" $
+        splitsAt "0123456789" [] @?= ["0123456789"],
       testCase "truncateAfterPeriod 1" $
         GenFish.truncateAfterPeriod "hello, i.e. good bye!" @?= "hello, i.e. good bye!",
       testCase "truncateAfterPeriod 2" $
@@ -684,7 +705,6 @@ prop_mergeRanges =
 mergeRangesSlow :: [(Int, Int)] -> [(Int, Int)] -> [(Int, Int, Int, Int)]
 mergeRangesSlow xs ys = [(x1, x2, y1, y2) | (x1, x2) <- xs, (y1, y2) <- ys, x1 <= y1 && y1 <= x2 && x2 <= y2]
 
-
 makeOpt :: [String] -> String -> String -> Opt
 makeOpt names = Opt (map getOptName names)
   where
@@ -723,3 +743,10 @@ test_parseMany s tuples =
   where
     actual = List.sort $ Layout.parseMany s
     expected = List.sort [makeOpt names args desc | (names, args, desc) <- tuples]
+
+test_parseUsage :: String -> String -> TestTree
+test_parseUsage s expected =
+  testCase s $ do
+    actual @?= expected
+  where
+    actual = Layout.parseUsage s
