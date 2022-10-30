@@ -1,5 +1,4 @@
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE TupleSections #-}
 
 module Layout
   ( parseBlockwise,

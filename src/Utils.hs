@@ -1,4 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE MonadComprehensions #-}
 {-# LANGUAGE OverloadedStrings #-}
