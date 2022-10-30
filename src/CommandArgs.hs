@@ -19,7 +19,6 @@ data Config = Config
   { _input :: Input,
     _outputFormat :: OutputFormat,
     _isOutputJSON :: Bool,
-    _isConvertingTabsToSpaces :: Bool,
     _isListingSubcommands :: Bool,
     _isPreprocessOnly :: Bool,
     _depth :: Int
@@ -111,10 +110,6 @@ config =
             <*> switch
               ( long "json"
                   <> help "[Deprecated] Show parsed results in JSON. Use --format json instead."
-              )
-            <*> switch
-              ( long "convert-tabs-to-spaces"
-                  <> help "[Test only] Convert tabs to spaces"
               )
             <*> switch
               ( long "list-subcommands"

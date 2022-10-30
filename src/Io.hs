@@ -37,13 +37,10 @@ run :: ConfigOrVersion -> IO Text
 -- Just return version
 run Version = return (T.concat ["h2o ", Version.versionStr, "\n"])
 -- Or, do some utility work
-run (C_ (Config input _ isExportingJSON isConvertingTabsToSpaces isListingSubcommands isPreprocessOnly depth))
+run (C_ (Config input _ isExportingJSON isListingSubcommands isPreprocessOnly depth))
   | isExportingJSON =
     Utils.warnTrace "io: Deprecated: Use --format json instead" $
-      run (C_ (Config input Json False False False False depth))
-  | isConvertingTabsToSpaces =
-    Utils.infoTrace "io: Converting tags to spaces...\n" $
-      T.pack <$> getInputContent input
+      run (C_ (Config input Json False False False depth))
   | isListingSubcommands =
     Utils.infoTrace "io: Listing subcommands...\n" $
       T.unlines <$> listSubcommandsIO input
@@ -54,26 +51,26 @@ run (C_ (Config input _ isExportingJSON isConvertingTabsToSpaces isListingSubcom
     formatStringPairs = unlines . map (\(a, b) -> unlines [a, b])
 
 -- Or, process the input file in text
-run (C_ (Config input@(FileInput f skipMan) format _ _ _ _ depth)) =
+run (C_ (Config input@(FileInput f skipMan) format _ _ _ depth)) =
   toScript format <$> (pageToCommandIO name skipMan depth =<< contentIO)
   where
     name = takeBaseName f
     contentIO = getInputContent input
 
 -- Or, process with command name
-run (C_ (Config input@(CommandInput name skipMan) format _ _ _ _ depth)) =
+run (C_ (Config input@(CommandInput name skipMan) format _ _ _ depth)) =
   toScript format <$> (pageToCommandIO name skipMan depth =<< contentIO)
   where
     contentIO = getInputContent input
 
 -- Or, process with command name AND subcommand name
-run (C_ (Config input@(SubcommandInput name subname _) format _ _ _ _ _)) =
+run (C_ (Config input@(SubcommandInput name subname _) format _ _ _ _)) =
   toScript format <$> (pageToCommandSimple nameSubname =<< getInputContent input)
   where
     nameSubname = name ++ "-" ++ subname
 
 -- Or, load Command from JSON
-run (C_ (Config input@(JsonInput _) format _ _ _ _ _)) = do
+run (C_ (Config input@(JsonInput _) format _ _ _ _)) = do
   content <- TLE.encodeUtf8 . TL.pack <$> getInputContent input
   let cmdMay = Aeson.decode content :: Maybe Command
   let commandIO =
