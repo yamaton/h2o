@@ -1,3 +1,10 @@
+## 0.4.0 (2022-10-30)
+- Add usage parsing; Command type accomodates usage
+- Fix quotes in fish outputs
+- Stackage LTS-19.30
+- Introduce invalid/errorneus message detection
+- bazel support
+
 ## 0.3.3 (2022-05-22)
 - Bump to GHC 9.0.2 (via Stackage LTS-19.7)
 - Tunings to reduce false positives and negatives
