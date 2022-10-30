@@ -435,7 +435,7 @@ parseUsageTests =
     "\n ============= Test usage parser ============"
     [
       test_parseUsage "  Usage:  cat [OPTION]... [FILE]...  \n" "cat [OPTION]... [FILE]...",
-      test_parseUsage "SYNOPSYS\n    cat dog \nOTHER HEADER\n  baba\n" "cat dog",
+      test_parseUsage "SYNOPSIS\n    cat dog \nOTHER HEADER\n  baba\n" "cat dog",
       test_parseUsage "  Usage: \n    cat [OPTION]... [FILE]...\n    cat dog  \n  Other header:  keke\n\n" "cat [OPTION]... [FILE]...\ncat dog"
     ]
 

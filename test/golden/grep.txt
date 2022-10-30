@@ -5,7 +5,9 @@ Desc:  grep-input
 
 
 Usage:
-
+grep [OPTION...] PATTERNS [FILE...]
+grep [OPTION...] -e PATTERNS ... [FILE...]
+grep [OPTION...] -f PATTERN_FILE ... [FILE...]
 
 
 (grep-input) --help  ::  

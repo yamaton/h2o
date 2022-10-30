@@ -570,7 +570,7 @@ parseUsage content
   | foundUsage = Utils.debugMsg "[parseUsage] Usage: " usage
   | otherwise = Utils.debugTrace "[parseUsage] something is wrong" ""
   where
-    headerMan = "SYNOPSYS"
+    headerMan = "SYNOPSIS"
     headerHelp = "Usage:"
     toLower = map Char.toLower
     isPrefixOf prefix s = toLower prefix == toLower (take (length prefix) (trimStart s))
@@ -603,12 +603,22 @@ parseUsage content
 splitByHeadersForUsage :: [String] -> [String]
 splitByHeadersForUsage xs = chunks
   where
-    sepIndices = getHeadingIndices xs -- separater indices
+    sepIndices = getHeadingIndicesSimple xs
     blockHeadIndices =
       if null sepIndices || 0 `notElem` sepIndices
         then 0 : sepIndices
         else sepIndices
     chunks = map unlines (Utils.splitsAt xs blockHeadIndices)
+
+-- [NOTE] If there is only one shallowest-indented line,
+getHeadingIndicesSimple :: [String] -> [Int]
+getHeadingIndicesSimple [] = []
+getHeadingIndicesSimple xs =
+  [idx | (idx, indentation) <- zip [0 ..] indentations, indentation == minval]
+  where
+    indentations =
+      map (\x -> if null (trim x) then 80 else length . takeWhile (== ' ') $ x) xs
+    minval = List.minimum indentations
 
 -- | Drop by the shallowest indentation in the given lines
 trimFixedIndents :: [String] -> [String]
