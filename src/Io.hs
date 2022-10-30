@@ -19,7 +19,6 @@ import IoHelper
   ( getHelp,
     getHelpSub,
     getManAndHelp,
-    getManAndHelpSub,
     getManSub,
     isManAvailableIO,
   )
@@ -60,12 +59,6 @@ run (C_ (Config input@(CommandInput name skipMan) format _ _ depth)) =
   where
     contentIO = getInputContent input
 
--- Or, process with command name AND subcommand name
-run (C_ (Config input@(SubcommandInput name subname _) format _ _ _)) =
-  toScript format <$> (pageToCommandSimple nameSubname =<< getInputContent input)
-  where
-    nameSubname = name ++ "-" ++ subname
-
 -- Or, load Command from JSON
 run (C_ (Config input@(JsonInput _) format _ _ _)) = do
   content <- TLE.encodeUtf8 . TL.pack <$> getInputContent input
@@ -96,10 +89,6 @@ toSubcommandOptionsText nameSeq (Command subname _ _ opts _ _) =
     prefix = T.pack . printf "(%s) " . T.unwords . map T.pack $ nameSeq ++ [subname]
 
 getInputContent :: Input -> IO String
-getInputContent (SubcommandInput name subname skipMan) =
-  T.unpack . Utils.convertTabsToSpaces 8 <$> reader [name, subname]
-  where
-    reader = if skipMan then getHelpSub else getManAndHelpSub
 getInputContent (CommandInput name skipMan) =
   T.unpack . Utils.convertTabsToSpaces 8 <$> reader name
   where
@@ -207,12 +196,10 @@ listSubcommandsIO input = getSubnames <$> (pageToCommandIO name skipMan 1 =<< ge
 
 getName :: Input -> String
 getName (CommandInput n _) = n
-getName (SubcommandInput n _ _) = n
 getName (FileInput f _) = takeBaseName f
 getName (JsonInput f) = takeBaseName f
 
 getSkipMan :: Input -> Bool
 getSkipMan (CommandInput _ b) = b
-getSkipMan (SubcommandInput _ _ b) = b
 getSkipMan (FileInput _ b) = b
 getSkipMan (JsonInput _) = True

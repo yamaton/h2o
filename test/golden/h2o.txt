@@ -7,9 +7,6 @@ Skip scanning manpage and focus on help text. Does not apply if input source is 
 -f --file  ::  <file>
 Extract CLI options form the text file.
 
--s --subcommand  ::  <string-string>
-Extract CLI options from the subcommand-specific help text or man page. Enter a command-subcommand pair, like git-log, as the argument.
-
 --loadjson  ::  <file>
 Load JSON file in Command schema.
 
@@ -17,19 +14,13 @@ Load JSON file in Command schema.
 Select output format of the completion script (bash|zsh|fish|json|native) (default: "native")
 
 --json  ::  
-[Deprecated] Show parsed results in JSON. Use --format json instead.
-
---convert-tabs-to-spaces  ::  
-[Test only] Convert tabs to spaces
-
---list-subcommands  ::  
-List subcommands
+Output in JSON. Same as --format=json
 
 --debug  ::  
-[Test only] Run preprocessing only (for debugging)
+[Debug] Run preprocessing only
 
 --depth  ::  <int>
-Set upper bound of the depth of subcommand level. (default: 4)
+Set upper bound of the depth of subcommand level (default: 4)
 
 --version  ::  
 Show version
