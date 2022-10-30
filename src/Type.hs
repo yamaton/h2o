@@ -84,7 +84,7 @@ instance FromJSON Command where
     Command
       <$> (T.unpack <$> v .: "name")
       <*> (T.unpack <$> v .: "description")
-      <*> (T.unpack <$> v .: "usage")
+      <*> (T.unpack . Maybe.fromMaybe "" <$> v .:? "usage")
       <*> v
       .: "options"
       <*> (Maybe.fromMaybe [] <$> v .:? "subcommands")
