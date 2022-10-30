@@ -109,15 +109,15 @@ config =
                 )
             <*> switch
               ( long "json"
-                  <> help "[Deprecated] Show parsed results in JSON. Use --format json instead."
+                  <> help "Output in JSON. Same as --format=json"
               )
             <*> switch
               ( long "list-subcommands"
-                  <> help "List subcommands"
+                  <> help "[Debug] List subcommands"
               )
             <*> switch
               ( long "debug"
-                  <> help "[Test only] Run preprocessing only (for debugging)"
+                  <> help "[Debug] Run preprocessing only"
               )
             <*> option
               auto
@@ -125,7 +125,7 @@ config =
                   <> metavar "<int>"
                   <> showDefault
                   <> value 4
-                  <> help "Set upper bound of the depth of subcommand level."
+                  <> help "Set upper bound of the depth of subcommand level"
               )
         )
 
