@@ -95,7 +95,7 @@ EXECUTION:
   --profile PROFILE     Name of profile to use for configuring Snakemake.
                         Snakemake will search for a corresponding folder in
                         /etc/xdg/xdg-pop/snakemake and
-                        /home/vierbein/.config/snakemake. Alternatively, this
+                        ~/.config/snakemake. Alternatively, this
                         can be an absolute or relative path. The profile
                         folder has to contain a file 'config.yaml'. This file
                         can be used to set default values for command line
