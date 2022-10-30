@@ -1,3 +1,9 @@
+## 0.4.1 (2022-10-30)
+- Remove unused command options
+    - --subcommand
+    - --list-subcommands
+    - --convert-tabs-to-spaces
+
 ## 0.4.0 (2022-10-30)
 - Add usage parsing; Command type accomodates usage
 - Fix quotes in fish outputs
