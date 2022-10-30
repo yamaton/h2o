@@ -1,0 +1,81 @@
+{
+  "name": "h2o",
+  "description": "h2o",
+  "usage": "h2o (\n      ((-c|--command <string>) [--skip-man] | (-f|--file <file>) \n        [--skip-man] |\n        --loadjson <file>) [--format {bash|zsh|fish|json|native}] \n      [--json] [--debug] [--depth <int>] |\n      --version)",
+  "options": [
+    {
+      "names": [
+        "-c",
+        "--command"
+      ],
+      "argument": "<string>",
+      "description": "Extract CLI options from the help texts or man pages associated with the command. Subcommand pages are also scanned automatically."
+    },
+    {
+      "names": [
+        "--skip-man"
+      ],
+      "argument": "",
+      "description": "Skip scanning manpage and focus on help text. Does not apply if input source is a file."
+    },
+    {
+      "names": [
+        "-f",
+        "--file"
+      ],
+      "argument": "<file>",
+      "description": "Extract CLI options form the text file."
+    },
+    {
+      "names": [
+        "--loadjson"
+      ],
+      "argument": "<file>",
+      "description": "Load JSON file in Command schema."
+    },
+    {
+      "names": [
+        "--format"
+      ],
+      "argument": "{bash|zsh|fish|json|native}",
+      "description": "Select output format of the completion script (bash|zsh|fish|json|native) (default: \"native\")"
+    },
+    {
+      "names": [
+        "--json"
+      ],
+      "argument": "",
+      "description": "Output in JSON. Same as --format=json"
+    },
+    {
+      "names": [
+        "--debug"
+      ],
+      "argument": "",
+      "description": "[Debug] Run preprocessing only"
+    },
+    {
+      "names": [
+        "--depth"
+      ],
+      "argument": "<int>",
+      "description": "Set upper bound of the depth of subcommand level (default: 4)"
+    },
+    {
+      "names": [
+        "--version"
+      ],
+      "argument": "",
+      "description": "Show version"
+    },
+    {
+      "names": [
+        "-h",
+        "--help"
+      ],
+      "argument": "",
+      "description": "Show this help text"
+    }
+  ],
+  "version": "h2o 0.3.3"
+}

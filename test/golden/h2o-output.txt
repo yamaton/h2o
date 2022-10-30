@@ -1,0 +1,45 @@
+Name:  h2o
+
+
+Desc:  h2o
+
+
+Usage:
+h2o (
+      ((-c|--command <string>) [--skip-man] | (-f|--file <file>) 
+        [--skip-man] |
+        --loadjson <file>) [--format {bash|zsh|fish|json|native}] 
+      [--json] [--debug] [--depth <int>] |
+      --version)
+
+
+(h2o) -c --command  ::  <string>
+Extract CLI options from the help texts or man pages associated with the command. Subcommand pages are also scanned automatically.
+
+(h2o) --skip-man  ::  
+Skip scanning manpage and focus on help text. Does not apply if input source is a file.
+
+(h2o) -f --file  ::  <file>
+Extract CLI options form the text file.
+
+(h2o) --loadjson  ::  <file>
+Load JSON file in Command schema.
+
+(h2o) --format  ::  {bash|zsh|fish|json|native}
+Select output format of the completion script (bash|zsh|fish|json|native) (default: "native")
+
+(h2o) --json  ::  
+Output in JSON. Same as --format=json
+
+(h2o) --debug  ::  
+[Debug] Run preprocessing only
+
+(h2o) --depth  ::  <int>
+Set upper bound of the depth of subcommand level (default: 4)
+
+(h2o) --version  ::  
+Show version
+
+(h2o) -h --help  ::  
+Show this help text
+

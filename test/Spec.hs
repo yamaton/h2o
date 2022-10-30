@@ -38,6 +38,7 @@ main = do
         optNameTests, propertyTests, outdatedTests, devTests, optPartTests,
         unsupportedCases, miscTests, shellCompTests, shellCompGoldenTests,
         integratedGoldenTestsCommandInput, integratedGoldenTestsFileInput,
+        integratedGoldenTestsJsonInput,
         layoutTests, parseUsageTests
       ]
 
@@ -658,6 +659,31 @@ integratedGoldenTestsFileInput =
     toTestTree (_, inputFile, outputFile) =
       goldenVsString
         ("h2o --file " ++ inputFile)
+        outputFile
+        (runWithCommand inputFile)
+
+integratedGoldenTestsJsonInput :: TestTree
+integratedGoldenTestsJsonInput =
+  testGroup
+    "Integrated tests"
+    (map toTestTree triples)
+  where
+    -- [note] bcftools-mpileup is marginal and parsing give incomplete results
+    --        such marginal example is a good at catching unexpected behviors.
+    commandNames =
+      [ "h2o",
+        "stack"
+      ] :: [String]
+    inputFiles = [printf "test/golden/%s.json" name | name <- commandNames]
+    outputFiles = [printf "test/golden/%s-output.txt" name | name <- commandNames]
+    triples = zip3 commandNames inputFiles outputFiles
+
+    toLazyByteString = TLE.encodeUtf8 . TL.fromStrict
+    conf filepath = C_ (Config (JsonInput filepath) Native False False 4)
+    runWithCommand filepath = toLazyByteString <$> run (conf filepath)
+    toTestTree (_, inputFile, outputFile) =
+      goldenVsString
+        ("h2o --loadjson " ++ inputFile)
         outputFile
         (runWithCommand inputFile)
 
