@@ -13,6 +13,7 @@ where
 
 import Control.Exception (assert)
 import qualified Data.Bifunctor as Bifunctor
+import qualified Data.Char as Char
 import qualified Data.List as List
 import Data.List.Extra (breakOnEnd, nubSort, trim, trimEnd, trimStart)
 import qualified Data.Maybe as Maybe
@@ -571,13 +572,14 @@ parseUsage content
   where
     headerMan = "SYNOPSYS"
     headerHelp = "Usage:"
-    criteria :: String -> Bool
-    criteria s = any (`List.isPrefixOf` trimStart s) [headerMan, headerHelp]
-    blocks = (map snd . splitByHeadersForUsage . lines) content
-    blockFiltered = filter criteria blocks
+    toLower = map Char.toLower
+    isPrefixOf prefix s = toLower prefix == toLower (take (length prefix) (trimStart s))
+    foundPrefix s = any (`isPrefixOf` s) [headerMan, headerHelp]
+    blocks = (splitByHeadersForUsage . lines) content
+    blockFiltered = filter foundPrefix blocks
     theBlock = Utils.debugMsg "[parseUsage] theBlock:" $ head blockFiltered
-    foundSynopsys = headerMan `List.isPrefixOf` trimStart theBlock
-    foundUsage = headerHelp `List.isPrefixOf` trimStart theBlock
+    foundSynopsys = headerMan `isPrefixOf` theBlock
+    foundUsage = headerHelp `isPrefixOf` theBlock
     getBody = trimEnd . unlines . trimFixedIndents . tail . lines
     synopsys = getBody theBlock
 
@@ -598,7 +600,7 @@ parseUsage content
 -- where headers are recognized by the least indentations
 -- NOTE: the top-level headers are **included** in the output
 --       this is not exclude headings starting with "- Hey this is heading!"
-splitByHeadersForUsage :: [String] -> [(Int, String)]
+splitByHeadersForUsage :: [String] -> [String]
 splitByHeadersForUsage xs = chunks
   where
     sepIndices = getHeadingIndices xs -- separater indices
@@ -606,7 +608,7 @@ splitByHeadersForUsage xs = chunks
       if null sepIndices || 0 `notElem` sepIndices
         then 0 : sepIndices
         else sepIndices
-    chunks = zip blockHeadIndices (map unlines (Utils.splitsAt xs blockHeadIndices))
+    chunks = map unlines (Utils.splitsAt xs blockHeadIndices)
 
 -- | Drop by the shallowest indentation in the given lines
 trimFixedIndents :: [String] -> [String]

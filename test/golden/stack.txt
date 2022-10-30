@@ -1,3 +1,28 @@
+Name:  stack
+
+
+Desc:  stack
+
+
+Usage:
+stack [--help] [--version] [--numeric-version] [--hpack-numeric-version] 
+      [--docker*] [--nix*] 
+      [--verbosity VERBOSITY | (-v|--verbose) | --silent] 
+      [--[no-]time-in-log] [--[no-]rsl-in-log] [--stack-root STACK-ROOT] 
+      [--work-dir WORK-DIR] [--[no-]system-ghc] [--[no-]install-ghc] 
+      [--arch ARCH] [--ghc-variant VARIANT] [--ghc-build BUILD] 
+      [-j|--jobs JOBS] [--extra-include-dirs DIR] [--extra-lib-dirs DIR] 
+      [--custom-preprocessor-extensions EXT] [--with-gcc PATH-TO-GCC] 
+      [--with-hpack HPACK] [--[no-]skip-ghc-check] [--[no-]skip-msys] 
+      [--local-bin-path DIR] [--setup-info-yaml URL] 
+      [--[no-]modify-code-page] [--[no-]allow-different-user] 
+      [--[no-]dump-logs] [--color|--colour WHEN] 
+      [--snapshot-location-base URL] [--[no-]script-no-run-compile] 
+      [--resolver RESOLVER] [--compiler COMPILER] [--[no-]terminal] 
+      [--stack-colors|--stack-colours STYLES] [--terminal-width INT] 
+      [--stack-yaml STACK-YAML] [--lock-file ARG] COMMAND|FILE
+
+
 (stack) --help  ::  
 Show this help text
 
@@ -198,6 +223,38 @@ docker                    (Subcommands specific to Docker use)
 config                    (Subcommands for accessing and modifying configuration)
 hpc                       (Subcommands specific to Haskell Program Coverage)
 
+
+
+Name:  stackbuild
+
+
+Desc:  Build the package(s) in this directory/configuration
+
+
+Usage:
+stack build [TARGET] [--dry-run] [--pedantic] [--fast] 
+            [--ghc-options OPTIONS] [--flag PACKAGE:[-]FLAG] 
+            [--dependencies-only | --only-snapshot | 
+              --only-dependencies | --only-locals] 
+            [--file-watch | --file-watch-poll] [--watch-all] 
+            [--exec COMMAND [ARGUMENT(S)]] [--only-configure] [--trace] 
+            [--profile] [--no-strip] [--[no-]library-profiling] 
+            [--[no-]executable-profiling] [--[no-]library-stripping] 
+            [--[no-]executable-stripping] [--[no-]haddock] 
+            [--haddock-arguments HADDOCK_ARGS] [--[no-]open] 
+            [--[no-]haddock-deps] [--[no-]haddock-internal] 
+            [--[no-]haddock-hyperlink-source] [--[no-]copy-bins] 
+            [--[no-]copy-compiler-tool] [--[no-]prefetch] 
+            [--[no-]keep-going] [--[no-]keep-tmp-files] 
+            [--[no-]force-dirty] [--[no-]test] [--[no-]rerun-tests] 
+            [--ta|--test-arguments TEST_ARGS] [--coverage] 
+            [--no-run-tests] [--test-suite-timeout ARG] [--[no-]bench] 
+            [--ba|--benchmark-arguments BENCH_ARGS] [--no-run-benchmarks]
+            [--[no-]reconfigure] 
+            [--cabal-verbosity VERBOSITY | --[no-]cabal-verbose] 
+            [--[no-]split-objs] [--skip ARG] [--[no-]interleaved-output] 
+            [--ddump-dir ARG] [--setup-info-yaml URL] 
+            [--snapshot-location-base URL] [--help]
 
 
 (stack build) --dry-run  ::  
@@ -425,6 +482,39 @@ Show this help text
 
 
 
+Name:  stackinstall
+
+
+Desc:  Shortcut for 'build --copy-bins'
+
+
+Usage:
+stack install [TARGET] [--dry-run] [--pedantic] [--fast] 
+              [--ghc-options OPTIONS] [--flag PACKAGE:[-]FLAG] 
+              [--dependencies-only | --only-snapshot | 
+                --only-dependencies | --only-locals] 
+              [--file-watch | --file-watch-poll] [--watch-all] 
+              [--exec COMMAND [ARGUMENT(S)]] [--only-configure] [--trace]
+              [--profile] [--no-strip] [--[no-]library-profiling] 
+              [--[no-]executable-profiling] [--[no-]library-stripping] 
+              [--[no-]executable-stripping] [--[no-]haddock] 
+              [--haddock-arguments HADDOCK_ARGS] [--[no-]open] 
+              [--[no-]haddock-deps] [--[no-]haddock-internal] 
+              [--[no-]haddock-hyperlink-source] [--[no-]copy-bins] 
+              [--[no-]copy-compiler-tool] [--[no-]prefetch] 
+              [--[no-]keep-going] [--[no-]keep-tmp-files] 
+              [--[no-]force-dirty] [--[no-]test] [--[no-]rerun-tests] 
+              [--ta|--test-arguments TEST_ARGS] [--coverage] 
+              [--no-run-tests] [--test-suite-timeout ARG] [--[no-]bench] 
+              [--ba|--benchmark-arguments BENCH_ARGS] 
+              [--no-run-benchmarks] [--[no-]reconfigure] 
+              [--cabal-verbosity VERBOSITY | --[no-]cabal-verbose] 
+              [--[no-]split-objs] [--skip ARG] 
+              [--[no-]interleaved-output] [--ddump-dir ARG] 
+              [--setup-info-yaml URL] [--snapshot-location-base URL] 
+              [--help]
+
+
 (stack install) --dry-run  ::  
 Don't build anything, just prepare to
 
@@ -650,6 +740,17 @@ Show this help text
 
 
 
+Name:  stackuninstall
+
+
+Desc:  Show how to uninstall Stack. This command does not
+
+
+Usage:
+stack uninstall [--setup-info-yaml URL] [--snapshot-location-base URL] 
+                [--help]
+
+
 (stack uninstall) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
 
@@ -660,6 +761,37 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stacktest
+
+
+Desc:  Shortcut for 'build --test'
+
+
+Usage:
+stack test [TARGET] [--dry-run] [--pedantic] [--fast] 
+           [--ghc-options OPTIONS] [--flag PACKAGE:[-]FLAG] 
+           [--dependencies-only | --only-snapshot | --only-dependencies |
+             --only-locals] [--file-watch | --file-watch-poll] 
+           [--watch-all] [--exec COMMAND [ARGUMENT(S)]] 
+           [--only-configure] [--trace] [--profile] [--no-strip] 
+           [--[no-]library-profiling] [--[no-]executable-profiling] 
+           [--[no-]library-stripping] [--[no-]executable-stripping] 
+           [--[no-]haddock] [--haddock-arguments HADDOCK_ARGS] 
+           [--[no-]open] [--[no-]haddock-deps] [--[no-]haddock-internal] 
+           [--[no-]haddock-hyperlink-source] [--[no-]copy-bins] 
+           [--[no-]copy-compiler-tool] [--[no-]prefetch] 
+           [--[no-]keep-going] [--[no-]keep-tmp-files] 
+           [--[no-]force-dirty] [--[no-]test] [--[no-]rerun-tests] 
+           [--ta|--test-arguments TEST_ARGS] [--coverage] 
+           [--no-run-tests] [--test-suite-timeout ARG] [--[no-]bench] 
+           [--ba|--benchmark-arguments BENCH_ARGS] [--no-run-benchmarks] 
+           [--[no-]reconfigure] 
+           [--cabal-verbosity VERBOSITY | --[no-]cabal-verbose] 
+           [--[no-]split-objs] [--skip ARG] [--[no-]interleaved-output] 
+           [--ddump-dir ARG] [--setup-info-yaml URL] 
+           [--snapshot-location-base URL] [--help]
 
 
 (stack test) --dry-run  ::  
@@ -887,6 +1019,38 @@ Show this help text
 
 
 
+Name:  stackbench
+
+
+Desc:  Shortcut for 'build --bench'
+
+
+Usage:
+stack bench [TARGET] [--dry-run] [--pedantic] [--fast] 
+            [--ghc-options OPTIONS] [--flag PACKAGE:[-]FLAG] 
+            [--dependencies-only | --only-snapshot | 
+              --only-dependencies | --only-locals] 
+            [--file-watch | --file-watch-poll] [--watch-all] 
+            [--exec COMMAND [ARGUMENT(S)]] [--only-configure] [--trace] 
+            [--profile] [--no-strip] [--[no-]library-profiling] 
+            [--[no-]executable-profiling] [--[no-]library-stripping] 
+            [--[no-]executable-stripping] [--[no-]haddock] 
+            [--haddock-arguments HADDOCK_ARGS] [--[no-]open] 
+            [--[no-]haddock-deps] [--[no-]haddock-internal] 
+            [--[no-]haddock-hyperlink-source] [--[no-]copy-bins] 
+            [--[no-]copy-compiler-tool] [--[no-]prefetch] 
+            [--[no-]keep-going] [--[no-]keep-tmp-files] 
+            [--[no-]force-dirty] [--[no-]test] [--[no-]rerun-tests] 
+            [--ta|--test-arguments TEST_ARGS] [--coverage] 
+            [--no-run-tests] [--test-suite-timeout ARG] [--[no-]bench] 
+            [--ba|--benchmark-arguments BENCH_ARGS] [--no-run-benchmarks]
+            [--[no-]reconfigure] 
+            [--cabal-verbosity VERBOSITY | --[no-]cabal-verbose] 
+            [--[no-]split-objs] [--skip ARG] [--[no-]interleaved-output] 
+            [--ddump-dir ARG] [--setup-info-yaml URL] 
+            [--snapshot-location-base URL] [--help]
+
+
 (stack bench) --dry-run  ::  
 Don't build anything, just prepare to
 
@@ -1110,6 +1274,39 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackhaddock
+
+
+Desc:  Shortcut for 'build --haddock'
+
+
+Usage:
+stack haddock [TARGET] [--dry-run] [--pedantic] [--fast] 
+              [--ghc-options OPTIONS] [--flag PACKAGE:[-]FLAG] 
+              [--dependencies-only | --only-snapshot | 
+                --only-dependencies | --only-locals] 
+              [--file-watch | --file-watch-poll] [--watch-all] 
+              [--exec COMMAND [ARGUMENT(S)]] [--only-configure] [--trace]
+              [--profile] [--no-strip] [--[no-]library-profiling] 
+              [--[no-]executable-profiling] [--[no-]library-stripping] 
+              [--[no-]executable-stripping] [--[no-]haddock] 
+              [--haddock-arguments HADDOCK_ARGS] [--[no-]open] 
+              [--[no-]haddock-deps] [--[no-]haddock-internal] 
+              [--[no-]haddock-hyperlink-source] [--[no-]copy-bins] 
+              [--[no-]copy-compiler-tool] [--[no-]prefetch] 
+              [--[no-]keep-going] [--[no-]keep-tmp-files] 
+              [--[no-]force-dirty] [--[no-]test] [--[no-]rerun-tests] 
+              [--ta|--test-arguments TEST_ARGS] [--coverage] 
+              [--no-run-tests] [--test-suite-timeout ARG] [--[no-]bench] 
+              [--ba|--benchmark-arguments BENCH_ARGS] 
+              [--no-run-benchmarks] [--[no-]reconfigure] 
+              [--cabal-verbosity VERBOSITY | --[no-]cabal-verbose] 
+              [--[no-]split-objs] [--skip ARG] 
+              [--[no-]interleaved-output] [--ddump-dir ARG] 
+              [--setup-info-yaml URL] [--snapshot-location-base URL] 
+              [--help]
 
 
 (stack haddock) --dry-run  ::  
@@ -1337,6 +1534,18 @@ Show this help text
 
 
 
+Name:  stacknew
+
+
+Desc:  Create a new project from a template. Run `stack
+
+
+Usage:
+stack new PACKAGE_NAME [--bare] [TEMPLATE_NAME] [-p|--param KEY:VALUE] 
+          [DIR(S)] [--omit-packages] [--force] [--ignore-subdirs] 
+          [--setup-info-yaml URL] [--snapshot-location-base URL] [--help]
+
+
 (stack new) --bare  ::  
 Do not create a subdirectory for the project
 
@@ -1364,6 +1573,17 @@ Show this help text
 
 
 
+Name:  stacktemplates
+
+
+Desc:  Show how to find templates available for `stack new'.
+
+
+Usage:
+stack templates [--setup-info-yaml URL] [--snapshot-location-base URL] 
+                [--help]
+
+
 (stack templates) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
 
@@ -1374,6 +1594,18 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackinit
+
+
+Desc:  Create stack project config from cabal or hpack
+
+
+Usage:
+stack init [DIR(S)] [--omit-packages] [--force] [--ignore-subdirs] 
+           [--setup-info-yaml URL] [--snapshot-location-base URL] 
+           [--help]
 
 
 (stack init) --omit-packages  ::  
@@ -1395,6 +1627,19 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stacksetup
+
+
+Desc:  Get the appropriate GHC for your project
+
+
+Usage:
+stack setup [GHC_VERSION] [--[no-]reinstall] [--ghc-bindist URL] 
+            [--ghcjs-boot-options GHCJS_BOOT] [--[no-]ghcjs-boot-clean] 
+            [--setup-info-yaml URL] [--snapshot-location-base URL] 
+            [--help]
 
 
 (stack setup) --reinstall  ::  
@@ -1425,6 +1670,25 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackpath
+
+
+Desc:  Print out handy path information
+
+
+Usage:
+stack path [--stack-root] [--project-root] [--config-location] 
+           [--bin-path] [--programs] [--compiler-exe] [--compiler-bin] 
+           [--compiler-tools-bin] [--local-bin] [--extra-include-dirs] 
+           [--extra-library-dirs] [--snapshot-pkg-db] [--local-pkg-db] 
+           [--global-pkg-db] [--ghc-package-path] 
+           [--snapshot-install-root] [--local-install-root] 
+           [--snapshot-doc-root] [--local-doc-root] [--local-hoogle-root]
+           [--dist-dir] [--local-hpc-root] [--local-bin-path] 
+           [--ghc-paths] [--global-stack-root] [--setup-info-yaml URL] 
+           [--snapshot-location-base URL] [--help]
 
 
 (stack path) --stack-root  ::  
@@ -1514,6 +1778,17 @@ Show this help text
 
 
 
+Name:  stackls
+
+
+Desc:  List command. (Supports snapshots, dependencies,
+
+
+Usage:
+stack ls COMMAND [--setup-info-yaml URL] [--snapshot-location-base URL] 
+         [--help]
+
+
 (stack ls) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
 
@@ -1535,6 +1810,16 @@ tools                     (View stack's installed tools)
 
 
 
+Name:  stacklssnapshots
+
+
+Desc:  View snapshots (local by default)
+
+
+Usage:
+stack ls snapshots [COMMAND] [-l|--lts] [-n|--nightly]
+
+
 (stack ls snapshots) -l --lts  ::  
 Only show lts snapshots
 
@@ -1553,16 +1838,50 @@ local                     (View local snapshots)
 
 
 
+Name:  stacklssnapshotsremote
+
+
+Desc:  View remote snapshots
+
+
+Usage:
+stack ls snapshots remote
+
+
 (stack ls snapshots remote) -h --help  ::  
 Show this help text
 
 
 
 
+Name:  stacklssnapshotslocal
+
+
+Desc:  View local snapshots
+
+
+Usage:
+stack ls snapshots local
+
+
 (stack ls snapshots local) -h --help  ::  
 Show this help text
 
 
+
+
+Name:  stacklsdependencies
+
+
+Desc:  View the dependencies
+
+
+Usage:
+stack ls dependencies [COMMAND | [--separator SEP] [--[no-]license] 
+                        [--[no-]external] [--[no-]include-base] 
+                        [--depth DEPTH] [--prune PACKAGES] [TARGET] 
+                        [--flag PACKAGE:[-]FLAG] [--test] [--bench] 
+                        [--global-hints]]
 
 
 (stack ls dependencies) --separator  ::  SEP
@@ -1610,6 +1929,16 @@ Show this help text
 
 
 
+Name:  stacklsstack-colors
+
+
+Desc:  View stack's output styles
+
+
+Usage:
+stack ls stack-colors [--[no-]basic] [--[no-]sgr] [--[no-]example]
+
+
 (stack ls stack-colors) --basic  ::  
 Enable/disable a basic report of the styles used. The default is a fuller one (default: disabled)
 
@@ -1632,6 +1961,16 @@ Enable/disable the provision of an example of the applied style (provided by def
 Show this help text
 
 
+
+
+Name:  stacklsstack-colours
+
+
+Desc:  View stack's output styles (alias for 'stack-colors')
+
+
+Usage:
+stack ls stack-colours [--[no-]basic] [--[no-]sgr] [--[no-]example]
 
 
 (stack ls stack-colours) --basic  ::  
@@ -1658,6 +1997,16 @@ Show this help text
 
 
 
+Name:  stacklstools
+
+
+Desc:  View stack's installed tools
+
+
+Usage:
+stack ls tools [--filter TOOL_NAME]
+
+
 (stack ls tools) --filter  ::  TOOL_NAME
 Filter by a tool name (eg 'ghc', 'ghc-git' or 'msys2') - case sensitive. The default is no filter
 
@@ -1665,6 +2014,17 @@ Filter by a tool name (eg 'ghc', 'ghc-git' or 'msys2') - case sensitive. The def
 Show this help text
 
 
+
+
+Name:  stackunpack
+
+
+Desc:  Unpack one or more packages locally
+
+
+Usage:
+stack unpack PACKAGE [--to ARG] [--setup-info-yaml URL] 
+             [--snapshot-location-base URL] [--help]
 
 
 (stack unpack) --to  ::  ARG
@@ -1682,6 +2042,17 @@ Show this help text
 
 
 
+Name:  stackupdate
+
+
+Desc:  Update the package index
+
+
+Usage:
+stack update [--setup-info-yaml URL] [--snapshot-location-base URL] 
+             [--help]
+
+
 (stack update) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
 
@@ -1692,6 +2063,21 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackupgrade
+
+
+Desc:  Upgrade to the latest stack
+
+
+Usage:
+stack upgrade [--source-only | [--binary-platform ARG] [--force-download]
+                [--binary-version ARG] [--github-org ARG] 
+                [--github-repo ARG]] 
+              [--binary-only | [--git] [--git-repo ARG] 
+                [--git-branch ARG]] [--setup-info-yaml URL] 
+              [--snapshot-location-base URL] [--help]
 
 
 (stack upgrade) --source-only  ::  
@@ -1736,6 +2122,19 @@ Show this help text
 
 
 
+Name:  stackupload
+
+
+Desc:  Upload a package to Hackage
+
+
+Usage:
+stack upload [DIR] [--pvp-bounds PVP-BOUNDS] [--ignore-check] 
+             [--[no-]test-tarball] [--tar-dir ARG] [--candidate] 
+             [--setup-info-yaml URL] [--snapshot-location-base URL] 
+             [--help]
+
+
 (stack upload) --pvp-bounds  ::  PVP-BOUNDS
 How PVP version bounds should be added to .cabal file: none, lower, upper, both
 
@@ -1766,6 +2165,18 @@ Show this help text
 
 
 
+Name:  stacksdist
+
+
+Desc:  Create source distribution tarballs
+
+
+Usage:
+stack sdist [DIR] [--pvp-bounds PVP-BOUNDS] [--ignore-check] 
+            [--[no-]test-tarball] [--tar-dir ARG] [--setup-info-yaml URL]
+            [--snapshot-location-base URL] [--help]
+
+
 (stack sdist) --pvp-bounds  ::  PVP-BOUNDS
 How PVP version bounds should be added to .cabal file: none, lower, upper, both
 
@@ -1791,6 +2202,19 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackdot
+
+
+Desc:  Visualize your project's dependency graph using
+
+
+Usage:
+stack dot [--[no-]external] [--[no-]include-base] [--depth DEPTH] 
+          [--prune PACKAGES] [TARGET] [--flag PACKAGE:[-]FLAG] [--test] 
+          [--bench] [--global-hints] [--setup-info-yaml URL] 
+          [--snapshot-location-base URL] [--help]
 
 
 (stack dot) --external  ::  
@@ -1835,6 +2259,19 @@ Show this help text
 
 
 
+Name:  stackghc
+
+
+Desc:  Run ghc
+
+
+Usage:
+stack ghc [-- ARGUMENT(S) (e.g. stack runghc -- X.hs -o x)] 
+          [--[no-]ghc-package-path] [--[no-]stack-exe] 
+          [--package PACKAGE] [--rts-options RTSFLAG] [--cwd DIR] 
+          [--setup-info-yaml URL] [--snapshot-location-base URL] [--help]
+
+
 (stack ghc) --ghc-package-path  ::  
 Enable/disable setting the GHC_PACKAGE_PATH variable for the subprocess (default: enabled)
 
@@ -1868,6 +2305,19 @@ Show this help text
 
 
 
+Name:  stackhoogle
+
+
+Desc:  Run hoogle, the Haskell API search engine. Use the
+
+
+Usage:
+stack hoogle [-- ARGUMENT(S) (e.g. stack hoogle -- server --local)] 
+             [--[no-]setup] [--rebuild] [--server] 
+             [--setup-info-yaml URL] [--snapshot-location-base URL] 
+             [--help]
+
+
 (stack hoogle) --setup  ::  
 Enable/disable If needed: install hoogle, build haddocks and generate a hoogle database (default: enabled)
 
@@ -1890,6 +2340,21 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackexec
+
+
+Desc:  Execute a command. If the command is absent, the
+
+
+Usage:
+stack exec COMMAND 
+           [-- ARGUMENT(S) (e.g. stack exec ghc-pkg -- describe base)] 
+           [--[no-]ghc-package-path] [--[no-]stack-exe] 
+           [--package PACKAGE] [--rts-options RTSFLAG] [--cwd DIR] 
+           [--setup-info-yaml URL] [--snapshot-location-base URL] 
+           [--help]
 
 
 (stack exec) --ghc-package-path  ::  
@@ -1925,6 +2390,19 @@ Show this help text
 
 
 
+Name:  stackrun
+
+
+Desc:  Build and run an executable. Defaults to the first
+
+
+Usage:
+stack run [-- ARGUMENT(S) (e.g. stack run -- file.txt)] 
+          [--[no-]ghc-package-path] [--[no-]stack-exe] 
+          [--package PACKAGE] [--rts-options RTSFLAG] [--cwd DIR] 
+          [--setup-info-yaml URL] [--snapshot-location-base URL] [--help]
+
+
 (stack run) --ghc-package-path  ::  
 Enable/disable setting the GHC_PACKAGE_PATH variable for the subprocess (default: enabled)
 
@@ -1956,6 +2434,22 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackghci
+
+
+Desc:  Run ghci in the context of package(s) (experimental)
+
+
+Usage:
+stack ghci [TARGET/FILE] [--pedantic] [--ghci-options OPTIONS] 
+           [--ghc-options OPTIONS] [--flag PACKAGE:[-]FLAG] 
+           [--with-ghc GHC] [--[no-]load] [--package PACKAGE] 
+           [--main-is TARGET] [--load-local-deps] [--[no-]package-hiding]
+           [--only-main] [--trace] [--profile] [--no-strip] [--[no-]test]
+           [--[no-]bench] [--setup-info-yaml URL] 
+           [--snapshot-location-base URL] [--help]
 
 
 (stack ghci) --pedantic  ::  
@@ -2030,6 +2524,22 @@ Show this help text
 
 
 
+Name:  stackrepl
+
+
+Desc:  Run ghci in the context of package(s) (experimental)
+
+
+Usage:
+stack repl [TARGET/FILE] [--pedantic] [--ghci-options OPTIONS] 
+           [--ghc-options OPTIONS] [--flag PACKAGE:[-]FLAG] 
+           [--with-ghc GHC] [--[no-]load] [--package PACKAGE] 
+           [--main-is TARGET] [--load-local-deps] [--[no-]package-hiding]
+           [--only-main] [--trace] [--profile] [--no-strip] [--[no-]test]
+           [--[no-]bench] [--setup-info-yaml URL] 
+           [--snapshot-location-base URL] [--help]
+
+
 (stack repl) --pedantic  ::  
 Turn on -Wall and -Werror
 
@@ -2102,6 +2612,20 @@ Show this help text
 
 
 
+Name:  stackrunghc
+
+
+Desc:  Run runghc
+
+
+Usage:
+stack runghc [-- ARGUMENT(S) (e.g. stack runghc -- X.hs)] 
+             [--[no-]ghc-package-path] [--[no-]stack-exe] 
+             [--package PACKAGE] [--rts-options RTSFLAG] [--cwd DIR] 
+             [--setup-info-yaml URL] [--snapshot-location-base URL] 
+             [--help]
+
+
 (stack runghc) --ghc-package-path  ::  
 Enable/disable setting the GHC_PACKAGE_PATH variable for the subprocess (default: enabled)
 
@@ -2133,6 +2657,20 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackrunhaskell
+
+
+Desc:  Run runghc (alias for 'runghc')
+
+
+Usage:
+stack runhaskell [-- ARGUMENT(S) (e.g. stack runghc -- X.hs)] 
+                 [--[no-]ghc-package-path] [--[no-]stack-exe] 
+                 [--package PACKAGE] [--rts-options RTSFLAG] [--cwd DIR] 
+                 [--setup-info-yaml URL] [--snapshot-location-base URL] 
+                 [--help]
 
 
 (stack runhaskell) --ghc-package-path  ::  
@@ -2168,6 +2706,21 @@ Show this help text
 
 
 
+Name:  stackscript
+
+
+Desc:  Run a Stack Script
+
+
+Usage:
+stack script [--package PACKAGE] FILE 
+             [-- ARGUMENT(S) (e.g. stack script X.hs -- argument(s) to program)]
+             [--compile | --optimize] [--ghc-options OPTIONS] 
+             [--extra-dep PACKAGE-VERSION] [--no-run] 
+             [--setup-info-yaml URL] [--snapshot-location-base URL] 
+             [--help]
+
+
 (stack script) --package  ::  PACKAGE
 Add a package (can be specified multiple times)
 
@@ -2196,6 +2749,19 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackeval
+
+
+Desc:  Evaluate some haskell code inline. Shortcut for
+
+
+Usage:
+stack eval CODE [--[no-]ghc-package-path] [--[no-]stack-exe] 
+           [--package PACKAGE] [--rts-options RTSFLAG] [--cwd DIR] 
+           [--setup-info-yaml URL] [--snapshot-location-base URL] 
+           [--help]
 
 
 (stack eval) --ghc-package-path  ::  
@@ -2231,6 +2797,17 @@ Show this help text
 
 
 
+Name:  stackclean
+
+
+Desc:  Delete build artefacts for the project packages.
+
+
+Usage:
+stack clean [[PACKAGE] | --full] [--setup-info-yaml URL] 
+            [--snapshot-location-base URL] [--help]
+
+
 (stack clean) --full  ::  
 Delete the project’s stack working directories (.stack-work by default).
 
@@ -2246,6 +2823,17 @@ Show this help text
 
 
 
+Name:  stackpurge
+
+
+Desc:  Delete the project stack working directories
+
+
+Usage:
+stack purge [--setup-info-yaml URL] [--snapshot-location-base URL] 
+            [--help]
+
+
 (stack purge) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
 
@@ -2256,6 +2844,17 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackquery
+
+
+Desc:  Query general build information (experimental)
+
+
+Usage:
+stack query [SELECTOR...] [--setup-info-yaml URL] 
+            [--snapshot-location-base URL] [--help]
 
 
 (stack query) --setup-info-yaml  ::  URL
@@ -2270,6 +2869,17 @@ Show this help text
 
 
 
+Name:  stacklist
+
+
+Desc:  List package id's in snapshot (experimental)
+
+
+Usage:
+stack list [PACKAGE] [--setup-info-yaml URL] 
+           [--snapshot-location-base URL] [--help]
+
+
 (stack list) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
 
@@ -2280,6 +2890,17 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackide
+
+
+Desc:  IDE-specific commands
+
+
+Usage:
+stack ide [--setup-info-yaml URL] [--snapshot-location-base URL] COMMAND 
+          [--setup-info-yaml URL] [--snapshot-location-base URL] [--help]
 
 
 (stack ide) --setup-info-yaml  ::  URL
@@ -2300,6 +2921,17 @@ targets                   (List all available stack targets)
 
 
 
+Name:  stackidepackages
+
+
+Desc:  List all available local loadable packages
+
+
+Usage:
+stack ide packages [--stdout] [--cabal-files] [--setup-info-yaml URL] 
+                   [--snapshot-location-base URL] [--help]
+
+
 (stack ide packages) --stdout  ::  
 Send output to stdout instead of the default, stderr
 
@@ -2318,6 +2950,17 @@ Show this help text
 
 
 
+Name:  stackidetargets
+
+
+Desc:  List all available stack targets
+
+
+Usage:
+stack ide targets [--stdout] [--setup-info-yaml URL] 
+                  [--snapshot-location-base URL] [--help]
+
+
 (stack ide targets) --stdout  ::  
 Send output to stdout instead of the default, stderr
 
@@ -2331,6 +2974,18 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackdocker
+
+
+Desc:  Subcommands specific to Docker use
+
+
+Usage:
+stack docker [--setup-info-yaml URL] [--snapshot-location-base URL]
+             COMMAND [--setup-info-yaml URL] 
+             [--snapshot-location-base URL] [--help]
 
 
 (stack docker) --setup-info-yaml  ::  URL
@@ -2351,6 +3006,17 @@ reset                     (Reset the Docker sandbox)
 
 
 
+Name:  stackdockerpull
+
+
+Desc:  Pull latest version of Docker image from registry
+
+
+Usage:
+stack docker pull [--setup-info-yaml URL] [--snapshot-location-base URL] 
+                  [--help]
+
+
 (stack docker pull) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
 
@@ -2361,6 +3027,17 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackdockerreset
+
+
+Desc:  Reset the Docker sandbox
+
+
+Usage:
+stack docker reset [--keep-home] [--setup-info-yaml URL] 
+                   [--snapshot-location-base URL] [--help]
 
 
 (stack docker reset) --keep-home  ::  
@@ -2376,6 +3053,18 @@ The base location of LTS/Nightly snapshots
 Show this help text
 
 
+
+
+Name:  stackconfig
+
+
+Desc:  Subcommands for accessing and modifying configuration
+
+
+Usage:
+stack config [--setup-info-yaml URL] [--snapshot-location-base URL]
+             COMMAND [--setup-info-yaml URL] 
+             [--snapshot-location-base URL] [--help]
 
 
 (stack config) --setup-info-yaml  ::  URL
@@ -2394,6 +3083,17 @@ Show this help text
 set                       (Sets a key in YAML configuration file to value)
 env                       (Print environment variables for use in a shell)
 
+
+
+Name:  stackconfigset
+
+
+Desc:  Sets a key in YAML configuration file to value
+
+
+Usage:
+stack config set COMMAND [--setup-info-yaml URL] 
+                 [--snapshot-location-base URL] [--help]
 
 
 (stack config set) --setup-info-yaml  ::  URL
@@ -2415,10 +3115,30 @@ install-ghc               (Configure whether Stack should automatically install)
 
 
 
+Name:  stackconfigsetresolver
+
+
+Desc:  Change the resolver of the current project.
+
+
+Usage:
+stack config set resolver SNAPSHOT
+
+
 (stack config set resolver) -h --help  ::  
 Show this help text
 
 
+
+
+Name:  stackconfigsetsystem-ghc
+
+
+Desc:  Configure whether Stack should use a system GHC
+
+
+Usage:
+stack config set system-ghc [--global] true|false
 
 
 (stack config set system-ghc) --global  ::  
@@ -2430,6 +3150,16 @@ Show this help text
 
 
 
+Name:  stackconfigsetinstall-ghc
+
+
+Desc:  Configure whether Stack should automatically install
+
+
+Usage:
+stack config set install-ghc [--global] true|false
+
+
 (stack config set install-ghc) --global  ::  
 Modify the user-specific global configuration file ('config.yaml') instead of the project-level configuration file ('stack.yaml').
 
@@ -2437,6 +3167,19 @@ Modify the user-specific global configuration file ('config.yaml') instead of th
 Show this help text
 
 
+
+
+Name:  stackconfigenv
+
+
+Desc:  Print environment variables for use in a shell
+
+
+Usage:
+stack config env [--[no-]locals] [--[no-]ghc-package-path] 
+                 [--[no-]stack-exe] [--[no-]locale-utf8] 
+                 [--[no-]keep-ghc-rts] [--setup-info-yaml URL] 
+                 [--snapshot-location-base URL] [--help]
 
 
 (stack config env) --locals  ::  
@@ -2481,6 +3224,17 @@ Show this help text
 
 
 
+Name:  stackhpc
+
+
+Desc:  Subcommands specific to Haskell Program Coverage
+
+
+Usage:
+stack hpc [--setup-info-yaml URL] [--snapshot-location-base URL] COMMAND 
+          [--setup-info-yaml URL] [--snapshot-location-base URL] [--help]
+
+
 (stack hpc) --setup-info-yaml  ::  URL
 Alternate URL or relative / absolute path for stack dependencies
 
@@ -2496,6 +3250,18 @@ Show this help text
 (stack hpc)
 report                    (Generate unified HPC coverage report from tix files)
 
+
+
+Name:  stackhpcreport
+
+
+Desc:  Generate unified HPC coverage report from tix files
+
+
+Usage:
+stack hpc report [TARGET_OR_TIX] [--all] [--destdir DIR] [--open] 
+                 [--setup-info-yaml URL] [--snapshot-location-base URL] 
+                 [--help]
 
 
 (stack hpc report) --all  ::  

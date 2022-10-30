@@ -1,3 +1,13 @@
+Name:  conda
+
+
+Desc:  conda
+
+
+Usage:
+conda [-h] [-V] command ...
+
+
 (conda) -h --help  ::  
 Show this help message and exit.
 
@@ -26,6 +36,16 @@ update                    (Updates conda packages to the latest compatible versi
 upgrade                   (Alias for conda update.)
 notices                   (Retrieves latest channel notifications.)
 
+
+
+Name:  condaclean
+
+
+Desc:  Remove unused packages and caches.
+
+
+Usage:
+conda clean [-h] [-a] [-i] [-p] [-t] [-f] [-c [TEMPFILES ...]] [-l] [-d] [--json] [-q] [-v] [-y]
 
 
 (conda clean) -h --help  ::  
@@ -70,6 +90,16 @@ Sets any confirmation values to 'yes' automatically. Users will not be asked to 
 
 
 
+Name:  condacompare
+
+
+Desc:  Compare packages between conda environments.
+
+
+Usage:
+conda compare [-h] [--json] [-v] [-q] [-n ENVIRONMENT | -p PATH] file
+
+
 (conda compare) -h --help  ::  
 Show this help message and exit.
 
@@ -89,6 +119,16 @@ Name of environment.
 Full path to environment location (i.e. prefix).
 
 
+
+
+Name:  condaconfig
+
+
+Desc:  Modify configuration values in .condarc. This is modeled after the git config command. Writes to the user .condarc file (/home/vierbein/.condarc) by default. Use the --show-sources flag to display all identified configuration locations on your computer.
+
+
+Usage:
+conda config [-h] [--json] [-v] [-q] [--system | --env | --file FILE] [--show [SHOW ...] | --show-sources | --validate | --describe [DESCRIBE ...] | --write-default] [--get [KEY ...] | --append KEY VALUE | --prepend KEY VALUE | --set KEY VALUE | --remove KEY VALUE | --remove-key KEY | --stdin]
 
 
 (conda config) -h --help  ::  
@@ -149,6 +189,16 @@ Remove a configuration key (and all its values).
 Apply configuration information given in yaml format piped through stdin.
 
 
+
+
+Name:  condacreate
+
+
+Desc:  Create a new conda environment from a list of specified packages.
+
+
+Usage:
+conda create [-h] [--clone ENV] (-n ENVIRONMENT | -p PATH) [-c CHANNEL] [--use-local] [--override-channels] [--repodata-fn REPODATA_FNS] [--strict-channel-priority] [--no-channel-priority] [--no-deps | --only-deps] [--no-pin] [--copy] [-C] [-k] [--offline] [-d] [--json] [-q] [-v] [-y] [--download-only] [--show-channel-urls] [--file FILE] [--no-default-packages] [--experimental-solver {classic,libmamba,libmamba-draft}] [--dev] [package_spec ...]
 
 
 (conda create) -h --help  ::  
@@ -238,6 +288,16 @@ Show channel urls. Overrides the value given by `conda config --show show_channe
 
 
 
+Name:  condainfo
+
+
+Desc:  Display information about current conda install.
+
+
+Usage:
+conda info [-h] [--json] [-v] [-q] [-a] [--base] [-e] [-s] [--unsafe-channels]
+
+
 (conda info) -h --help  ::  
 Show this help message and exit.
 
@@ -266,6 +326,16 @@ Use once for info, twice for debug, three times for trace.
 Do not display progress bar.
 
 
+
+
+Name:  condainit
+
+
+Desc:  Initialize conda for shell interaction.
+
+
+Usage:
+conda init [-h] [--all] [--user] [--no-user] [--system] [--reverse] [--json] [-v] [-q] [-d] [shells ...]
 
 
 (conda init) -h --help  ::  
@@ -299,6 +369,16 @@ Use once for info, twice for debug, three times for trace.
 Do not display progress bar.
 
 
+
+
+Name:  condainstall
+
+
+Desc:  Installs a list of packages into a specified conda environment.
+
+
+Usage:
+conda install [-h] [--revision REVISION] [-n ENVIRONMENT | -p PATH] [-c CHANNEL] [--use-local] [--override-channels] [--repodata-fn REPODATA_FNS] [--strict-channel-priority] [--no-channel-priority] [--no-deps | --only-deps] [--no-pin] [--copy] [-C] [-k] [--offline] [-d] [--json] [-q] [-v] [-y] [--download-only] [--show-channel-urls] [--file FILE] [--experimental-solver {classic,libmamba,libmamba-draft}] [--force-reinstall] [--freeze-installed | --update-deps | -S | --update-all | --update-specs] [-m] [--clobber] [--dev] [package_spec ...]
 
 
 (conda install) -h --help  ::  
@@ -409,6 +489,16 @@ Show channel urls. Overrides the value given by `conda config --show show_channe
 
 
 
+Name:  condalist
+
+
+Desc:  List installed packages in a conda environment.
+
+
+Usage:
+conda list [-h] [-n ENVIRONMENT | -p PATH] [--json] [-v] [-q] [--show-channel-urls] [-c] [-f] [--explicit] [--md5] [-e] [-r] [--no-pip] [regex]
+
+
 (conda list) -h --help  ::  
 Show this help message and exit.
 
@@ -454,6 +544,16 @@ Do not display progress bar.
 
 
 
+Name:  condapackage
+
+
+Desc:  Low-level conda package utility. (EXPERIMENTAL)
+
+
+Usage:
+conda package [-h] [-n ENVIRONMENT | -p PATH] [-w PATH [PATH ...]] [-r] [-u] [--pkg-name PKG_NAME] [--pkg-version PKG_VERSION] [--pkg-build PKG_BUILD]
+
+
 (conda package) -h --help  ::  
 Show this help message and exit.
 
@@ -482,6 +582,16 @@ Name of environment.
 Full path to environment location (i.e. prefix).
 
 
+
+
+Name:  condaremove
+
+
+Desc:  Remove a list of packages from a specified conda environment.
+
+
+Usage:
+conda remove [-h] [-n ENVIRONMENT | -p PATH] [-c CHANNEL] [--use-local] [--override-channels] [--repodata-fn REPODATA_FNS] [--all] [--features] [--force-remove] [--no-pin] [--experimental-solver {classic,libmamba,libmamba-draft}] [-C] [-k] [--offline] [-d] [--json] [-q] [-v] [-y] [--dev] [package_name ...]
 
 
 (conda remove) -h --help  ::  
@@ -550,6 +660,16 @@ Sets any confirmation values to 'yes' automatically. Users will not be asked to 
 
 
 
+Name:  condarename
+
+
+Desc:  Renames an existing environment.
+
+
+Usage:
+conda rename [-h] [-n ENVIRONMENT | -p PATH] [--force] [-d] destination
+
+
 (conda rename) -h --help  ::  
 Show this help message and exit.
 
@@ -566,6 +686,16 @@ Name of environment.
 Full path to environment location (i.e. prefix).
 
 
+
+
+Name:  condarun
+
+
+Desc:  Run an executable in a conda environment.
+
+
+Usage:
+conda run [-h] [-n ENVIRONMENT | -p PATH] [-v] [--dev] [--debug-wrapper-scripts] [--cwd CWD] [--no-capture-output] ...
 
 
 (conda run) -h --help  ::  
@@ -593,6 +723,16 @@ Name of environment.
 Full path to environment location (i.e. prefix).
 
 
+
+
+Name:  condasearch
+
+
+Desc:  Search for packages and display associated information.The input is a MatchSpec, a query language for conda packages. See examples below.
+
+
+Usage:
+conda search [-h] [--envs] [-i] [--subdir SUBDIR] [-c CHANNEL] [--use-local] [--override-channels] [--repodata-fn REPODATA_FNS] [-C] [-k] [--offline] [--json] [-v] [-q]
 
 
 (conda search) -h --help  ::  
@@ -638,6 +778,16 @@ Use once for info, twice for debug, three times for trace.
 Do not display progress bar.
 
 
+
+
+Name:  condauninstall
+
+
+Desc:  Alias for conda remove.
+
+
+Usage:
+conda uninstall [-h] [-n ENVIRONMENT | -p PATH] [-c CHANNEL] [--use-local] [--override-channels] [--repodata-fn REPODATA_FNS] [--all] [--features] [--force-remove] [--no-pin] [--experimental-solver {classic,libmamba,libmamba-draft}] [-C] [-k] [--offline] [-d] [--json] [-q] [-v] [-y] [--dev] [package_name ...]
 
 
 (conda uninstall) -h --help  ::  
@@ -704,6 +854,16 @@ Can be used multiple times. Once for INFO, twice for DEBUG, three times for TRAC
 Sets any confirmation values to 'yes' automatically. Users will not be asked to confirm any adding, deleting, backups, etc.
 
 
+
+
+Name:  condaupdate
+
+
+Desc:  Updates conda packages to the latest compatible version.
+
+
+Usage:
+conda update [-h] [-n ENVIRONMENT | -p PATH] [-c CHANNEL] [--use-local] [--override-channels] [--repodata-fn REPODATA_FNS] [--strict-channel-priority] [--no-channel-priority] [--no-deps | --only-deps] [--no-pin] [--copy] [-C] [-k] [--offline] [-d] [--json] [-q] [-v] [-y] [--download-only] [--show-channel-urls] [--file FILE] [--experimental-solver {classic,libmamba,libmamba-draft}] [--force-reinstall] [--freeze-installed | --update-deps | -S | --update-all | --update-specs] [--clobber] [package_spec ...]
 
 
 (conda update) -h --help  ::  
@@ -805,6 +965,16 @@ Show channel urls. Overrides the value given by `conda config --show show_channe
 
 
 
+Name:  condaupgrade
+
+
+Desc:  Alias for conda update.
+
+
+Usage:
+conda upgrade [-h] [-n ENVIRONMENT | -p PATH] [-c CHANNEL] [--use-local] [--override-channels] [--repodata-fn REPODATA_FNS] [--strict-channel-priority] [--no-channel-priority] [--no-deps | --only-deps] [--no-pin] [--copy] [-C] [-k] [--offline] [-d] [--json] [-q] [-v] [-y] [--download-only] [--show-channel-urls] [--file FILE] [--experimental-solver {classic,libmamba,libmamba-draft}] [--force-reinstall] [--freeze-installed | --update-deps | -S | --update-all | --update-specs] [--clobber] [package_spec ...]
+
+
 (conda upgrade) -h --help  ::  
 Show this help message and exit.
 
@@ -902,6 +1072,16 @@ Solve an environment and ensure package caches are populated, but exit prior to 
 Show channel urls. Overrides the value given by `conda config --show show_channel_urls`.
 
 
+
+
+Name:  condanotices
+
+
+Desc:  Retrieves latest channel notifications.
+
+
+Usage:
+conda notices [-h] [-c CHANNEL] [--use-local] [--override-channels] [--repodata-fn REPODATA_FNS]
 
 
 (conda notices) -h --help  ::  

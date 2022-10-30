@@ -1,417 +1,427 @@
---verbose -v  ::  
+Name:  rsync-input
+
+
+Desc:  rsync-input
+
+
+Usage:
+rsync [OPTION]... SRC [SRC]... DEST
+
+
+(rsync-input) --verbose -v  ::  
 increase verbosity
 
---info  ::  FLAGS
+(rsync-input) --info  ::  FLAGS
 fine-grained informational verbosity
 
---debug  ::  FLAGS
+(rsync-input) --debug  ::  FLAGS
 fine-grained debug verbosity
 
---stderr  ::  e|a|c
+(rsync-input) --stderr  ::  e|a|c
 change stderr output mode (default: errors)
 
---quiet -q  ::  
+(rsync-input) --quiet -q  ::  
 suppress non-error messages
 
---no-motd  ::  
+(rsync-input) --no-motd  ::  
 suppress daemon-mode MOTD
 
---checksum -c  ::  
+(rsync-input) --checksum -c  ::  
 skip based on checksum, not mod-time & size
 
---archive -a  ::  
+(rsync-input) --archive -a  ::  
 archive mode; equals -rlptgoD (no -H,-A,-X)
 
---no-OPTION  ::  
+(rsync-input) --no-OPTION  ::  
 turn off an implied OPTION (e.g. --no-D)
 
---recursive -r  ::  
+(rsync-input) --recursive -r  ::  
 recurse into directories
 
---relative -R  ::  
+(rsync-input) --relative -R  ::  
 use relative path names
 
---no-implied-dirs  ::  
+(rsync-input) --no-implied-dirs  ::  
 don't send implied dirs with --relative
 
---backup -b  ::  
+(rsync-input) --backup -b  ::  
 make backups (see --suffix & --backup-dir)
 
---backup-dir  ::  DIR
+(rsync-input) --backup-dir  ::  DIR
 make backups into hierarchy based in DIR
 
---suffix  ::  SUFFIX
+(rsync-input) --suffix  ::  SUFFIX
 backup suffix (default ~ w/o --backup-dir)
 
---update -u  ::  
+(rsync-input) --update -u  ::  
 skip files that are newer on the receiver
 
---inplace  ::  
+(rsync-input) --inplace  ::  
 update destination files in-place
 
---append  ::  
+(rsync-input) --append  ::  
 append data onto shorter files
 
---append-verify  ::  
+(rsync-input) --append-verify  ::  
 --append w/old data in file checksum
 
---dirs -d  ::  
+(rsync-input) --dirs -d  ::  
 transfer directories without recursing
 
---mkpath  ::  
+(rsync-input) --mkpath  ::  
 create the destination's path component
 
---links -l  ::  
+(rsync-input) --links -l  ::  
 copy symlinks as symlinks
 
---copy-links -L  ::  
+(rsync-input) --copy-links -L  ::  
 transform symlink into referent file/dir
 
---copy-unsafe-links  ::  
+(rsync-input) --copy-unsafe-links  ::  
 only "unsafe" symlinks are transformed
 
---safe-links  ::  
+(rsync-input) --safe-links  ::  
 ignore symlinks that point outside the tree
 
---munge-links  ::  
+(rsync-input) --munge-links  ::  
 munge symlinks to make them safe & unusable
 
---copy-dirlinks -k  ::  
+(rsync-input) --copy-dirlinks -k  ::  
 transform symlink to dir into referent dir
 
---keep-dirlinks -K  ::  
+(rsync-input) --keep-dirlinks -K  ::  
 treat symlinked dir on receiver as dir
 
---hard-links -H  ::  
+(rsync-input) --hard-links -H  ::  
 preserve hard links
 
---perms -p  ::  
+(rsync-input) --perms -p  ::  
 preserve permissions
 
---executability -E  ::  
+(rsync-input) --executability -E  ::  
 preserve executability
 
---chmod  ::  CHMOD
+(rsync-input) --chmod  ::  CHMOD
 affect file and/or directory permissions
 
---acls -A  ::  
+(rsync-input) --acls -A  ::  
 preserve ACLs (implies --perms)
 
---xattrs -X  ::  
+(rsync-input) --xattrs -X  ::  
 preserve extended attributes
 
---owner -o  ::  
+(rsync-input) --owner -o  ::  
 preserve owner (super-user only)
 
---group -g  ::  
+(rsync-input) --group -g  ::  
 preserve group
 
---devices  ::  
+(rsync-input) --devices  ::  
 preserve device files (super-user only)
 
---specials  ::  
+(rsync-input) --specials  ::  
 preserve special files
 
--D  ::  
+(rsync-input) -D  ::  
 same as --devices --specials
 
---times -t  ::  
+(rsync-input) --times -t  ::  
 preserve modification times
 
---atimes -U  ::  
+(rsync-input) --atimes -U  ::  
 preserve access (use) times
 
---open-noatime  ::  
+(rsync-input) --open-noatime  ::  
 avoid changing the atime on opened files
 
---crtimes -N  ::  
+(rsync-input) --crtimes -N  ::  
 preserve create times (newness)
 
---omit-dir-times -O  ::  
+(rsync-input) --omit-dir-times -O  ::  
 omit directories from --times
 
---omit-link-times -J  ::  
+(rsync-input) --omit-link-times -J  ::  
 omit symlinks from --times
 
---super  ::  
+(rsync-input) --super  ::  
 receiver attempts super-user activities
 
---fake-super  ::  
+(rsync-input) --fake-super  ::  
 store/recover privileged attrs using xattrs
 
---sparse -S  ::  
+(rsync-input) --sparse -S  ::  
 turn sequences of nulls into sparse blocks
 
---preallocate  ::  
+(rsync-input) --preallocate  ::  
 allocate dest files before writing them
 
---write-devices  ::  
+(rsync-input) --write-devices  ::  
 write to devices as files (implies --inplace)
 
---dry-run -n  ::  
+(rsync-input) --dry-run -n  ::  
 perform a trial run with no changes made
 
---whole-file -W  ::  
+(rsync-input) --whole-file -W  ::  
 copy files whole (w/o delta-xfer algorithm)
 
---checksum-choice  ::  STR
+(rsync-input) --checksum-choice  ::  STR
 choose the checksum algorithm (aka --cc)
 
---one-file-system -x  ::  
+(rsync-input) --one-file-system -x  ::  
 don't cross filesystem boundaries
 
---block-size -B  ::  SIZE
+(rsync-input) --block-size -B  ::  SIZE
 force a fixed checksum block-size
 
---rsh -e  ::  COMMAND
+(rsync-input) --rsh -e  ::  COMMAND
 specify the remote shell to use
 
---rsync-path  ::  PROGRAM
+(rsync-input) --rsync-path  ::  PROGRAM
 specify the rsync to run on remote machine
 
---existing  ::  
+(rsync-input) --existing  ::  
 skip creating new files on receiver
 
---ignore-existing  ::  
+(rsync-input) --ignore-existing  ::  
 skip updating files that exist on receiver
 
---remove-source-files  ::  
+(rsync-input) --remove-source-files  ::  
 sender removes synchronized files (non-dir)
 
---del  ::  
+(rsync-input) --del  ::  
 an alias for --delete-during
 
---delete  ::  
+(rsync-input) --delete  ::  
 delete extraneous files from dest dirs
 
---delete-before  ::  
+(rsync-input) --delete-before  ::  
 receiver deletes before xfer, not during
 
---delete-during  ::  
+(rsync-input) --delete-during  ::  
 receiver deletes during the transfer
 
---delete-delay  ::  
+(rsync-input) --delete-delay  ::  
 find deletions during, delete after
 
---delete-after  ::  
+(rsync-input) --delete-after  ::  
 receiver deletes after transfer, not during
 
---delete-excluded  ::  
+(rsync-input) --delete-excluded  ::  
 also delete excluded files from dest dirs
 
---ignore-missing-args  ::  
+(rsync-input) --ignore-missing-args  ::  
 ignore missing source args without error
 
---delete-missing-args  ::  
+(rsync-input) --delete-missing-args  ::  
 delete missing source args from destination
 
---ignore-errors  ::  
+(rsync-input) --ignore-errors  ::  
 delete even if there are I/O errors
 
---force  ::  
+(rsync-input) --force  ::  
 force deletion of dirs even if not empty
 
---max-delete  ::  NUM
+(rsync-input) --max-delete  ::  NUM
 don't delete more than NUM files
 
---max-size  ::  SIZE
+(rsync-input) --max-size  ::  SIZE
 don't transfer any file larger than SIZE
 
---min-size  ::  SIZE
+(rsync-input) --min-size  ::  SIZE
 don't transfer any file smaller than SIZE
 
---max-alloc  ::  SIZE
+(rsync-input) --max-alloc  ::  SIZE
 change a limit relating to memory alloc
 
---partial  ::  
+(rsync-input) --partial  ::  
 keep partially transferred files
 
---partial-dir  ::  DIR
+(rsync-input) --partial-dir  ::  DIR
 put a partially transferred file into DIR
 
---delay-updates  ::  
+(rsync-input) --delay-updates  ::  
 put all updated files into place at end
 
---prune-empty-dirs -m  ::  
+(rsync-input) --prune-empty-dirs -m  ::  
 prune empty directory chains from file-list
 
---numeric-ids  ::  
+(rsync-input) --numeric-ids  ::  
 don't map uid/gid values by user/group name
 
---usermap  ::  STRING
+(rsync-input) --usermap  ::  STRING
 custom username mapping
 
---groupmap  ::  STRING
+(rsync-input) --groupmap  ::  STRING
 custom groupname mapping
 
---chown  ::  USER:GROUP
+(rsync-input) --chown  ::  USER:GROUP
 simple username/groupname mapping
 
---timeout  ::  SECONDS
+(rsync-input) --timeout  ::  SECONDS
 set I/O timeout in seconds
 
---contimeout  ::  SECONDS
+(rsync-input) --contimeout  ::  SECONDS
 set daemon connection timeout in seconds
 
---ignore-times -I  ::  
+(rsync-input) --ignore-times -I  ::  
 don't skip files that match size and time
 
---size-only  ::  
+(rsync-input) --size-only  ::  
 skip files that match in size
 
---modify-window -@  ::  NUM
+(rsync-input) --modify-window -@  ::  NUM
 set the accuracy for mod-time comparisons
 
---temp-dir -T  ::  DIR
+(rsync-input) --temp-dir -T  ::  DIR
 create temporary files in directory DIR
 
---fuzzy -y  ::  
+(rsync-input) --fuzzy -y  ::  
 find similar file for basis if no dest file
 
---compare-dest  ::  DIR
+(rsync-input) --compare-dest  ::  DIR
 also compare destination files relative to DIR
 
---copy-dest  ::  DIR
+(rsync-input) --copy-dest  ::  DIR
 ... and include copies of unchanged files
 
---link-dest  ::  DIR
+(rsync-input) --link-dest  ::  DIR
 hardlink to files in DIR when unchanged
 
---compress -z  ::  
+(rsync-input) --compress -z  ::  
 compress file data during the transfer
 
---compress-choice  ::  STR
+(rsync-input) --compress-choice  ::  STR
 choose the compression algorithm (aka --zc)
 
---compress-level  ::  NUM
+(rsync-input) --compress-level  ::  NUM
 explicitly set compression level (aka --zl)
 
---skip-compress  ::  LIST
+(rsync-input) --skip-compress  ::  LIST
 skip compressing files with suffix in LIST
 
---cvs-exclude -C  ::  
+(rsync-input) --cvs-exclude -C  ::  
 auto-ignore files in the same way CVS does
 
---filter -f  ::  RULE
+(rsync-input) --filter -f  ::  RULE
 add a file-filtering RULE
 
--F  ::  
+(rsync-input) -F  ::  
 same as --filter='dir-merge /.rsync-filter' repeated: --filter='- .rsync-filter'
 
---exclude  ::  PATTERN
+(rsync-input) --exclude  ::  PATTERN
 exclude files matching PATTERN
 
---exclude-from  ::  FILE
+(rsync-input) --exclude-from  ::  FILE
 read exclude patterns from FILE
 
---include  ::  PATTERN
+(rsync-input) --include  ::  PATTERN
 don't exclude files matching PATTERN
 
---include-from  ::  FILE
+(rsync-input) --include-from  ::  FILE
 read include patterns from FILE
 
---files-from  ::  FILE
+(rsync-input) --files-from  ::  FILE
 read list of source-file names from FILE
 
---from0 -0  ::  
+(rsync-input) --from0 -0  ::  
 all *-from/filter files are delimited by 0s
 
---protect-args -s  ::  
+(rsync-input) --protect-args -s  ::  
 no space-splitting; wildcard chars only
 
---copy-as  ::  USER[:GROUP]
+(rsync-input) --copy-as  ::  USER[:GROUP]
 specify user & optional group for the copy
 
---address  ::  ADDRESS
+(rsync-input) --address  ::  ADDRESS
 bind address for outgoing socket to daemon
 
---port  ::  PORT
+(rsync-input) --port  ::  PORT
 specify double-colon alternate port number
 
---sockopts  ::  OPTIONS
+(rsync-input) --sockopts  ::  OPTIONS
 specify custom TCP options
 
---blocking-io  ::  
+(rsync-input) --blocking-io  ::  
 use blocking I/O for the remote shell
 
---outbuf  ::  N|L|B
+(rsync-input) --outbuf  ::  N|L|B
 set out buffering to None, Line, or Block
 
---stats  ::  
+(rsync-input) --stats  ::  
 give some file-transfer stats
 
---8-bit-output -8  ::  
+(rsync-input) --8-bit-output -8  ::  
 leave high-bit chars unescaped in output
 
---human-readable -h  ::  
+(rsync-input) --human-readable -h  ::  
 output numbers in a human-readable format
 
---progress  ::  
+(rsync-input) --progress  ::  
 show progress during transfer
 
--P  ::  
+(rsync-input) -P  ::  
 same as --partial --progress
 
---itemize-changes -i  ::  
+(rsync-input) --itemize-changes -i  ::  
 output a change-summary for all updates
 
---remote-option -M  ::  OPT
+(rsync-input) --remote-option -M  ::  OPT
 send OPTION to the remote side only
 
---out-format  ::  FORMAT
+(rsync-input) --out-format  ::  FORMAT
 output updates using the specified FORMAT
 
---log-file  ::  FILE
+(rsync-input) --log-file  ::  FILE
 log what we're doing to the specified FILE
 
---log-file-format  ::  FMT
+(rsync-input) --log-file-format  ::  FMT
 log updates using the specified FMT
 
---password-file  ::  FILE
+(rsync-input) --password-file  ::  FILE
 read daemon-access password from FILE
 
---early-input  ::  FILE
+(rsync-input) --early-input  ::  FILE
 use FILE for daemon's early exec input
 
---list-only  ::  
+(rsync-input) --list-only  ::  
 list the files instead of copying them
 
---bwlimit  ::  RATE
+(rsync-input) --bwlimit  ::  RATE
 limit socket I/O bandwidth
 
---stop-after  ::  MINS
+(rsync-input) --stop-after  ::  MINS
 Stop rsync after MINS minutes have elapsed
 
---stop-at  ::  y-m-dTh:m
+(rsync-input) --stop-at  ::  y-m-dTh:m
 Stop rsync at the specified point in time
 
---write-batch  ::  FILE
+(rsync-input) --write-batch  ::  FILE
 write a batched update to FILE
 
---only-write-batch  ::  FILE
+(rsync-input) --only-write-batch  ::  FILE
 like --write-batch but w/o updating dest
 
---read-batch  ::  FILE
+(rsync-input) --read-batch  ::  FILE
 read a batched update from FILE
 
---protocol  ::  NUM
+(rsync-input) --protocol  ::  NUM
 force an older protocol version to be used
 
---iconv  ::  CONVERT_SPEC
+(rsync-input) --iconv  ::  CONVERT_SPEC
 request charset conversion of filenames
 
---checksum-seed  ::  NUM
+(rsync-input) --checksum-seed  ::  NUM
 set block/file checksum seed (advanced)
 
---ipv4 -4  ::  
+(rsync-input) --ipv4 -4  ::  
 prefer IPv4
 
---ipv6 -6  ::  
+(rsync-input) --ipv6 -6  ::  
 prefer IPv6
 
---version -V  ::  
+(rsync-input) --version -V  ::  
 print the version + other info and exit
 
---help -h  ::  (*)
+(rsync-input) --help -h  ::  (*)
 show this help (* -h is help only on its own)
 
