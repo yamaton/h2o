@@ -1,9 +1,9 @@
 on: [push]
-name: build
+name: build and test
 
 jobs:
   test:
-    runs-on: [ubuntu-latest, macos-latest]  # or macOS-latest, or windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: mamba-org/provision-with-micromamba@main
