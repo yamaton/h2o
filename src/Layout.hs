@@ -562,11 +562,11 @@ parseMany s = List.nub . concat $ results
           (optStr, descStr) /= ("", "")
       ]
 
--- | Parse Usage or SYNOPSYS
+-- | Parse Usage or SYNOPSIS
 parseUsage :: String -> String
 parseUsage content
   | null blockFiltered = Utils.debugShow "[parseUsage] NOT FOUND" blocks ""
-  | foundSynopsys = Utils.debugMsg "[parseUsage] SYNOPSYS: " synopsys
+  | foundSynopsis = Utils.debugMsg "[parseUsage] SYNOPSIS: " synopsis
   | foundUsage = Utils.debugMsg "[parseUsage] Usage: " usage
   | otherwise = Utils.debugTrace "[parseUsage] something is wrong" ""
   where
@@ -578,10 +578,10 @@ parseUsage content
     blocks = (splitByHeadersForUsage . lines) content
     blockFiltered = filter foundPrefix blocks
     theBlock = Utils.debugMsg "[parseUsage] theBlock:" $ head blockFiltered
-    foundSynopsys = headerMan `isPrefixOf` theBlock
+    foundSynopsis = headerMan `isPrefixOf` theBlock
     foundUsage = headerHelp `isPrefixOf` theBlock
     getBody = trimEnd . unlines . trimFixedIndents . tail . lines
-    synopsys = getBody theBlock
+    synopsis = getBody theBlock
 
     xs = lines theBlock
     firstLine = head xs
