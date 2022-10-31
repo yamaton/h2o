@@ -3,17 +3,21 @@ name: build
 
 jobs:
   test:
-    runs-on: ubuntu-latest # or macOS-latest, or windows-latest
+    runs-on: [ubuntu-latest, macos-latest]  # or macOS-latest, or windows-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: mamba-org/provision-with-micromamba@main
+        with:
+          micromamba-version: '0.27.0'
+          environment-file: .github/env.yml
       - uses: haskell/actions/setup@v2
         with:
           ghc-version: '9.0.2' # Exact version of ghc to use
           enable-stack: true
           stack-version: 'latest'
       - run: |
-          gh --version
+          micromamba --version
       - run: |
-          stack --version
+          gh --version
       - run: |
           stack test 2> /dev/null
