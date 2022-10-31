@@ -2,7 +2,7 @@
 
 module HelpParser where
 
-import Data.Char (isNumber)
+import Data.Char (isNumber, toLower)
 import qualified Data.List as List
 import Data.List.Extra (dropPrefix, nubOrd, trim)
 import Debug.Trace (trace)
@@ -365,3 +365,27 @@ preprocessAllFallback s = filter (\pair -> pair /= ("", "")) result
     result = case readP_to_S (preprocessor <++ fallback) s of
       [] -> []
       (pair, rest) : moreMatches -> (pair : map fst moreMatches) ++ preprocessAllFallback rest
+
+
+headerWithOffset :: [String] -> ReadP String
+headerWithOffset [] = pfail
+headerWithOffset names = do
+  preSpaces <- munch (== ' ')
+  nameFound <- foldr1 (<++) (map string names)
+  postSpaces <- munch (== ' ')
+  colon <- string ":" <++ pure ""
+  aftSpaces <- munch (== ' ')
+  let components = [preSpaces, nameFound, postSpaces, colon, aftSpaces]
+  return (concat components)
+
+
+parseUsageHeader :: [String] -> String -> Maybe String
+parseUsageHeader _ "" = Nothing
+parseUsageHeader [] _ = Nothing
+parseUsageHeader keywords block
+  | null pairs = Nothing
+  | otherwise = (Just . fst . head) pairs
+  where
+    kwds = map (map toLower) keywords
+    headerLine = map toLower (head (lines block))
+    pairs = readP_to_S (headerWithOffset kwds) headerLine

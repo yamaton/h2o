@@ -566,34 +566,34 @@ parseMany s = List.nub . concat $ results
 parseUsage :: String -> String
 parseUsage content
   | null blockFiltered = Utils.debugShow "[parseUsage] NOT FOUND" blocks ""
-  | foundSynopsis = Utils.debugMsg "[parseUsage] SYNOPSIS: " synopsis
-  | foundUsage = Utils.debugMsg "[parseUsage] Usage: " usage
+  | foundSynopsis = Utils.debugMsg "[parseUsage] SYNOPSIS: " result
+  | foundUsage = Utils.debugMsg "[parseUsage] Usage: " result
   | otherwise = Utils.debugTrace "[parseUsage] something is wrong" ""
   where
-    headerMan = "SYNOPSIS"
-    headerHelp = "Usage:"
+    headerSynopsis = "SYNOPSIS"
+    headerUsage = "Usage"
+    keywords = [headerSynopsis, headerUsage]
     toLower = map Char.toLower
     isPrefixOf prefix s = toLower prefix == toLower (take (length prefix) (trimStart s))
-    foundPrefix s = any (`isPrefixOf` s) [headerMan, headerHelp]
+    foundPrefix s = any (`isPrefixOf` s) keywords
     blocks = (splitByHeadersForUsage . lines) content
     blockFiltered = filter foundPrefix blocks
     theBlock = Utils.debugMsg "[parseUsage] theBlock:" $ head blockFiltered
-    foundSynopsis = headerMan `isPrefixOf` theBlock
-    foundUsage = headerHelp `isPrefixOf` theBlock
+    foundSynopsis = headerSynopsis `isPrefixOf` theBlock
+    foundUsage = headerUsage `isPrefixOf` theBlock
     getBody = trimEnd . unlines . trimFixedIndents . tail . lines
-    synopsis = getBody theBlock
 
     xs = lines theBlock
     firstLine = head xs
-    usage
-      | (null . trim) firstLineRest = getBody theBlock
+    result
+      | Maybe.isNothing offsetMaybe = Utils.debugShow "[parseUsage] Something is wrong" firstLine ""
+      | (null . trim) firstLineRest = Utils.debugMsg "[parseUsage] baba" $ getBody theBlock
       | otherwise = trimEnd (unlines ys)
       where
-        indentation = length (takeWhile (== ' ') firstLine)
-        preOffset = indentation + length headerHelp
-        firstLineRest = drop preOffset firstLine
-        offset = preOffset + length (takeWhile (== ' ') firstLineRest)
-        pairs = map (splitAt (Utils.debugMsg "[parseUsage: offset]" offset)) xs
+        offsetMaybe = length <$> HelpParser.parseUsageHeader keywords theBlock
+        offset = Utils.debugMsg "[parseUsage] offset" $ Maybe.fromJust offsetMaybe
+        firstLineRest = drop offset firstLine
+        pairs = map (splitAt offset) xs
         ys = snd (head pairs) : map snd (takeWhile (null . trim . fst) (tail pairs))
 
 -- | Split text by top-level headers

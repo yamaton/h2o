@@ -5,7 +5,7 @@ Desc:  gh
 
 
 Usage:
-
+gh <command> <subcommand> [flags]
 
 
 (gh) --help  ::  
@@ -55,7 +55,7 @@ Desc:  Authenticate gh and git with GitHub
 
 
 Usage:
-
+gh auth <command> [flags]
 
 
 (gh auth) --help  ::  
@@ -81,7 +81,7 @@ Desc:  Authenticate with a GitHub host
 
 
 Usage:
-
+gh auth login [flags]
 
 
 (gh auth login) -p --git-protocol  ::  string
@@ -112,7 +112,7 @@ Desc:  Log out of a GitHub host
 
 
 Usage:
-
+gh auth logout [flags]
 
 
 (gh auth logout) -h --hostname  ::  string
@@ -131,7 +131,7 @@ Desc:  Refresh stored authentication credentials
 
 
 Usage:
-
+gh auth refresh [flags]
 
 
 (gh auth refresh) -h --hostname  ::  string
@@ -153,7 +153,7 @@ Desc:  Configure git to use GitHub CLI as a credential helper
 
 
 Usage:
-
+gh auth setup-git [flags]
 
 
 (gh auth setup-git) -h --hostname  ::  string
@@ -172,7 +172,7 @@ Desc:  View authentication status
 
 
 Usage:
-
+gh auth status [flags]
 
 
 (gh auth status) -h --hostname  ::  string
@@ -194,7 +194,7 @@ Desc:  Print the auth token gh is configured to use
 
 
 Usage:
-
+gh auth token [flags]
 
 
 (gh auth token) -h --hostname  ::  string
@@ -213,7 +213,7 @@ Desc:  Open the repository in the browser
 
 
 Usage:
-
+gh browse [<number> | <path>] [flags]
 
 
 (gh browse) -b --branch  ::  string
@@ -250,7 +250,7 @@ Desc:  Connect to and manage codespaces
 
 
 Usage:
-
+gh codespace [flags]
 
 
 (gh codespace) --help  ::  
@@ -282,7 +282,7 @@ Desc:  Open a codespace in Visual Studio Code
 
 
 Usage:
-
+gh codespace code [flags]
 
 
 (gh codespace code) -c --codespace  ::  string
@@ -307,7 +307,7 @@ Desc:  Copy files between local and remote file systems
 
 
 Usage:
-
+gh codespace cp [-e] [-r] [-- [<scp flags>...]] <sources>... <dest>
 
 
 (gh codespace cp) -c --codespace  ::  string
@@ -335,7 +335,7 @@ Desc:  Create a codespace
 
 
 Usage:
-
+gh codespace create [flags]
 
 
 (gh codespace create) -b --branch  ::  string
@@ -378,7 +378,7 @@ Desc:  Delete codespaces
 
 
 Usage:
-
+gh codespace delete [flags]
 
 
 (gh codespace delete) --all  ::  
@@ -415,7 +415,7 @@ Desc:  Edit a codespace
 
 
 Usage:
-
+gh codespace edit [flags]
 
 
 (gh codespace edit) -c --codespace  ::  string
@@ -440,7 +440,7 @@ Desc:  Open a codespace in JupyterLab
 
 
 Usage:
-
+gh codespace jupyter [flags]
 
 
 (gh codespace jupyter) -c --codespace  ::  string
@@ -459,7 +459,7 @@ Desc:  List codespaces
 
 
 Usage:
-
+gh codespace list [flags]
 
 
 (gh codespace list) -q --jq  ::  expression
@@ -496,7 +496,7 @@ Desc:  Access codespace logs
 
 
 Usage:
-
+gh codespace logs [flags]
 
 
 (gh codespace logs) -c --codespace  ::  string
@@ -518,7 +518,7 @@ Desc:  List ports in a codespace
 
 
 Usage:
-
+gh codespace ports [flags]
 
 
 (gh codespace ports) -c --codespace  ::  string
@@ -552,7 +552,7 @@ Desc:  Forward ports
 
 
 Usage:
-
+gh codespace ports forward <remote-port>:<local-port>... [flags]
 
 
 (gh codespace ports forward) -c --codespace  ::  string
@@ -571,7 +571,7 @@ Desc:  Change the visibility of the forwarded port
 
 
 Usage:
-
+gh codespace ports visibility <port>:{public|private|org}... [flags]
 
 
 (gh codespace ports visibility) -c --codespace  ::  string
@@ -590,7 +590,7 @@ Desc:  Rebuild a codespace
 
 
 Usage:
-
+gh codespace rebuild [flags]
 
 
 (gh codespace rebuild) -c --codespace  ::  string
@@ -609,7 +609,7 @@ Desc:  SSH into a codespace
 
 
 Usage:
-
+gh codespace ssh [<flags>...] [-- <ssh-flags>...] [<command>]
 
 
 (gh codespace ssh) -c --codespace  ::  string
@@ -643,7 +643,7 @@ Desc:  Stop a running codespace
 
 
 Usage:
-
+gh codespace stop [flags]
 
 
 (gh codespace stop) -c --codespace  ::  string
@@ -668,7 +668,7 @@ Desc:  Manage gists
 
 
 Usage:
-
+gh gist <command> [flags]
 
 
 (gh gist) --help  ::  
@@ -694,7 +694,7 @@ Desc:  Clone a gist locally
 
 
 Usage:
-
+gh gist clone <gist> [<directory>] [-- <gitflags>...]
 
 
 (gh gist clone) --help  ::  
@@ -710,7 +710,7 @@ Desc:  Create a new gist
 
 
 Usage:
-
+gh gist create [<filename>... | -] [flags]
 
 
 (gh gist create) -d --desc  ::  string
@@ -738,7 +738,7 @@ Desc:  Delete a gist
 
 
 Usage:
-
+gh gist delete {<id> | <url>} [flags]
 
 
 (gh gist delete) --help  ::  
@@ -754,7 +754,7 @@ Desc:  Edit one of your gists
 
 
 Usage:
-
+gh gist edit {<id> | <url>} [<filename>] [flags]
 
 
 (gh gist edit) -a --add  ::  string
@@ -779,7 +779,7 @@ Desc:  List your gists
 
 
 Usage:
-
+gh gist list [flags]
 
 
 (gh gist list) -L --limit  ::  int
@@ -804,7 +804,7 @@ Desc:  View a gist
 
 
 Usage:
-
+gh gist view [<id> | <url>] [flags]
 
 
 (gh gist view) -f --filename  ::  string
@@ -832,7 +832,7 @@ Desc:  Manage issues
 
 
 Usage:
-
+gh issue <command> [flags]
 
 
 (gh issue) -R --repo  ::  [HOST/]OWNER/REPO
@@ -867,7 +867,7 @@ Desc:  Close issue
 
 
 Usage:
-
+gh issue close {<number> | <url>} [flags]
 
 
 (gh issue close) -c --comment  ::  string
@@ -892,7 +892,7 @@ Desc:  Add a comment to an issue
 
 
 Usage:
-
+gh issue comment {<number> | <url>} [flags]
 
 
 (gh issue comment) -b --body  ::  text
@@ -926,7 +926,7 @@ Desc:  Create a new issue
 
 
 Usage:
-
+gh issue create [flags]
 
 
 (gh issue create) -a --assignee  ::  login
@@ -972,7 +972,7 @@ Desc:  Delete issue
 
 
 Usage:
-
+gh issue delete {<number> | <url>} [flags]
 
 
 (gh issue delete) --confirm  ::  
@@ -994,7 +994,7 @@ Desc:  Edit an issue
 
 
 Usage:
-
+gh issue edit {<number> | <url>} [flags]
 
 
 (gh issue edit) --add-assignee  ::  login
@@ -1043,7 +1043,7 @@ Desc:  List issues in a repository
 
 
 Usage:
-
+gh issue list [flags]
 
 
 (gh issue list) --app  ::  string
@@ -1101,7 +1101,7 @@ Desc:  Pin a issue
 
 
 Usage:
-
+gh issue pin {<number> | <url>} [flags]
 
 
 (gh issue pin) --help  ::  
@@ -1120,7 +1120,7 @@ Desc:  Reopen issue
 
 
 Usage:
-
+gh issue reopen {<number> | <url>} [flags]
 
 
 (gh issue reopen) -c --comment  ::  string
@@ -1142,7 +1142,7 @@ Desc:  Show status of relevant issues
 
 
 Usage:
-
+gh issue status [flags]
 
 
 (gh issue status) -q --jq  ::  expression
@@ -1170,7 +1170,7 @@ Desc:  Transfer issue to another repository
 
 
 Usage:
-
+gh issue transfer {<number> | <url>} <destination-repo> [flags]
 
 
 (gh issue transfer) --help  ::  
@@ -1189,7 +1189,7 @@ Desc:  Unpin a issue
 
 
 Usage:
-
+gh issue unpin {<number> | <url>} [flags]
 
 
 (gh issue unpin) --help  ::  
@@ -1208,7 +1208,7 @@ Desc:  View an issue
 
 
 Usage:
-
+gh issue view {<number> | <url>} [flags]
 
 
 (gh issue view) -c --comments  ::  
@@ -1242,7 +1242,7 @@ Desc:  Manage pull requests
 
 
 Usage:
-
+gh pr <command> [flags]
 
 
 (gh pr) -R --repo  ::  [HOST/]OWNER/REPO
@@ -1279,7 +1279,7 @@ Desc:  Check out a pull request in git
 
 
 Usage:
-
+gh pr checkout {<number> | <url> | <branch>} [flags]
 
 
 (gh pr checkout) -b --branch  ::  string
@@ -1310,7 +1310,7 @@ Desc:  Show CI status for a single pull request
 
 
 Usage:
-
+gh pr checks [<number> | <url> | <branch>] [flags]
 
 
 (gh pr checks) -i --interval --watch  ::  
@@ -1341,7 +1341,7 @@ Desc:  Close a pull request
 
 
 Usage:
-
+gh pr close {<number> | <url> | <branch>} [flags]
 
 
 (gh pr close) -c --comment  ::  string
@@ -1366,7 +1366,7 @@ Desc:  Add a comment to a pull request
 
 
 Usage:
-
+gh pr comment [<number> | <url> | <branch>] [flags]
 
 
 (gh pr comment) -b --body  ::  text
@@ -1400,7 +1400,7 @@ Desc:  Create a pull request
 
 
 Usage:
-
+gh pr create [flags]
 
 
 (gh pr create) -a --assignee  ::  login
@@ -1464,7 +1464,7 @@ Desc:  View changes in a pull request
 
 
 Usage:
-
+gh pr diff [<number> | <url> | <branch>] [flags]
 
 
 (gh pr diff) --color  ::  string
@@ -1495,7 +1495,7 @@ Desc:  Edit a pull request
 
 
 Usage:
-
+gh pr edit [<number> | <url> | <branch>] [flags]
 
 
 (gh pr edit) --add-assignee  ::  login
@@ -1553,7 +1553,7 @@ Desc:  List pull requests in a repository
 
 
 Usage:
-
+gh pr list [flags]
 
 
 (gh pr list) --app  ::  string
@@ -1614,7 +1614,7 @@ Desc:  Merge a pull request
 
 
 Usage:
-
+gh pr merge [<number> | <url> | <branch>] [flags]
 
 
 (gh pr merge) --admin  ::  
@@ -1669,7 +1669,7 @@ Desc:  Mark a pull request as ready for review
 
 
 Usage:
-
+gh pr ready [<number> | <url> | <branch>] [flags]
 
 
 (gh pr ready) --undo  ::  
@@ -1691,7 +1691,7 @@ Desc:  Reopen a pull request
 
 
 Usage:
-
+gh pr reopen {<number> | <url> | <branch>} [flags]
 
 
 (gh pr reopen) -c --comment  ::  string
@@ -1713,7 +1713,7 @@ Desc:  Add a review to a pull request
 
 
 Usage:
-
+gh pr review [<number> | <url> | <branch>] [flags]
 
 
 (gh pr review) -a --approve  ::  
@@ -1747,7 +1747,7 @@ Desc:  Show status of relevant pull requests
 
 
 Usage:
-
+gh pr status [flags]
 
 
 (gh pr status) -c --conflict-status  ::  
@@ -1778,7 +1778,7 @@ Desc:  View a pull request
 
 
 Usage:
-
+gh pr view [<number> | <url> | <branch>] [flags]
 
 
 (gh pr view) -c --comments  ::  
@@ -1812,7 +1812,7 @@ Desc:  Manage releases
 
 
 Usage:
-
+gh release <command> [flags]
 
 
 (gh release) -R --repo  ::  [HOST/]OWNER/REPO
@@ -1842,7 +1842,7 @@ Desc:  Create a new release
 
 
 Usage:
-
+gh release create [<tag>] [<files>...]
 
 
 (gh release create) --discussion-category  ::  string
@@ -1888,7 +1888,7 @@ Desc:  Delete a release
 
 
 Usage:
-
+gh release delete <tag> [flags]
 
 
 (gh release delete) --cleanup-tag  ::  
@@ -1913,7 +1913,7 @@ Desc:  Download release assets
 
 
 Usage:
-
+gh release download [<tag>] [flags]
 
 
 (gh release download) -A --archive  ::  format
@@ -1947,7 +1947,7 @@ Desc:  Edit a release
 
 
 Usage:
-
+gh release edit <tag>
 
 
 (gh release edit) --discussion-category  ::  string
@@ -1990,7 +1990,7 @@ Desc:  List releases in a repository
 
 
 Usage:
-
+gh release list [flags]
 
 
 (gh release list) --exclude-drafts  ::  
@@ -2015,7 +2015,7 @@ Desc:  Upload assets to a release
 
 
 Usage:
-
+gh release upload <tag> <files>... [flags]
 
 
 (gh release upload) --clobber  ::  
@@ -2037,7 +2037,7 @@ Desc:  View information about a release
 
 
 Usage:
-
+gh release view [<tag>] [flags]
 
 
 (gh release view) -q --jq  ::  expression
@@ -2068,7 +2068,7 @@ Desc:  Manage repositories
 
 
 Usage:
-
+gh repo <command> [flags]
 
 
 (gh repo) --help  ::  
@@ -2099,7 +2099,7 @@ Desc:  Archive a repository
 
 
 Usage:
-
+gh repo archive [<repository>] [flags]
 
 
 (gh repo archive) -y --confirm  ::  
@@ -2118,7 +2118,7 @@ Desc:  Clone a repository locally
 
 
 Usage:
-
+gh repo clone <repository> [<directory>] [-- <gitflags>...]
 
 
 (gh repo clone) -u --upstream-remote-name  ::  string
@@ -2137,7 +2137,7 @@ Desc:  Create a new repository
 
 
 Usage:
-
+gh repo create [<name>] [flags]
 
 
 (gh repo create) --add-readme  ::  
@@ -2204,7 +2204,7 @@ Desc:  Delete a repository
 
 
 Usage:
-
+gh repo delete [<repository>] [flags]
 
 
 (gh repo delete) --confirm  ::  
@@ -2223,7 +2223,7 @@ Desc:  Manage deploy keys in a repository
 
 
 Usage:
-
+gh repo deploy-key <command> [flags]
 
 
 (gh repo deploy-key) -R --repo  ::  [HOST/]OWNER/REPO
@@ -2249,7 +2249,7 @@ Desc:  Add a deploy key to a GitHub repository
 
 
 Usage:
-
+gh repo deploy-key add <key-file> [flags]
 
 
 (gh repo deploy-key add) -w --allow-write  ::  
@@ -2274,7 +2274,7 @@ Desc:  Delete a deploy key from a GitHub repository
 
 
 Usage:
-
+gh repo deploy-key delete <key-id> [flags]
 
 
 (gh repo deploy-key delete) --help  ::  
@@ -2293,7 +2293,7 @@ Desc:  List deploy keys in a GitHub repository
 
 
 Usage:
-
+gh repo deploy-key list [flags]
 
 
 (gh repo deploy-key list) --help  ::  
@@ -2312,7 +2312,7 @@ Desc:  Edit repository settings
 
 
 Usage:
-
+gh repo edit [<repository>] [flags]
 
 
 (gh repo edit) --add-topic  ::  strings
@@ -2376,7 +2376,7 @@ Desc:  Create a fork of a repository
 
 
 Usage:
-
+gh repo fork [<repository>] [-- <gitflags>...] [flags]
 
 
 (gh repo fork) --clone  ::  
@@ -2407,7 +2407,7 @@ Desc:  List repositories owned by user or organization
 
 
 Usage:
-
+gh repo list [<owner>] [flags]
 
 
 (gh repo list) --archived  ::  
@@ -2456,7 +2456,7 @@ Desc:  Rename a repository
 
 
 Usage:
-
+gh repo rename [<new-name>] [flags]
 
 
 (gh repo rename) -y --confirm  ::  
@@ -2478,7 +2478,7 @@ Desc:  Sync a repository
 
 
 Usage:
-
+gh repo sync [<destination-repository>] [flags]
 
 
 (gh repo sync) -b --branch  ::  string
@@ -2503,7 +2503,7 @@ Desc:  View a repository
 
 
 Usage:
-
+gh repo view [<repository>] [flags]
 
 
 (gh repo view) -b --branch  ::  string
@@ -2534,7 +2534,7 @@ Desc:  View details about workflow runs
 
 
 Usage:
-
+gh run <command> [flags]
 
 
 (gh run) -R --repo  ::  [HOST/]OWNER/REPO
@@ -2563,7 +2563,7 @@ Desc:  Cancel a workflow run
 
 
 Usage:
-
+gh run cancel [<run-id>] [flags]
 
 
 (gh run cancel) --help  ::  
@@ -2582,7 +2582,7 @@ Desc:  Download artifacts generated by a workflow run
 
 
 Usage:
-
+gh run download [<run-id>] [flags]
 
 
 (gh run download) -D --dir  ::  string
@@ -2610,7 +2610,7 @@ Desc:  List recent workflow runs
 
 
 Usage:
-
+gh run list [flags]
 
 
 (gh run list) -b --branch  ::  string
@@ -2650,7 +2650,7 @@ Desc:  Rerun a failed run
 
 
 Usage:
-
+gh run rerun [<run-id>] [flags]
 
 
 (gh run rerun) -d --debug  ::  
@@ -2678,7 +2678,7 @@ Desc:  View a summary of a workflow run
 
 
 Usage:
-
+gh run view [<run-id>] [flags]
 
 
 (gh run view) --exit-status  ::  
@@ -2724,7 +2724,7 @@ Desc:  Watch a run until it completes, showing its progress
 
 
 Usage:
-
+gh run watch <run-id> [flags]
 
 
 (gh run watch) --exit-status  ::  
@@ -2749,7 +2749,7 @@ Desc:  View details about GitHub Actions workflows
 
 
 Usage:
-
+gh workflow <command> [flags]
 
 
 (gh workflow) -R --repo  ::  [HOST/]OWNER/REPO
@@ -2777,7 +2777,7 @@ Desc:  Disable a workflow
 
 
 Usage:
-
+gh workflow disable [<workflow-id> | <workflow-name>] [flags]
 
 
 (gh workflow disable) --help  ::  
@@ -2796,7 +2796,7 @@ Desc:  Enable a workflow
 
 
 Usage:
-
+gh workflow enable [<workflow-id> | <workflow-name>] [flags]
 
 
 (gh workflow enable) --help  ::  
@@ -2815,7 +2815,7 @@ Desc:  List workflows
 
 
 Usage:
-
+gh workflow list [flags]
 
 
 (gh workflow list) -a --all  ::  
@@ -2840,7 +2840,7 @@ Desc:  Run a workflow by creating a workflow_dispatch event
 
 
 Usage:
-
+gh workflow run [<workflow-id> | <workflow-name>] [flags]
 
 
 (gh workflow run) -F --field  ::  key=value
@@ -2871,7 +2871,7 @@ Desc:  View the summary of a workflow
 
 
 Usage:
-
+gh workflow view [<workflow-id> | <workflow-name> | <filename>] [flags]
 
 
 (gh workflow view) -r --ref  ::  string
@@ -2899,7 +2899,7 @@ Desc:  Create command shortcuts
 
 
 Usage:
-
+gh alias <command> [flags]
 
 
 (gh alias) --help  ::  
@@ -2922,7 +2922,7 @@ Desc:  Delete an alias
 
 
 Usage:
-
+gh alias delete <alias> [flags]
 
 
 (gh alias delete) --help  ::  
@@ -2938,7 +2938,7 @@ Desc:  List your aliases
 
 
 Usage:
-
+gh alias list [flags]
 
 
 (gh alias list) --help  ::  
@@ -2954,7 +2954,7 @@ Desc:  Create a shortcut for a gh command
 
 
 Usage:
-
+gh alias set <alias> <expansion> [flags]
 
 
 (gh alias set) -s --shell  ::  
@@ -2973,7 +2973,7 @@ Desc:  Make an authenticated GitHub API request
 
 
 Usage:
-
+gh api <endpoint> [flags]
 
 
 (gh api) --cache  ::  duration
@@ -3028,7 +3028,7 @@ Desc:  Generate shell completion scripts
 
 
 Usage:
-
+gh completion -s <shell>
 
 
 (gh completion) -s --shell  ::  string
@@ -3073,7 +3073,7 @@ Desc:  Manage configuration for gh
 
 
 Usage:
-
+gh config <command> [flags]
 
 
 (gh config) --help  ::  
@@ -3096,7 +3096,7 @@ Desc:  Print the value of a given configuration key
 
 
 Usage:
-
+gh config get <key> [flags]
 
 
 (gh config get) -h --host  ::  string
@@ -3115,7 +3115,7 @@ Desc:  Print a list of configuration keys and values
 
 
 Usage:
-
+gh config list [flags]
 
 
 (gh config list) -h --host  ::  string
@@ -3134,7 +3134,7 @@ Desc:  Update configuration with a value for the given key
 
 
 Usage:
-
+gh config set <key> <value> [flags]
 
 
 (gh config set) -h --host  ::  string
@@ -3153,7 +3153,7 @@ Desc:  Manage gh extensions
 
 
 Usage:
-
+gh extension [flags]
 
 
 (gh extension) --help  ::  
@@ -3179,7 +3179,7 @@ Desc:  Create a new extension
 
 
 Usage:
-
+gh extension create [<name>] [flags]
 
 
 (gh extension create) --precompiled  ::  string
@@ -3208,7 +3208,7 @@ Desc:  Install a gh extension from a repository
 
 
 Usage:
-
+gh extension install <repository> [flags]
 
 
 (gh extension install) --pin  ::  string
@@ -3227,7 +3227,7 @@ Desc:  List installed extension commands
 
 
 Usage:
-
+gh extension list [flags]
 
 
 (gh extension list) --help  ::  
@@ -3243,7 +3243,7 @@ Desc:  Remove an installed extension
 
 
 Usage:
-
+gh extension remove <name> [flags]
 
 
 (gh extension remove) --help  ::  
@@ -3259,7 +3259,7 @@ Desc:  Upgrade installed extensions
 
 
 Usage:
-
+gh extension upgrade {<name> | --all} [flags]
 
 
 (gh extension upgrade) --all  ::  
@@ -3284,7 +3284,7 @@ Desc:  Manage GPG keys
 
 
 Usage:
-
+gh gpg-key <command> [flags]
 
 
 (gh gpg-key) --help  ::  
@@ -3307,7 +3307,7 @@ Desc:  Add a GPG key to your GitHub account
 
 
 Usage:
-
+gh gpg-key add [<key-file>] [flags]
 
 
 (gh gpg-key add) --help  ::  
@@ -3323,7 +3323,7 @@ Desc:  Delete a GPG key from your GitHub account
 
 
 Usage:
-
+gh gpg-key delete <key-id> [flags]
 
 
 (gh gpg-key delete) -y --confirm  ::  
@@ -3342,7 +3342,7 @@ Desc:  Lists GPG keys in your GitHub account
 
 
 Usage:
-
+gh gpg-key list [flags]
 
 
 (gh gpg-key list) --help  ::  
@@ -3358,7 +3358,7 @@ Desc:  Manage labels
 
 
 Usage:
-
+gh label <command> [flags]
 
 
 (gh label) -R --repo  ::  [HOST/]OWNER/REPO
@@ -3386,7 +3386,7 @@ Desc:  Clones labels from one repository to another
 
 
 Usage:
-
+gh label clone <source-repository> [flags]
 
 
 (gh label clone) -f --force  ::  
@@ -3408,7 +3408,7 @@ Desc:  Create a new label
 
 
 Usage:
-
+gh label create <name> [flags]
 
 
 (gh label create) -c --color  ::  string
@@ -3436,7 +3436,7 @@ Desc:  Delete a label from a repository
 
 
 Usage:
-
+gh label delete <name> [flags]
 
 
 (gh label delete) --confirm  ::  
@@ -3458,7 +3458,7 @@ Desc:  Edit a label
 
 
 Usage:
-
+gh label edit <name> [flags]
 
 
 (gh label edit) -c --color  ::  string
@@ -3486,7 +3486,7 @@ Desc:  List labels in a repository
 
 
 Usage:
-
+gh label list [flags]
 
 
 (gh label list) -q --jq  ::  expression
@@ -3529,7 +3529,7 @@ Desc:  Search for repositories, issues, and pull requests
 
 
 Usage:
-
+gh search <command> [flags]
 
 
 (gh search) --help  ::  
@@ -3552,7 +3552,7 @@ Desc:  Search for issues
 
 
 Usage:
-
+gh search issues [<query>] [flags]
 
 
 (gh search issues) --app  ::  string
@@ -3676,7 +3676,7 @@ Desc:  Search for pull requests
 
 
 Usage:
-
+gh search prs [<query>] [flags]
 
 
 (gh search prs) --app  ::  string
@@ -3824,7 +3824,7 @@ Desc:  Search for repositories
 
 
 Usage:
-
+gh search repos [<query>] [flags]
 
 
 (gh search repos) --archived  ::  
@@ -3912,7 +3912,7 @@ Desc:  Manage GitHub secrets
 
 
 Usage:
-
+gh secret <command> [flags]
 
 
 (gh secret) -R --repo  ::  [HOST/]OWNER/REPO
@@ -3938,7 +3938,7 @@ Desc:  Delete secrets
 
 
 Usage:
-
+gh secret delete <secret-name> [flags]
 
 
 (gh secret delete) -a --app  ::  string
@@ -3969,7 +3969,7 @@ Desc:  List secrets
 
 
 Usage:
-
+gh secret list [flags]
 
 
 (gh secret list) -a --app  ::  string
@@ -4000,7 +4000,7 @@ Desc:  Create or update secrets
 
 
 Usage:
-
+gh secret set <secret-name> [flags]
 
 
 (gh secret set) -a --app  ::  string
@@ -4046,7 +4046,7 @@ Desc:  Manage SSH keys
 
 
 Usage:
-
+gh ssh-key <command> [flags]
 
 
 (gh ssh-key) --help  ::  
@@ -4069,7 +4069,7 @@ Desc:  Add an SSH key to your GitHub account
 
 
 Usage:
-
+gh ssh-key add [<key-file>] [flags]
 
 
 (gh ssh-key add) -t --title  ::  string
@@ -4088,7 +4088,7 @@ Desc:  Delete an SSH key from your GitHub account
 
 
 Usage:
-
+gh ssh-key delete <id> [flags]
 
 
 (gh ssh-key delete) -y --confirm  ::  
@@ -4107,7 +4107,7 @@ Desc:  Lists SSH keys in your GitHub account
 
 
 Usage:
-
+gh ssh-key list [flags]
 
 
 (gh ssh-key list) --help  ::  
@@ -4123,7 +4123,7 @@ Desc:  Print information about relevant issues, pull requests, and notifications
 
 
 Usage:
-
+gh status [flags]
 
 
 (gh status) -e --exclude  ::  strings
@@ -4145,7 +4145,7 @@ Desc:  Learn about working with GitHub Actions
 
 
 Usage:
-
+gh actions [flags]
 
 
 (gh actions) --help  ::  
