@@ -171,7 +171,11 @@ getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
           ( \(Subcommand subName subDesc) ->
               getCommandRec (extraDepth - 1) useMan (cmdSeq ++ [subName]) subDesc page ""
           )
-          subCandidates
+          (
+            filter
+            ( \(Subcommand subName _) -> null cmdSeq || (last cmdSeq /= subName))
+            subCandidates
+          )
   let subCommandsM = map fst . filter snd <$> subCommandCandidsM
   let opts = parseBlockwise content
   subCommands <- subCommandsM
@@ -185,13 +189,12 @@ getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
 getSubcmdCandidates :: String -> [Subcommand]
 getSubcmdCandidates content =
   Utils.infoMsg "subcommand candidates: \n" $
-    removeHelp . uniqSubcommands . parseSubcommand $
+    uniqSubcommands . parseSubcommand $
       content
   where
     sub2pair (Subcommand s1 s2) = (s1, s2)
     pair2sub = uncurry Subcommand
     uniqSubcommands = map pair2sub . OMap.assocs . OMap.fromList . map sub2pair
-    removeHelp = filter (\(Subcommand name _) -> name /= "help")
 
 -- | Converts to Command given command name and text
 pageToCommandSimple :: String -> String -> IO Command
