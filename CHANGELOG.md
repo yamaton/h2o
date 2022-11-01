@@ -1,3 +1,10 @@
+## 0.4.2 (2022-11-01)
+- Revive command options
+    - --subcommand
+    - --list-subcommands
+- Bugfixes around usage parsing
+- Update GitHub Actions for auto-testing
+
 ## 0.4.1 (2022-10-30)
 - Remove unused command options
     - --subcommand
