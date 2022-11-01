@@ -9,8 +9,8 @@ h2o (
       ((-c|--command <string>) [--skip-man] | (-f|--file <file>) 
         [--skip-man] |
         (-s|--subcommand <string-string>) | --loadjson <file>) 
-      [--format {bash|zsh|fish|json|native}] [--json] [--debug] 
-      [--depth <int>] |
+      [--format {bash|zsh|fish|json|native}] [--json] 
+      [--list-subcommands] [--debug] [--depth <int>] |
       --version)
 
 
@@ -34,6 +34,9 @@ Select output format of the completion script (bash|zsh|fish|json|native) (defau
 
 (h2o) --json  ::  
 Output in JSON. Same as --format=json
+
+(h2o) --list-subcommands  ::  
+[Debug] List subcommands
 
 (h2o) --debug  ::  
 [Debug] Run preprocessing only

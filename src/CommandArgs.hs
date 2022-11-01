@@ -22,6 +22,7 @@ data Config = Config
   { _input :: Input,
     _outputFormat :: OutputFormat,
     _isOutputJSON :: Bool,
+    _isListingSubcommands :: Bool,
     _isPreprocessOnly :: Bool,
     _depth :: Int
   }
@@ -112,6 +113,10 @@ config =
             <*> switch
               ( long "json"
                   <> help "Output in JSON. Same as --format=json"
+              )
+            <*> switch
+              ( long "list-subcommands"
+                  <> help "[Debug] List subcommands"
               )
             <*> switch
               ( long "debug"
