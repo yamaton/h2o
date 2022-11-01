@@ -228,7 +228,10 @@ hasErrorMessageAtTop name text
 
 
 mayContainUseful :: Text -> Text -> Bool
-mayContainUseful name text  = length xs >= 2
+mayContainUseful name text
+ | null xs = False
+ | length xs == 1 = "usage" `T.isPrefixOf` (T.toLower . T.stripStart . head) xs
+ | otherwise = True
   where
     xs = filter (isNotNullAndErrorMessageAbsent name) . T.lines $ text
 
