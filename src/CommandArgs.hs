@@ -4,6 +4,8 @@
 
 module CommandArgs where
 
+import Data.List.Extra (stripInfix)
+import qualified Data.Maybe as Maybe
 import qualified Data.Text as T
 import Options.Applicative
 
@@ -13,6 +15,7 @@ import Options.Applicative
 data Input
   = CommandInput String Bool
   | FileInput FilePath Bool
+  | SubcommandInput String String Bool
   | JsonInput FilePath
 
 data Config = Config
@@ -36,6 +39,21 @@ toOutputFormat s
   | otherwise = Native
   where
     s' = T.toLower . T.pack $ s
+
+subcommandInput :: Parser Input
+subcommandInput =
+  uncurry SubcommandInput . Maybe.fromJust . stripInfix "-"
+    <$> strOption
+      ( long "subcommand"
+          <> short 's'
+          <> metavar "<string-string>"
+          <> help "Extract CLI options from the subcommand-specific help text or man page. Enter a command-subcommand pair, like git-log, as the argument."
+      )
+    <*> switch
+      ( long "skip-man"
+          <> hidden
+          <> help "Skip scanning manpage and focus on help text. Does not apply if input source is a file."
+      )
 
 commandInput :: Parser Input
 commandInput =
@@ -75,7 +93,7 @@ jsonInput =
       )
 
 inputP :: Parser Input
-inputP = commandInput <|> fileInput <|> jsonInput
+inputP = commandInput <|> fileInput <|> subcommandInput <|> jsonInput
 
 config :: Parser ConfigOrVersion
 config =

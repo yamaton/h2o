@@ -8,6 +8,7 @@ module IoHelper
     getMan,
     getManSub,
     getManAndHelp,
+    getManAndHelpSub,
     isManAvailableIO,
     getVersion
   )
@@ -27,6 +28,17 @@ import qualified Utils
 
 getManSub :: [String] -> IO Text
 getManSub names = getMan $ List.intercalate "-" names
+
+getManAndHelpSub :: [String] -> IO Text
+getManAndHelpSub names = do
+  content <- getManSub names
+  if T.null content
+    then do
+      content2 <- getHelpSub names
+      if T.null content2
+        then error ("io: Neither help or man pages available: " ++ List.intercalate "-" names)
+        else Utils.infoTrace "io: Using help for subcommand" $ return content2
+    else Utils.infoTrace "io: Using manpage for subcommand" $ return content
 
 -- |
 getHelpTemplateMeta :: (Text -> Bool) -> String -> [[String]] -> IO Text
