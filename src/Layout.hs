@@ -247,7 +247,7 @@ isWordStartingAround margin idx x =
   assert ('\n' `notElem` x && '\t' `notElem` x) $
     any criteria indices
   where
-    indices = [idx - margin, idx - margin + 1 .. idx + margin]
+    indices = [idx .. idx + margin]
     criteria i =
       (not . null) before && (not . null) after && last before == ' ' && head after /= ' '
       where

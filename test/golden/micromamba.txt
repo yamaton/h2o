@@ -23,6 +23,9 @@ Disable the use of environment variables
 (micromamba) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
 
+(micromamba) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
 (micromamba) -q --quiet  ::  
 Set quiet mode (print less output)
 
@@ -108,6 +111,9 @@ Disable the use of environment variables
 
 (micromamba shell) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba shell) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
 
 (micromamba shell) -q --quiet  ::  
 Set quiet mode (print less output)
@@ -241,6 +247,9 @@ Disable the use of environment variables
 
 (micromamba create) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba create) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
 
 (micromamba create) -q --quiet  ::  
 Set quiet mode (print less output)
@@ -390,6 +399,9 @@ Disable the use of environment variables
 (micromamba install) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
 
+(micromamba install) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
 (micromamba install) -q --quiet  ::  
 Set quiet mode (print less output)
 
@@ -538,6 +550,9 @@ Disable the use of environment variables
 (micromamba update) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
 
+(micromamba update) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
 (micromamba update) -q --quiet  ::  
 Set quiet mode (print less output)
 
@@ -638,6 +653,9 @@ Disable the use of environment variables
 (micromamba repoquery) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
 
+(micromamba repoquery) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
 (micromamba repoquery) -q --quiet  ::  
 Set quiet mode (print less output)
 
@@ -732,6 +750,9 @@ Disable the use of environment variables
 (micromamba remove) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
 
+(micromamba remove) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
 (micromamba remove) -q --quiet  ::  
 Set quiet mode (print less output)
 
@@ -786,6 +807,9 @@ Disable the use of environment variables
 
 (micromamba list) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba list) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
 
 (micromamba list) -q --quiet  ::  
 Set quiet mode (print less output)
@@ -879,6 +903,9 @@ Disable the use of environment variables
 (micromamba clean) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
 
+(micromamba clean) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
 (micromamba clean) -q --quiet  ::  
 Set quiet mode (print less output)
 
@@ -924,6 +951,9 @@ Disable the use of environment variables
 
 (micromamba config) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba config) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
 
 (micromamba config) -q --quiet  ::  
 Set quiet mode (print less output)
@@ -1008,6 +1038,9 @@ Disable the use of environment variables
 (micromamba config list) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
 
+(micromamba config list) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
 (micromamba config list) -q --quiet  ::  
 Set quiet mode (print less output)
 
@@ -1062,6 +1095,9 @@ Disable the use of environment variables
 
 (micromamba config sources) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba config sources) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
 
 (micromamba config sources) -q --quiet  ::  
 Set quiet mode (print less output)
@@ -1305,6 +1341,9 @@ Disable the use of environment variables
 (micromamba info) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
 
+(micromamba info) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
 (micromamba info) -q --quiet  ::  
 Set quiet mode (print less output)
 
@@ -1385,6 +1424,9 @@ Disable the use of environment variables
 (micromamba env) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
 
+(micromamba env) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
 (micromamba env) -q --quiet  ::  
 Set quiet mode (print less output)
 
@@ -1445,6 +1487,9 @@ Disable the use of environment variables
 
 (micromamba env list) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba env list) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
 
 (micromamba env list) -q --quiet  ::  
 Set quiet mode (print less output)
@@ -1512,6 +1557,9 @@ Disable the use of environment variables
 
 (micromamba env export) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba env export) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
 
 (micromamba env export) -q --quiet  ::  
 Set quiet mode (print less output)
@@ -1747,6 +1795,9 @@ Disable the use of environment variables
 
 (micromamba search) -v --verbose  ::  
 Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba search) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
 
 (micromamba search) -q --quiet  ::  
 Set quiet mode (print less output)
