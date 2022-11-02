@@ -12,8 +12,8 @@ import Text.Printf (printf)
 import Type (Command (..), Opt (..), OptName (..), OptNameType (..), Subcommand (..), asSubcommand)
 
 -- -- https://unix.stackexchange.com/questions/296141/how-to-use-a-special-character-as-a-normal-one-in-unix-shells
--- escapeSpecialSymbols :: Text -> Text
--- escapeSpecialSymbols s = T.foldl' f s symbols
+-- escapeSpecialChars :: Text -> Text
+-- escapeSpecialChars s = T.foldl' f s symbols
 --   where
 --     f acc c = T.replace (T.singleton c) ("\\" `T.append` T.singleton c) acc
 --     symbols = "!?#$%&~"
@@ -68,7 +68,7 @@ makeFishLineOption :: String -> Opt -> Text
 makeFishLineOption cmd opt@(Opt optnames _ desc) = line
   where
     optnameAsArgs = T.unwords $ map optNameToFishArg optnames
-    quotedDesc = show (truncateAfterPeriod (T.pack desc))
+    quotedDesc = (show . truncateAfterPeriod . T.pack) desc
     line = T.strip . T.pack $ printf "complete -c %s %s -d %s %s" cmd optnameAsArgs quotedDesc (optArgToFlag opt)
 
 -- | make a fish-completion line for a root-level option suppressed after a subcommand
@@ -76,7 +76,7 @@ makeFishLineRootOption :: String -> [String] -> Opt -> Text
 makeFishLineRootOption cmd subcmds opt@(Opt names _ desc) = line
   where
     parts = T.unwords $ map optNameToFishArg names
-    quotedDesc = show (truncateAfterPeriod (T.pack desc))
+    quotedDesc = (show . truncateAfterPeriod . T.pack) desc
     subcmdsAsTxt = T.unwords $ map T.pack subcmds
     cond = T.pack $ printf "-n \"not __fish_seen_subcommand_from %s\"" subcmdsAsTxt
     line = T.strip . T.pack $ printf "complete -c %s %s %s -d %s %s" cmd cond parts quotedDesc (optArgToFlag opt)
@@ -86,7 +86,7 @@ makeFishLineSubcommand :: String -> Subcommand -> Text
 makeFishLineSubcommand cmd (Subcommand subcmd desc) = line
   where
     template = "complete -k -c %s -n __fish_use_subcommand -x -a %s -d %s"
-    quotedDesc = show (T.pack desc)
+    quotedDesc = show desc
     line = T.pack $ printf template cmd subcmd quotedDesc
 
 -- | make a fish-completion line for an option under a subcommand
@@ -94,7 +94,7 @@ makeFishLineSubcommandOption :: String -> String -> Opt -> Text
 makeFishLineSubcommandOption cmd subcmd opt@(Opt names _ desc) = line
   where
     parts = T.unwords $ map optNameToFishArg names
-    quotedDesc = show $ truncateAfterPeriod (T.pack desc)
+    quotedDesc = (show . truncateAfterPeriod . T.pack) desc
     subcmdCondition = T.pack $ printf "-n \"__fish_seen_subcommand_from %s\"" subcmd
     line = T.strip . T.pack $ printf "complete -c %s %s %s -d %s %s" cmd subcmdCondition parts quotedDesc (optArgToFlag opt)
 
@@ -125,8 +125,8 @@ genFishScriptSubcommandOptions name (Command subname _ _ opts _ _) =
 
 toFishScript :: Command -> Text
 toFishScript (Command name _ _ opts subcmds _)
-  | null subcmds = addMeta $ genFishScriptSimple name opts
-  | otherwise = addMeta $ T.intercalate "\n\n\n" (filter (not . T.null) scriptsAll)
+  | null subcmds = escapeDollars . addMeta $ genFishScriptSimple name opts
+  | otherwise = escapeDollars . addMeta $ T.intercalate "\n\n\n" (filter (not . T.null) scriptsAll)
   where
     subnames = map _name subcmds
     subcommands = map asSubcommand subcmds
@@ -135,3 +135,8 @@ toFishScript (Command name _ _ opts subcmds _)
     scriptSubcommandOptions = [genFishScriptSubcommandOptions name subcmd | subcmd <- subcmds]
     scriptsAll = [scriptRootOptions, scriptSubcommands] ++ scriptSubcommandOptions
     addMeta txt = "# Auto-generated with h2o\n\n" `T.append` txt
+
+-- | Need to escape $ in fish even if it's quoted.
+-- I don't see other characters that require escapes when quoted.
+escapeDollars :: Text -> Text
+escapeDollars = T.replace "$" "\\$"
