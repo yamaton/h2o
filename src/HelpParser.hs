@@ -69,15 +69,22 @@ argWordNumber = do
 
 argWordBracketedHelper :: Char -> Char -> ReadP String
 argWordBracketedHelper bra ket = do
+  (consumed, _) <- gather $ between (char bra) (char ket) (many1 (argWordBracketedHelper bra ket <++ nonBracketLettersForSure))
+  return consumed
+  where
+    nonBracketLettersForSure = munch1 (`notElem` ['\n', bra, ket])
+
+argWordQuoteHelper :: Char -> ReadP String
+argWordQuoteHelper cc = do
   s <- look
-  let n = length $ filter (== bra) s
+  let n = length $ filter (== cc) s
   if n > 8
     then pfail
     else do
-      (consumed, _) <- gather $ between (char bra) (char ket) (many1 (argWordBracketedHelper bra ket <++ nonBracketLettersForSure))
+      (consumed, _) <- gather $ between (char cc) (char cc) (many nonBracketLettersForSure)
       return consumed
   where
-    nonBracketLettersForSure = munch1 (`notElem` ['\n', bra, ket])
+    nonBracketLettersForSure = munch1 (`notElem` ['\n', cc])
 
 argWordBracketed :: ReadP String
 argWordBracketed = argWordAngleBracketed <++ argWordCurlyBracketed <++ argWordParenthesized <++ argWordSquareBracketed <++ argWordDoubleQuoted <++ argWordSingleQuoted
@@ -95,10 +102,10 @@ argWordSquareBracketed :: ReadP String
 argWordSquareBracketed = argWordBracketedHelper '[' ']'
 
 argWordDoubleQuoted :: ReadP String
-argWordDoubleQuoted = argWordBracketedHelper '"' '"'
+argWordDoubleQuoted = argWordQuoteHelper '"'
 
 argWordSingleQuoted :: ReadP String
-argWordSingleQuoted = argWordBracketedHelper '\'' '\''
+argWordSingleQuoted = argWordQuoteHelper '\''
 
 description :: ReadP String
 description = do

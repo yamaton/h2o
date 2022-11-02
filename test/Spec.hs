@@ -387,7 +387,11 @@ optPartTests =
       ---- agat ----
       test_optPart
         " -o , --output , --out or --outfile"
-        (["-o", "--output", "--out", "--outfile"], "")
+        (["-o", "--output", "--out", "--outfile"], ""),
+      ---- bio ----
+      test_optPart
+        " -K '', --keep ''"
+        (["-K", "--keep"], "''")
     ]
 
 unsupportedCases :: TestTree
