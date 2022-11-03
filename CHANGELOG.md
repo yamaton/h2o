@@ -1,3 +1,10 @@
+## 0.4.3 (2022-11-02)
+- Bugfixes and tunings
+    - Better layout parsing by disallowing unrealistic perturbation
+    - Assume repeated subcommand sequences like `foo bar bar`
+      as parsing glitches.
+    - Escape $ in fish string
+
 ## 0.4.2 (2022-11-01)
 - Revive command options
     - --subcommand
