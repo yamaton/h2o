@@ -26,7 +26,7 @@ import Test.Tasty.Hedgehog (testProperty)
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
 import Type (Opt (..), OptName (..), OptNameType (..))
-import Utils (convertTabsToSpaces, getMostFrequent, toContiguousChunks, toRanges, splitsAt)
+import Utils (convertTabsToSpaces, getMostFrequent, splitsAt, toContiguousChunks, toRanges)
 
 main :: IO ()
 main = do
@@ -34,12 +34,20 @@ main = do
   defaultMain $
     testGroup
       "Tests"
-      [
-        optNameTests, propertyTests, outdatedTests, devTests, optPartTests,
-        unsupportedCases, miscTests, shellCompTests, shellCompGoldenTests,
-        integratedGoldenTestsCommandInput, integratedGoldenTestsFileInput,
+      [ optNameTests,
+        propertyTests,
+        outdatedTests,
+        devTests,
+        optPartTests,
+        unsupportedCases,
+        miscTests,
+        shellCompTests,
+        shellCompGoldenTests,
+        integratedGoldenTestsCommandInput,
+        integratedGoldenTestsFileInput,
         integratedGoldenTestsJsonInput,
-        layoutTests, parseUsageTests
+        layoutTests,
+        parseUsageTests
       ]
 
 outdatedTests :: TestTree
@@ -414,6 +422,16 @@ unsupportedCases =
 
         ---- bcftools ----
         test_optPartMany "-h/H, --header-only/--no-header" [(["-h", "--header-only"], ""), (["-H", "--no-header"], "")],
+        test_optPart " -g, --gvcf -|REF.FA  " (["-g", "--gvcf"], "-|REF.FA"),
+        test_optPart "-m, --multiallelics -|+TYPE" (["-m", "--multiallelics"], "-|+TYPE"),
+        test_parseBlockwise
+          "  --distinctive-sites            Find sites that can distinguish between at least NUM sample pairs.\n\
+          \           NUM[,MEM[,TMP]]          If the number is smaller or equal to 1, it is interpreted as the fraction of pairs."
+          [ Opt
+              [OptName "--distinctive-sites" LongType]
+              "NUM[,MEM[,TMP]]"
+              "Find sites that can distinguish between at least NUM sample pairs. If the number is smaller or equal to 1, it is interpreted as the fraction of pairs"
+          ],
         ---- blastn ----
         test_optPart
           " -task <String, Permissible values: 'blastn' 'blastn-short' 'dc-megablast'\n          'megablast' 'rmblastn' >\n"
@@ -438,8 +456,7 @@ parseUsageTests :: TestTree
 parseUsageTests =
   testGroup
     "\n ============= Test usage parser ============"
-    [
-      test_parseUsage "  Usage:  cat [OPTION]... [FILE]...  \n" "cat [OPTION]... [FILE]...",
+    [ test_parseUsage "  Usage:  cat [OPTION]... [FILE]...  \n" "cat [OPTION]... [FILE]...",
       test_parseUsage "SYNOPSIS\n    cat dog \nOTHER HEADER\n  baba\n" "cat dog",
       test_parseUsage "  Usage: \n    cat [OPTION]... [FILE]...\n    cat dog  \n  Other header:  keke\n\n" "cat [OPTION]... [FILE]...\ncat dog"
     ]
@@ -677,7 +694,8 @@ integratedGoldenTestsJsonInput =
     commandNames =
       [ "h2o",
         "stack"
-      ] :: [String]
+      ] ::
+        [String]
     inputFiles = [printf "test/golden/%s.json" name | name <- commandNames]
     outputFiles = [printf "test/golden/%s-output.txt" name | name <- commandNames]
     triples = zip3 commandNames inputFiles outputFiles
@@ -757,6 +775,14 @@ test_optPartMany s pairs =
   where
     actual = List.sort $ map ((\(xs, y) -> (map show xs, y)) . fst) $ readP_to_S optPart s
     expected = List.sort pairs
+
+test_parseBlockwise :: String -> [Opt] -> TestTree
+test_parseBlockwise s opts =
+  testCase s $ do
+    actual @?= expected
+  where
+    actual = List.sort $ Layout.parseBlockwise s
+    expected = List.sort opts
 
 test_parser :: String -> ([String], String, String) -> TestTree
 test_parser s (names, args, desc) =
