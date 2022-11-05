@@ -39,11 +39,11 @@ run Version = return (T.concat ["h2o ", Version.versionStr, "\n"])
 -- Or, do some utility work
 run (C_ (Config input _ isExportingJSON isListingSubcommands isPreprocessOnly depth))
   | isExportingJSON =
-    Utils.warnTrace "io: Deprecated: Use --format json instead" $
-      run (C_ (Config input Json False False False depth))
+      Utils.warnTrace "io: Deprecated: Use --format json instead" $
+        run (C_ (Config input Json False False False depth))
   | isListingSubcommands =
-    Utils.infoTrace "io: Listing subcommands...\n" $
-      T.unlines <$> listSubcommandsIO input
+      Utils.infoTrace "io: Listing subcommands...\n" $
+        T.unlines <$> listSubcommandsIO input
   | isPreprocessOnly =
       Utils.infoTrace "io: processing (option+arg, description) splitting only" $
         T.pack . formatStringPairs . preprocessBlockwise <$> getInputContent input
@@ -144,7 +144,11 @@ pageToCommandIO name skipMan depth content = do
   isManAvailable <- isManAvailableIO name
   let useMan = not skipMan && isManAvailable
   (cmd, status) <- getCommandRec depth useMan [name] name "placeholder" content
-  if status && ((not . null . _options) cmd || (not . null . _subcommands) cmd)
+  let isSuccess =
+        (not . null . _options) cmd
+          || (not . null . _subcommands) cmd
+          || (not . null . _usage) cmd
+  if status && isSuccess
     then Postprocess.fixCommand cmd
     else error ("Failed to extract information for a Command: " ++ name)
 
@@ -171,10 +175,9 @@ getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
           ( \(Subcommand subName subDesc) ->
               getCommandRec (extraDepth - 1) useMan (cmdSeq ++ [subName]) subDesc page ""
           )
-          (
-            filter
-            ( \(Subcommand subName _) -> null cmdSeq || (last cmdSeq /= subName))
-            subCandidates
+          ( filter
+              (\(Subcommand subName _) -> null cmdSeq || (last cmdSeq /= subName))
+              subCandidates
           )
   let subCommandsM = map fst . filter snd <$> subCommandCandidsM
   let opts = parseBlockwise content
