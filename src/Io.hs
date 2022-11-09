@@ -98,17 +98,20 @@ toSubcommandOptionsText nameSeq (Command subname _ _ opts _ _) =
   where
     prefix = T.pack . printf "(%s) " . T.unwords . map T.pack $ nameSeq ++ [subname]
 
+normalizeSpaces :: Text -> Text
+normalizeSpaces = Utils.unicodeSpacesToAscii . Utils.convertTabsToSpaces 8
+
 getInputContent :: Input -> IO String
 getInputContent (SubcommandInput name subname skipMan) =
-  T.unpack . Utils.convertTabsToSpaces 8 <$> reader [name, subname]
+  T.unpack . normalizeSpaces <$> reader [name, subname]
   where
     reader = if skipMan then getHelpSub else getManAndHelpSub
 getInputContent (CommandInput name skipMan) =
-  T.unpack . Utils.convertTabsToSpaces 8 <$> reader name
+  T.unpack . normalizeSpaces <$> reader name
   where
     reader = if skipMan then getHelp else getManAndHelp
 getInputContent (FileInput f _) =
-  T.unpack . Utils.convertTabsToSpaces 8 . T.pack <$> readFile f
+  T.unpack . normalizeSpaces . T.pack <$> readFile f
 getInputContent (JsonInput f) = readFile f
 
 toScript :: OutputFormat -> Command -> Text
@@ -165,7 +168,7 @@ getCommandRec :: Int -> Bool -> [String] -> String -> Text -> String -> IO (Comm
 getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
   page <-
     if null givenPage
-      then Utils.convertTabsToSpaces 8 <$> readFunc cmdSeq
+      then normalizeSpaces <$> readFunc cmdSeq
       else return (T.pack givenPage)
   let content = T.unpack page
   let isSuccess = not (T.null page) && page /= upperContent

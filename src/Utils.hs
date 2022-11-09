@@ -41,6 +41,9 @@ convertTabsToSpaces n = T.unlines . map convertLine . T.lines . removeCrNewline
         offset = (w `div` n) * n + n
         spaceWidth = offset - w
 
+unicodeSpacesToAscii :: Text -> Text
+unicodeSpacesToAscii = T.replace "\x00a0" " "
+
 removeDelimiter :: Char -> Text -> Text
 removeDelimiter ch = T.intercalate "   " . T.splitOn from_
   where
