@@ -399,7 +399,15 @@ optPartTests =
       ---- bio ----
       test_optPart
         " -K '', --keep ''"
-        (["-K", "--keep"], "''")
+        (["-K", "--keep"], "''"),
+      ---- delly ----
+      test_optPart
+        "-o [ --outfile ] arg (=\"sv.bcf\") "
+        (["-o", "--outfile"], "arg (=\"sv.bcf\")"),
+      ---- poetry ----
+      test_optPart
+        "-h (--help)"
+        (["-h", "--help"], "")
     ]
 
 unsupportedCases :: TestTree
@@ -436,10 +444,6 @@ unsupportedCases =
         test_optPart
           " -task <String, Permissible values: 'blastn' 'blastn-short' 'dc-megablast'\n          'megablast' 'rmblastn' >\n"
           (["-task"], "<String, Permissible values: 'blastn' 'blastn-short' 'dc-megablast' 'megablast' 'rmblastn'>"),
-        ---- delly ----
-        test_optPart
-          "-o [ --outfile ] arg (=\"sv.bcf\") "
-          (["-o", "--outfile"], "arg"),
         ---- fastqc ----
         -- This example is unsupported due to its syntactic ambiguity in relating the first
         --  line with the rest. Guess semantics analysis is required.

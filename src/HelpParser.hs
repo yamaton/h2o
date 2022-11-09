@@ -50,9 +50,12 @@ word = munch1 (`notElem` " \t\n")
 
 argWordBare :: ReadP String
 argWordBare = do
+  check <- isLongOptBracketed
   x <- satisfy (\c -> c `elem` alphanumChars ++ "\"`'_^(#.[")
   xs <- munch (\c -> c `elem` (alphanumChars ++ "\"`'_:<>()+-*/|#.=[]"))
-  return (x : xs)
+  if check
+    then pfail
+    else return (x : xs)
 
 argWordSingleStar :: ReadP String
 argWordSingleStar = do
@@ -87,7 +90,11 @@ argWordQuoteHelper cc = do
     nonBracketLettersForSure = munch1 (`notElem` ['\n', cc])
 
 argWordBracketed :: ReadP String
-argWordBracketed = argWordAngleBracketed <++ argWordCurlyBracketed <++ argWordParenthesized <++ argWordSquareBracketed <++ argWordDoubleQuoted <++ argWordSingleQuoted
+argWordBracketed = do
+  check <- isLongOptBracketed
+  if check
+    then pfail
+    else argWordAngleBracketed <++ argWordCurlyBracketed <++ argWordParenthesized <++ argWordSquareBracketed <++ argWordDoubleQuoted <++ argWordSingleQuoted
 
 argWordAngleBracketed :: ReadP String
 argWordAngleBracketed = argWordBracketedHelper '<' '>'
@@ -138,6 +145,25 @@ longOptName = do
   let res = OptName ("--" ++ name) LongType
   return res
 
+-- Handle irregular case like (--help) or [ --baba ]
+longOptNameBracketed :: ReadP OptName
+longOptNameBracketed =
+  longOptNameBracketedHelper '(' ')' <++ longOptNameBracketedHelper '[' ']'
+
+longOptNameBracketedHelper :: Char -> Char -> ReadP OptName
+longOptNameBracketedHelper bra ket = do
+  _ <- char bra
+  _ <- singleSpace <++ pure ' '
+  res <- longOptName
+  _ <- singleSpace <++ pure ' '
+  _ <- char ket
+  return res
+
+-- ugly hack to avoid consumption of longOptNameBracketed as an argument
+isLongOptBracketed :: ReadP Bool
+isLongOptBracketed = (True <$ longOptNameBracketed) <++ pure False
+
+
 doubleDash :: ReadP OptName
 doubleDash = do
   _ <- count 2 dash
@@ -173,7 +199,7 @@ oldOptName = do
     else pfail
 
 optName :: ReadP OptName
-optName = longOptName <++ doubleDash <++ oldOptName <++ shortOptName <++ singleDash
+optName = longOptName <++ doubleDash <++ oldOptName <++ shortOptName <++ singleDash <++ longOptNameBracketed
 
 -- For bazel, disable above and enable below
 -- optName = longOptNameWithNo <++ longOptName <++ oldOptName <++ shortOptName <++ singleDash
@@ -373,7 +399,6 @@ preprocessAllFallback s = filter (\pair -> pair /= ("", "")) result
       [] -> []
       (pair, rest) : moreMatches -> (pair : map fst moreMatches) ++ preprocessAllFallback rest
 
-
 headerWithOffset :: [String] -> ReadP String
 headerWithOffset [] = pfail
 headerWithOffset names = do
@@ -384,7 +409,6 @@ headerWithOffset names = do
   aftSpaces <- munch (== ' ')
   let components = [preSpaces, nameFound, postSpaces, colon, aftSpaces]
   return (concat components)
-
 
 parseUsageHeader :: [String] -> String -> Maybe String
 parseUsageHeader _ "" = Nothing
