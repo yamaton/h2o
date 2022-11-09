@@ -9,15 +9,19 @@ import qualified Data.Maybe as Maybe
 import qualified Data.Text as T
 import Options.Applicative
 
--- The boolean corresponds to `skipMan` meaning that
+-- | Type of external input to `h2o` command
+-- Bool here corresponds to `--skipMan` i.e.
 -- it obtains texts from help pages if it's True
--- otherwise it tries both man pages and help texts.
+-- otherwise it searches man pages first then look for help texts.
 data Input
   = CommandInput String Bool
   | FileInput FilePath Bool
   | SubcommandInput String String Bool
   | JsonInput FilePath
 
+-- | Config type reflecting `h2o` command options
+-- _isOutputJSON is redundant because _outputFormat can be Json
+-- But it stays to keep convenient `--json` option.
 data Config = Config
   { _input :: Input,
     _outputFormat :: OutputFormat,

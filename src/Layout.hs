@@ -439,7 +439,7 @@ mergeRanges ((x1, x2) : xs) ((y1, y2) : ys)
   where
     cond = x1 <= y1 && y1 <= x2 && x2 <= y2
 
--- -- |  idxRange idxColFrom (inclusive) lines
+-- -- | idxRange idxColFrom (inclusive) lines
 -- --  extractRectangleToRight (2, 5) 3
 -- --  ........
 -- --  ........
@@ -505,7 +505,7 @@ preprocessBlockwise content = Utils.infoTrace decoratedMsg $ concatMap (uncurry 
     msg = printf "Found %d header-based blocks" (length indexBlockPairs)
     decoratedMsg = "-------- " ++ msg ++ " --------"
 
--- | Parse options from text
+-- | Parse `Opt`s from multi-line text
 parseBlockwise :: String -> [Opt]
 parseBlockwise "" = []
 parseBlockwise s = List.nub . concat $ results
@@ -549,7 +549,7 @@ preprocessAll = preprocessMeta preprocessSecondAttempt
 preprocessSecondAttempt :: Int -> String -> [(String, String)]
 preprocessSecondAttempt = preprocessMeta (\_ s -> HelpParser.preprocessAllFallback s)
 
--- | Deprecated. Parse options without header-based splitting of input text
+-- | [Deprecated] Parse options without header-based splitting of input text
 parseMany :: String -> [Opt]
 parseMany "" = []
 parseMany s = List.nub . concat $ results
@@ -562,7 +562,7 @@ parseMany s = List.nub . concat $ results
           (optStr, descStr) /= ("", "")
       ]
 
--- | Parse Usage or SYNOPSIS
+-- | Parse Usage or SYNOPSIS content
 parseUsage :: String -> String
 parseUsage content
   | null blockFiltered = Utils.debugShow "[parseUsage] NOT FOUND" blocks ""
@@ -610,7 +610,7 @@ splitByHeadersForUsage xs = chunks
         else sepIndices
     chunks = map unlines (Utils.splitsAt xs blockHeadIndices)
 
--- [NOTE] If there is only one shallowest-indented line,
+-- | Get line indices of the shallowest-indented lines.
 getHeadingIndicesSimple :: [String] -> [Int]
 getHeadingIndicesSimple [] = []
 getHeadingIndicesSimple xs =

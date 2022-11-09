@@ -260,6 +260,7 @@ optNameArgPair = do
       rest <- munch1 (== '.')
       return (c : rest)
 
+-- | Separator of option-argument pairs
 optSep :: ReadP String
 optSep = do
   s <- delimiter <++ string " "
@@ -275,6 +276,7 @@ optSep = do
       _ <- char ' ' <++ pure 'x'
       modComma <++ string "/" <++ string "|" <++ string "or"
 
+-- | Separator between an option and its arguments
 argSep :: ReadP String
 argSep = delimiter <++ string " " <++ pure " "
   where
@@ -283,12 +285,6 @@ argSep = delimiter <++ string " " <++ pure " "
       s <- string ":" <++ string "," <++ string "-" <++ string "|"
       _ <- char ' ' <++ pure ' '
       return s
-
-surroundedBySquareBracket :: ReadP String
-surroundedBySquareBracket = do
-  between (char '[') (char ']') nonBracketLettersForSure
-  where
-    nonBracketLettersForSure = munch1 (`notElem` "[]\n")
 
 failWithBracket :: ReadP String
 failWithBracket = do
@@ -328,13 +324,20 @@ unwrapSquareBracket = do
   second <- afterSquareBraket
   return (first ++ content ++ second)
 
+surroundedBySquareBracket :: ReadP String
+surroundedBySquareBracket = do
+  between (char '[') (char ']') nonBracketLettersForSure
+  where
+    nonBracketLettersForSure = munch1 (`notElem` "[]\n")
+
 squareBracketHandler :: ReadP String
 squareBracketHandler = do
   x <- dash -- let if fail if not starting with '-'
   xs <- choice [failWithBracket, discardSquareBracket, unwrapSquareBracket]
   return (x : xs)
 
--- Extract (optionPart, description) matches
+-- | Extract (optionPart, description) matches
+-- Here optionPart includes options and arguments.
 preprocessor :: ReadP (String, String)
 preprocessor = do
   skipSpaces
@@ -351,9 +354,9 @@ fallback = do
   skip newline
   return ("", "")
 
--- takes description as external info
--- the first option argument ARG1 is extracted when you have a case like
---    "-o ARG1, --out=ARG2"
+-- | Extracts optNames and OptArg
+-- [NOTE] the first OptArg is kept when there are multiple ones
+-- For example, ARG1 is kept when  "-o ARG1, --out=ARG2"
 optPart :: ReadP ([OptName], OptArg)
 optPart = do
   skipSpaces
@@ -366,6 +369,7 @@ optPart = do
   eof
   return (names, args)
 
+-- | Parse Opt from single-line string
 parseLine :: String -> [Opt]
 parseLine s = List.nub . concat $ results
   where
@@ -380,10 +384,7 @@ parseLine s = List.nub . concat $ results
         | (optStr, descStr) <- pairs
       ]
 
--- | Parse when options+args and description are given separately
--- Use optPart directly, but go back to preprocessor when
--- the parse fails. Failure happens mostly when the option name
--- contains [] such as `--[no-]copy`.
+-- | Get `Opt`s from (options+args) string and (description) string
 parseWithOptPart :: String -> String -> [Opt]
 parseWithOptPart optStr descStr
   | (not . null) res = map ((\(a, b) -> Opt a b descStr) . fst) res
@@ -399,17 +400,8 @@ preprocessAllFallback s = filter (\pair -> pair /= ("", "")) result
       [] -> []
       (pair, rest) : moreMatches -> (pair : map fst moreMatches) ++ preprocessAllFallback rest
 
-headerWithOffset :: [String] -> ReadP String
-headerWithOffset [] = pfail
-headerWithOffset names = do
-  preSpaces <- munch (== ' ')
-  nameFound <- foldr1 (<++) (map string names)
-  postSpaces <- munch (== ' ')
-  colon <- string ":" <++ pure ""
-  aftSpaces <- munch (== ' ')
-  let components = [preSpaces, nameFound, postSpaces, colon, aftSpaces]
-  return (concat components)
-
+-- | Extract the header title line IF it the it contains one of the given keywords "properly"
+-- [NOTE] Assumes the first line of block as a header line
 parseUsageHeader :: [String] -> String -> Maybe String
 parseUsageHeader _ "" = Nothing
 parseUsageHeader [] _ = Nothing
@@ -420,3 +412,14 @@ parseUsageHeader keywords block
     kwds = map (map toLower) keywords
     headerLine = map toLower (head (lines block))
     pairs = readP_to_S (headerWithOffset kwds) headerLine
+
+headerWithOffset :: [String] -> ReadP String
+headerWithOffset [] = pfail
+headerWithOffset names = do
+  preSpaces <- munch (== ' ')
+  nameFound <- foldr1 (<++) (map string names)
+  postSpaces <- munch (== ' ')
+  colon <- string ":" <++ pure ""
+  aftSpaces <- munch (== ' ')
+  let components = [preSpaces, nameFound, postSpaces, colon, aftSpaces]
+  return (concat components)
