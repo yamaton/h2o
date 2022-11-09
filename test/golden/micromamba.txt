@@ -41,6 +41,9 @@ Force use cached repodata
 (micromamba) --dry-run  ::  
 Only display what would have been done
 
+(micromamba) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
 (micromamba) --experimental  ::  
 Enable experimental features
 
@@ -61,6 +64,7 @@ shell                     (Generate shell init scripts)
 create                    (Create new environment)
 install                   (Install packages in active environment)
 update                    (Update packages in active environment)
+self-update               (Update micromamba)
 repoquery                 (Find and analyze packages in active environment or channels)
 remove                    (Remove packages from active environment)
 list                      (List packages in active environment)
@@ -85,13 +89,13 @@ Desc:  Generate shell init scripts
 
 
 Usage:
-micromamba shell [OPTIONS] action [prefix]
+micromamba shell [OPTIONS] [action] [prefix]
 
 
 (micromamba shell) -h --help  ::  
 Print this help message and exit
 
-(micromamba shell) -s --shell  ::  TEXT:{bash,cmd.exe,fish,posix,powershell,xonsh,zsh}
+(micromamba shell) -s --shell  ::  TEXT:{bash,cmd.exe,dash,fish,posix,powershell,tcsh,xonsh,zsh}
 A shell type
 
 (micromamba shell) --stack  ::  
@@ -130,6 +134,9 @@ Force use cached repodata
 (micromamba shell) --dry-run  ::  
 Only display what would have been done
 
+(micromamba shell) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
 (micromamba shell) --experimental  ::  
 Enable experimental features
 
@@ -137,14 +144,14 @@ Enable experimental features
 
 
 (micromamba shell)
-action                    (TEXT:{init,deinit,hook,activate,deactivate,reactivate} REQUIRED)
+action                    (TEXT:{init,deinit,reinit,hook,activate,deactivate,reactivate})
 
 
 
 Name:  micromamba shell action
 
 
-Desc:  TEXT:{init,deinit,hook,activate,deactivate,reactivate} REQUIRED
+Desc:  TEXT:{init,deinit,reinit,hook,activate,deactivate,reactivate}
 
 
 Usage:
@@ -265,6 +272,9 @@ Force use cached repodata
 
 (micromamba create) --dry-run  ::  
 Only display what would have been done
+
+(micromamba create) --download-only  ::  
+Only download and extract packages, do not link them into environment.
 
 (micromamba create) --experimental  ::  
 Enable experimental features
@@ -417,6 +427,9 @@ Force use cached repodata
 (micromamba install) --dry-run  ::  
 Only display what would have been done
 
+(micromamba install) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
 (micromamba install) --experimental  ::  
 Enable experimental features
 
@@ -568,6 +581,9 @@ Force use cached repodata
 (micromamba update) --dry-run  ::  
 Only display what would have been done
 
+(micromamba update) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
 (micromamba update) --experimental  ::  
 Enable experimental features
 
@@ -593,6 +609,157 @@ Path (file or directory) SSL certificate(s)
 Repodata time-to-live
 
 (micromamba update) --retry-clean-cache  ::  
+If solve fails, try to fetch updated repodata
+
+
+
+
+Name:  micromamba self-update
+
+
+Desc:  Update micromamba
+
+
+Usage:
+micromamba self-update [OPTIONS] [specs...]
+
+
+(micromamba self-update) -h --help  ::  
+Print this help message and exit
+
+(micromamba self-update) -c --channel  ::  TEXT ...
+Define the list of channels
+
+(micromamba self-update) --override-channels  ::  
+Override channels
+
+(micromamba self-update) --channel-priority  ::  ENUM:valu
+e in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
+
+(micromamba self-update) --channel-alias  ::  TEXT
+The prepended url location to associate with channel names
+
+(micromamba self-update) --strict-channel-priority  ::  
+Enable strict channel priority
+
+(micromamba self-update) --no-channel-priority  ::  
+Disable channel priority
+
+(micromamba self-update) -f --file  ::  TEXT ...
+File (yaml, explicit or plain)
+
+(micromamba self-update) --no-pin --pin  ::  {false}
+Ignore pinned packages
+
+(micromamba self-update) --no-py-pin --py-pin  ::  {false}
+Do not automatically pin Python
+
+(micromamba self-update) --pyc --no-pyc  ::  {false}
+Defines if PYC files will be compiled or not
+
+(micromamba self-update) --allow-uninstall --no-allow-uninstall  ::  {false}
+Allow uninstall when installing or updating packages. Default is true.
+
+(micromamba self-update) --allow-downgrade --no-allow-downgrade  ::  {false}
+Allow downgrade when installing packages. Default is false.
+
+(micromamba self-update) --allow-softlinks --no-allow-softlinks  ::  {false}
+Allow to use soft-links when hard-links are not possible
+
+(micromamba self-update) --always-softlink --no-always-softlink  ::  {false}
+Use soft-link instead of hard-link
+
+(micromamba self-update) --always-copy --no-always-copy  ::  {false}
+Use copy instead of hard-link
+
+(micromamba self-update) --extra-safety-checks --no-extra-safety-checks  ::  {false}
+Run extra verifications on packages
+
+(micromamba self-update) --lock-timeout  ::  UINT
+Lockfile timeout
+
+(micromamba self-update) --shortcuts --no-shortcuts  ::  {false}
+Install start-menu shortcuts on Windows (not implemented on Linux / macOS)
+
+(micromamba self-update) --safety-checks  ::  ENUM:value in {disabled->0,enabled->2,warn->1}
+OR {0,2,1}   Safety checks policy ('enabled', 'warn', or 'disabled')
+
+(micromamba self-update) --verify-artifacts  ::  
+Run verifications on packages signatures
+
+(micromamba self-update) --platform  ::  TEXT
+The platform description
+
+(micromamba self-update) --no-deps  ::  
+Do not install dependencies. This WILL lead to broken environments and inconsistent behavior. Use at your own risk
+
+(micromamba self-update) --only-deps  ::  
+Only install dependencies
+
+(micromamba self-update) --category  ::  TEXT ...
+Categories of package to install from environment lockfile
+
+(micromamba self-update) --version  ::  TEXT
+Install specific micromamba version
+
+(micromamba self-update) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba self-update) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba self-update) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba self-update) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba self-update) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba self-update) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba self-update) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba self-update) --json  ::  
+Report all output as json
+
+(micromamba self-update) --offline  ::  
+Force use cached repodata
+
+(micromamba self-update) --dry-run  ::  
+Only display what would have been done
+
+(micromamba self-update) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba self-update) --experimental  ::  
+Enable experimental features
+
+(micromamba self-update) -r --root-prefix  ::  TEXT
+Path to the root prefix
+
+(micromamba self-update) -p --prefix  ::  TEXT
+Path to the target prefix
+
+(micromamba self-update) -n --name  ::  TEXT
+Name of the target prefix
+
+(micromamba self-update) --ssl-verify  ::  TEXT
+Verify SSL certificates for HTTPS requests
+
+(micromamba self-update) --ssl-no-revoke  ::  
+SSL certificate revocation checks
+
+(micromamba self-update) --cacert-path  ::  TEXT
+Path (file or directory) SSL certificate(s)
+
+(micromamba self-update) --repodata-ttl  ::  UINT
+Repodata time-to-live
+
+(micromamba self-update) --retry-clean-cache  ::  
 If solve fails, try to fetch updated repodata
 
 
@@ -670,6 +837,9 @@ Force use cached repodata
 
 (micromamba repoquery) --dry-run  ::  
 Only display what would have been done
+
+(micromamba repoquery) --download-only  ::  
+Only download and extract packages, do not link them into environment.
 
 (micromamba repoquery) --experimental  ::  
 Enable experimental features
@@ -768,6 +938,9 @@ Force use cached repodata
 (micromamba remove) --dry-run  ::  
 Only display what would have been done
 
+(micromamba remove) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
 (micromamba remove) --experimental  ::  
 Enable experimental features
 
@@ -825,6 +998,9 @@ Force use cached repodata
 
 (micromamba list) --dry-run  ::  
 Only display what would have been done
+
+(micromamba list) --download-only  ::  
+Only download and extract packages, do not link them into environment.
 
 (micromamba list) --experimental  ::  
 Enable experimental features
@@ -921,6 +1097,9 @@ Force use cached repodata
 (micromamba clean) --dry-run  ::  
 Only display what would have been done
 
+(micromamba clean) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
 (micromamba clean) --experimental  ::  
 Enable experimental features
 
@@ -969,6 +1148,9 @@ Force use cached repodata
 
 (micromamba config) --dry-run  ::  
 Only display what would have been done
+
+(micromamba config) --download-only  ::  
+Only download and extract packages, do not link them into environment.
 
 (micromamba config) --experimental  ::  
 Enable experimental features
@@ -1056,6 +1238,9 @@ Force use cached repodata
 (micromamba config list) --dry-run  ::  
 Only display what would have been done
 
+(micromamba config list) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
 (micromamba config list) --experimental  ::  
 Enable experimental features
 
@@ -1113,6 +1298,9 @@ Force use cached repodata
 
 (micromamba config sources) --dry-run  ::  
 Only display what would have been done
+
+(micromamba config sources) --download-only  ::  
+Only download and extract packages, do not link them into environment.
 
 (micromamba config sources) --experimental  ::  
 Enable experimental features
@@ -1359,6 +1547,9 @@ Force use cached repodata
 (micromamba info) --dry-run  ::  
 Only display what would have been done
 
+(micromamba info) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
 (micromamba info) --experimental  ::  
 Enable experimental features
 
@@ -1442,6 +1633,9 @@ Force use cached repodata
 (micromamba env) --dry-run  ::  
 Only display what would have been done
 
+(micromamba env) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
 (micromamba env) --experimental  ::  
 Enable experimental features
 
@@ -1460,6 +1654,7 @@ Name of the target prefix
 (micromamba env)
 list                      (List known environments)
 export                    (Export environment)
+remove                    (Remove an environment)
 
 
 
@@ -1505,6 +1700,9 @@ Force use cached repodata
 
 (micromamba env list) --dry-run  ::  
 Only display what would have been done
+
+(micromamba env list) --download-only  ::  
+Only download and extract packages, do not link them into environment.
 
 (micromamba env list) --experimental  ::  
 Enable experimental features
@@ -1576,6 +1774,9 @@ Force use cached repodata
 (micromamba env export) --dry-run  ::  
 Only display what would have been done
 
+(micromamba env export) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
 (micromamba env export) --experimental  ::  
 Enable experimental features
 
@@ -1586,6 +1787,67 @@ Path to the root prefix
 Path to the target prefix
 
 (micromamba env export) -n --name  ::  TEXT
+Name of the target prefix
+
+
+
+
+Name:  micromamba env remove
+
+
+Desc:  Remove an environment
+
+
+Usage:
+micromamba env remove [OPTIONS]
+
+
+(micromamba env remove) -h --help  ::  
+Print this help message and exit
+
+(micromamba env remove) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba env remove) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba env remove) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba env remove) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba env remove) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba env remove) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba env remove) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba env remove) --json  ::  
+Report all output as json
+
+(micromamba env remove) --offline  ::  
+Force use cached repodata
+
+(micromamba env remove) --dry-run  ::  
+Only display what would have been done
+
+(micromamba env remove) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba env remove) --experimental  ::  
+Enable experimental features
+
+(micromamba env remove) -r --root-prefix  ::  TEXT
+Path to the root prefix
+
+(micromamba env remove) -p --prefix  ::  TEXT
+Path to the target prefix
+
+(micromamba env remove) -n --name  ::  TEXT
 Name of the target prefix
 
 
@@ -1813,6 +2075,9 @@ Force use cached repodata
 
 (micromamba search) --dry-run  ::  
 Only display what would have been done
+
+(micromamba search) --download-only  ::  
+Only download and extract packages, do not link them into environment.
 
 (micromamba search) --experimental  ::  
 Enable experimental features
