@@ -413,10 +413,8 @@ optPartTests =
         "--code-coverage=@<path>"
         (["--code-coverage"], "@<path>"),
       ---- kubectl ----
-      -- trailing ':' in option argument will be ignored.
-      test_optPart
-        "    --add-dir-header=false:"
-        (["--add-dir-header"], "false"),
+      -- trailing ':' is ignored at preprocessing stage
+      -- where opt+arg and description are separated.
       test_parseBlockwise
           "Options:\n\
           \    --edit=false:\n\

@@ -15,7 +15,7 @@ import Control.Exception (assert)
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Char as Char
 import qualified Data.List as List
-import Data.List.Extra (breakOnEnd, nubSort, trim, trimEnd, trimStart, dropSuffix, dropSuffix)
+import Data.List.Extra (breakOnEnd, nubSort, trim, trimEnd, trimStart, dropSuffix)
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import Debug.Trace (trace)
