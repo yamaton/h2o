@@ -411,9 +411,12 @@ optPartTests =
       ---- julia ----
       test_optPart
         "--code-coverage=@<path>"
-        (["--code-coverage"], "@<path>")
+        (["--code-coverage"], "@<path>"),
+      ---- kubectl ----
+      test_optPart
+        "    --add-dir-header=false:"
+        (["--add-dir-header"], "false")
     ]
-
 unsupportedCases :: TestTree
 unsupportedCases =
   expectFail $

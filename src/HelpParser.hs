@@ -4,7 +4,7 @@ module HelpParser where
 
 import Data.Char (isNumber, toLower)
 import qualified Data.List as List
-import Data.List.Extra (dropPrefix, nubOrd, trim)
+import Data.List.Extra (dropPrefix, dropSuffix, nubOrd, trim)
 import Debug.Trace (trace)
 import Text.ParserCombinators.ReadP
 import Type
@@ -58,9 +58,7 @@ argWordBare = do
     else return (x : xs)
 
 argWordSingleStar :: ReadP String
-argWordSingleStar = do
-  x <- char '*'
-  return [x]
+argWordSingleStar = string "*"
 
 argWordNumber :: ReadP String
 argWordNumber = do
@@ -163,7 +161,6 @@ longOptNameBracketedHelper bra ket = do
 isLongOptBracketed :: ReadP Bool
 isLongOptBracketed = (True <$ longOptNameBracketed) <++ pure False
 
-
 doubleDash :: ReadP OptName
 doubleDash = do
   _ <- count 2 dash
@@ -249,7 +246,7 @@ optNameArgPair = do
   name <- optName
   (s, args) <- gather $ sepBy (optArgInBraket <++ optArg <++ optArgAsNumber <++ optArgAsSingleStar) argSep
   extra <- twoOrMoreDots <++ pure ""
-  let s' = trim $ dropPrefix "=" s
+  let s' = dropSuffix ":" $ trim $ dropPrefix "=" s --- Exclude ':' as the last letter of an argument
   let cleanArg = s' ++ extra
   if (length args == 1 && trim (head args) == "or") || length args >= 5 || cleanArg == "."
     then pfail
@@ -366,6 +363,7 @@ optPart = do
         [] -> ""
         x : _ -> x
   skipSpaces
+
   eof
   return (names, args)
 
