@@ -51,8 +51,8 @@ word = munch1 (`notElem` " \t\n")
 argWordBare :: ReadP String
 argWordBare = do
   check <- isLongOptBracketed
-  x <- satisfy (\c -> c `elem` alphanumChars ++ "\"`'_^(#.[")
-  xs <- munch (\c -> c `elem` (alphanumChars ++ "\"`'_:<>()+-*/|#.=[]"))
+  x <- satisfy (\c -> c `elem` alphanumChars ++ "\"`'_^(#.[@")
+  xs <- munch (\c -> c `elem` (alphanumChars ++ "\"`'_:<>()+-*/|#.=[]@"))
   if check
     then pfail
     else return (x : xs)

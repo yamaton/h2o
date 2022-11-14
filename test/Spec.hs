@@ -407,7 +407,11 @@ optPartTests =
       ---- poetry ----
       test_optPart
         "-h (--help)"
-        (["-h", "--help"], "")
+        (["-h", "--help"], ""),
+      ---- julia ----
+      test_optPart
+        "--code-coverage=@<path>"
+        (["--code-coverage"], "@<path>")
     ]
 
 unsupportedCases :: TestTree
