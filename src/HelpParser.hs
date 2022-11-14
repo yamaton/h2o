@@ -55,7 +55,14 @@ argWordBare = do
   xs <- munch (\c -> c `elem` (alphanumChars ++ "\"`'_:<>()+-*/|#.=[]@"))
   if check
     then pfail
-    else return (x : xs)
+    else
+      if (x : xs) == "Excludes:"
+        then do
+          -- a special treatment for micromamba to take string
+          -- like "Excludes: --system --file" as an argument
+          rest <- munch (`notElem` "\n")
+          return ((x : xs) ++ rest)
+        else return (x : xs)
 
 argWordSingleStar :: ReadP String
 argWordSingleStar = string "*"

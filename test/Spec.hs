@@ -415,7 +415,11 @@ optPartTests =
       ---- kubectl ----
       test_optPart
         "    --add-dir-header=false:"
-        (["--add-dir-header"], "false")
+        (["--add-dir-header"], "false"),
+      ---- micromamba ----
+      test_optPart
+        "--env Excludes: --system --file"
+        (["--env"], "Excludes: --system --file")
     ]
 unsupportedCases :: TestTree
 unsupportedCases =

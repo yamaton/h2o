@@ -1352,11 +1352,14 @@ micromamba config prepend [OPTIONS] specs...
 (micromamba config prepend) -h --help  ::  
 Print this help message and exit
 
-(micromamba config prepend) --system --env --file  ::  Excludes:
+(micromamba config prepend) --system  ::  Excludes: --env --file
 Set configuration on system's rc file
 
-(micromamba config prepend) --env --system --file  ::  Excludes:
+(micromamba config prepend) --env  ::  Excludes: --system --file
 Set configuration on env's rc file
+
+(micromamba config prepend) --file  ::  TEXT Excludes: --system --env
+Set configuration on system's rc file
 
 
 
@@ -1389,11 +1392,14 @@ micromamba config append [OPTIONS] specs...
 (micromamba config append) -h --help  ::  
 Print this help message and exit
 
-(micromamba config append) --system --env --file  ::  Excludes:
+(micromamba config append) --system  ::  Excludes: --env --file
 Set configuration on system's rc file
 
-(micromamba config append) --env --system --file  ::  Excludes:
+(micromamba config append) --env  ::  Excludes: --system --file
 Set configuration on env's rc file
+
+(micromamba config append) --file  ::  TEXT Excludes: --system --env
+Set configuration on system's rc file
 
 
 
@@ -1426,11 +1432,14 @@ micromamba config remove-key [OPTIONS] [remove_key]
 (micromamba config remove-key) -h --help  ::  
 Print this help message and exit
 
-(micromamba config remove-key) --system --env --file  ::  Excludes:
+(micromamba config remove-key) --system  ::  Excludes: --env --file
 Set configuration on system's rc file
 
-(micromamba config remove-key) --env --system --file  ::  Excludes:
+(micromamba config remove-key) --env  ::  Excludes: --system --file
 Set configuration on env's rc file
+
+(micromamba config remove-key) --file  ::  TEXT Excludes: --system --env
+Set configuration on system's rc file
 
 
 
@@ -1448,11 +1457,14 @@ micromamba config remove [OPTIONS] [remove...]
 (micromamba config remove) -h --help  ::  
 Print this help message and exit
 
-(micromamba config remove) --system --env --file  ::  Excludes:
+(micromamba config remove) --system  ::  Excludes: --env --file
 Set configuration on system's rc file
 
-(micromamba config remove) --env --system --file  ::  Excludes:
+(micromamba config remove) --env  ::  Excludes: --system --file
 Set configuration on env's rc file
+
+(micromamba config remove) --file  ::  TEXT Excludes: --system --env
+Set configuration on system's rc file
 
 
 
@@ -1470,11 +1482,14 @@ micromamba config set [OPTIONS] [set_value...]
 (micromamba config set) -h --help  ::  
 Print this help message and exit
 
-(micromamba config set) --system --env --file  ::  Excludes:
+(micromamba config set) --system  ::  Excludes: --env --file
 Set configuration on system's rc file
 
-(micromamba config set) --env --system --file  ::  Excludes:
+(micromamba config set) --env  ::  Excludes: --system --file
 Set configuration on env's rc file
+
+(micromamba config set) --file  ::  TEXT Excludes: --system --env
+Set configuration on system's rc file
 
 
 
@@ -1492,11 +1507,14 @@ micromamba config get [OPTIONS] [get_value]
 (micromamba config get) -h --help  ::  
 Print this help message and exit
 
-(micromamba config get) --system --env --file  ::  Excludes:
+(micromamba config get) --system  ::  Excludes: --env --file
 Set configuration on system's rc file
 
-(micromamba config get) --env --system --file  ::  Excludes:
+(micromamba config get) --env  ::  Excludes: --system --file
 Set configuration on env's rc file
+
+(micromamba config get) --file  ::  TEXT Excludes: --system --env
+Set configuration on system's rc file
 
 
 
