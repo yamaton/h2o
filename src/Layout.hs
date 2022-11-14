@@ -15,7 +15,7 @@ import Control.Exception (assert)
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Char as Char
 import qualified Data.List as List
-import Data.List.Extra (breakOnEnd, nubSort, trim, trimEnd, trimStart)
+import Data.List.Extra (breakOnEnd, nubSort, trim, trimEnd, trimStart, dropSuffix, dropSuffix)
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import Debug.Trace (trace)
@@ -519,7 +519,7 @@ parseBlockwise s = List.nub . concat $ results
       ]
 
 preprocessMeta :: (Int -> String -> [(String, String)]) -> Int -> String -> [(String, String)]
-preprocessMeta fallbackFunc lineIdxBase content = filter (/= ("", "")) $ map (Bifunctor.bimap trim cleanDescription) res
+preprocessMeta fallbackFunc lineIdxBase content = filter (/= ("", "")) $ map (Bifunctor.bimap (dropSuffix ":" . trim) cleanDescription) res
   where
     xs = lines content
     may = getOptionDescriptionPairsFromLayout lineIdxBase content

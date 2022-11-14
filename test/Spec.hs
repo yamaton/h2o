@@ -413,9 +413,41 @@ optPartTests =
         "--code-coverage=@<path>"
         (["--code-coverage"], "@<path>"),
       ---- kubectl ----
+      -- trailing ':' in option argument will be ignored.
       test_optPart
         "    --add-dir-header=false:"
         (["--add-dir-header"], "false"),
+      test_parseBlockwise
+          "Options:\n\
+          \    --edit=false:\n\
+          \        Edit the API resource before creating\n\
+          \    --field-manager='kubectl-create':\n\
+          \        Name of the manager used to track field ownership.\n\
+          \    --raw='':\n\
+          \        Raw URI to POST to the server.  Uses the transport specified by the kubeconfig file.\n\
+          \    -R, --recursive=false:\n\
+          \        Process the directory used in -f, --filename recursively.\n"
+          [
+            Opt
+              [OptName "--edit" LongType]
+              "false"
+              "Edit the API resource before creating",
+            Opt
+              [OptName "--field-manager" LongType]
+              "'kubectl-create'"
+              "Name of the manager used to track field ownership.",
+            Opt
+              [OptName "--raw" LongType]
+              "''"
+              "Raw URI to POST to the server. Uses the transport specified by the kubeconfig file.",
+            Opt
+              [
+                OptName "-R" ShortType,
+                OptName "--recursive" LongType
+              ]
+              "false"
+              "Process the directory used in -f, --filename recursively."
+          ],
       ---- micromamba ----
       test_optPart
         "--env Excludes: --system --file"

@@ -370,7 +370,6 @@ optPart = do
         [] -> ""
         x : _ -> x
   skipSpaces
-
   eof
   return (names, args)
 
