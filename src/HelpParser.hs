@@ -51,8 +51,8 @@ word = munch1 (`notElem` " \t\n")
 argWordBare :: ReadP String
 argWordBare = do
   check <- isLongOptBracketed
-  x <- satisfy (\c -> c `elem` alphanumChars ++ "\"`'_^(#.[@")
-  xs <- munch (\c -> c `elem` (alphanumChars ++ "\"`'_:<>()+-*/|#.=[]@"))
+  x <- satisfy (\c -> c `elem` alphanumChars ++ "\"`'_^#.@<")
+  xs <- munch (\c -> c `elem` (alphanumChars ++ "\"`'_:<>+-*/|#.=@"))
   if check
     then pfail
     else
@@ -239,7 +239,7 @@ heuristicSep :: String -> ReadP String
 heuristicSep args =
   f ":\n" <++ f "\n" <++ f ": " <++ f "\t" <++ twoOrMoreSpaces <++ varSpaces
   where
-    f s = optional singleSpace *> string s
+    f s = (singleSpace <++ pure ' ') *> string s
     twoOrMoreSpaces = string " " *> munch1 (== ' ')
     varSpaces
       | null args = twoSpaces

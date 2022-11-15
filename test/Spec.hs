@@ -449,7 +449,11 @@ optPartTests =
       ---- micromamba ----
       test_optPart
         "--env Excludes: --system --file"
-        (["--env"], "Excludes: --system --file")
+        (["--env"], "Excludes: --system --file"),
+      ---- fzf ----
+      test_optPart
+        " --height=[~]HEIGHT[%]"
+        (["--height"], "[~]HEIGHT[%]")
     ]
 unsupportedCases :: TestTree
 unsupportedCases =
