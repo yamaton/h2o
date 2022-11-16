@@ -475,7 +475,14 @@ optPartTests =
             [OptName "--lowQ" LongType]
             "INT"
             "Output contig regions with >=INT% inconsistency to the bed file with suffix lowQ.bed [70]. Set 0 to disable."
-        ]
+        ],
+      ---- psiblast ----
+      test_optPart
+        " -out <File_Out, file name length < 256>"
+        (["-out"], "<File_Out, file name length < 256>"),
+      test_optPart
+        " -out <File_Out, file name length > 0>"
+        (["-out"], "<File_Out, file name length > 0>")
     ]
 unsupportedCases :: TestTree
 unsupportedCases =

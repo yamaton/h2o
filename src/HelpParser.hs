@@ -77,10 +77,17 @@ argWordNumber = do
 
 argWordBracketedHelper :: Char -> Char -> ReadP String
 argWordBracketedHelper bra ket = do
-  (consumed, _) <- gather $ between (char bra) (char ket) (many1 (argWordBracketedHelper bra ket <++ nonBracketLettersForSure))
+  (consumed, _) <- gather $ between (char bra) (char ket) (many1 (argWordBracketedHelper bra ket <++ nonBracketLetters))
   return consumed
   where
-    nonBracketLettersForSure = munch1 (`notElem` ['\n', bra, ket])
+    nonBracketLetters = munch1 (`notElem` ['\n', bra, ket])
+
+argWordBracketedHelperEased :: Char -> Char -> ReadP String
+argWordBracketedHelperEased bra ket = do
+  (consumed, _) <- gather $ between (char bra) (char ket) (many1 (argWordBracketedHelper bra ket <++ nonClosingLetters))
+  return consumed
+  where
+    nonClosingLetters = munch1 (`notElem` ['\n', ket])
 
 argWordQuoteHelper :: Char -> ReadP String
 argWordQuoteHelper cc = do
@@ -89,10 +96,10 @@ argWordQuoteHelper cc = do
   if n > 8
     then pfail
     else do
-      (consumed, _) <- gather $ between (char cc) (char cc) (many nonBracketLettersForSure)
+      (consumed, _) <- gather $ between (char cc) (char cc) (many nonBracketLetters)
       return consumed
   where
-    nonBracketLettersForSure = munch1 (`notElem` ['\n', cc])
+    nonBracketLetters = munch1 (`notElem` ['\n', cc])
 
 argWordBracketed :: ReadP String
 argWordBracketed = do
@@ -101,8 +108,9 @@ argWordBracketed = do
     then pfail
     else argWordAngleBracketed <++ argWordCurlyBracketed <++ argWordParenthesized <++ argWordSquareBracketed <++ argWordDoubleQuoted <++ argWordSingleQuoted
 
+-- people use < and > both as inequalities and brackets
 argWordAngleBracketed :: ReadP String
-argWordAngleBracketed = argWordBracketedHelper '<' '>'
+argWordAngleBracketed = argWordBracketedHelperEased '<' '>'
 
 argWordCurlyBracketed :: ReadP String
 argWordCurlyBracketed = argWordBracketedHelper '{' '}'
