@@ -453,7 +453,29 @@ optPartTests =
       ---- fzf ----
       test_optPart
         " --height=[~]HEIGHT[%]"
-        (["--height"], "[~]HEIGHT[%]")
+        (["--height"], "[~]HEIGHT[%]"),
+      ---- hifiasm ----
+      test_parseBlockwise
+        "Title Blah\n\
+        \   options:\n\
+        \       --pri-range INT1[,INT2]\n\
+        \              Min and max coverage cutoff of primary contigs.  Keep contigs with coverage in this range at p_ctg.gfa.\n\
+        \              Inferred  automatically  in  default.  If INT2 is not specified, it is set to infinity.  Set -1 to disable.\n\
+        \\n\
+        \       --lowQ INT\n\
+        \              Output contig regions with >=INT% inconsistency to the bed file with suffix lowQ.bed  [70].  Set  0  to\n\
+        \              disable.\n"
+        [
+          Opt
+            [OptName "--pri-range" LongType]
+            "INT1[,INT2]"
+            "Min and max coverage cutoff of primary contigs. Keep contigs with coverage in this range at p_ctg.gfa. Inferred automatically in default. If INT2 is not specified, it is set to infinity. Set -1 to disable."
+          ,
+          Opt
+            [OptName "--lowQ" LongType]
+            "INT"
+            "Output contig regions with >=INT% inconsistency to the bed file with suffix lowQ.bed [70]. Set 0 to disable."
+        ]
     ]
 unsupportedCases :: TestTree
 unsupportedCases =
