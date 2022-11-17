@@ -1,3 +1,13 @@
+## 0.4.4 (2022-11-16)
+- Minor parser improvements
+    - Exclude suffix ':' in option arguments
+    - Include prefix '@' in option arguments
+    - Trim whitespaces in version parsing
+    - Handle special cases where long options are parenthesized
+    - Sanitize by replacing nbsp with ASCII whitespace
+    - Fix unwanted consumption of by `argWordBare`
+- Allow usage-only command specs
+
 ## 0.4.3 (2022-11-02)
 - Bugfixes and tunings
     - Better layout parsing by disallowing unrealistic perturbation
