@@ -26,7 +26,7 @@ import Test.Tasty.Hedgehog (testProperty)
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
 import Type (Opt (..), OptName (..), OptNameType (..))
-import Utils (convertTabsToSpaces, getMostFrequent, splitsAt, toContiguousChunks, toRanges, isUsageBlock)
+import Utils (convertTabsToSpaces, getMostFrequent, isUsageBlock, splitsAt, toContiguousChunks, toRanges)
 
 main :: IO ()
 main = do
@@ -416,36 +416,34 @@ optPartTests =
       -- trailing ':' is ignored at preprocessing stage
       -- where opt+arg and description are separated.
       test_parseBlockwise
-          "Options:\n\
-          \    --edit=false:\n\
-          \        Edit the API resource before creating\n\
-          \    --field-manager='kubectl-create':\n\
-          \        Name of the manager used to track field ownership.\n\
-          \    --raw='':\n\
-          \        Raw URI to POST to the server.  Uses the transport specified by the kubeconfig file.\n\
-          \    -R, --recursive=false:\n\
-          \        Process the directory used in -f, --filename recursively.\n"
-          [
-            Opt
-              [OptName "--edit" LongType]
-              "false"
-              "Edit the API resource before creating",
-            Opt
-              [OptName "--field-manager" LongType]
-              "'kubectl-create'"
-              "Name of the manager used to track field ownership.",
-            Opt
-              [OptName "--raw" LongType]
-              "''"
-              "Raw URI to POST to the server. Uses the transport specified by the kubeconfig file.",
-            Opt
-              [
-                OptName "-R" ShortType,
-                OptName "--recursive" LongType
-              ]
-              "false"
-              "Process the directory used in -f, --filename recursively."
-          ],
+        "Options:\n\
+        \    --edit=false:\n\
+        \        Edit the API resource before creating\n\
+        \    --field-manager='kubectl-create':\n\
+        \        Name of the manager used to track field ownership.\n\
+        \    --raw='':\n\
+        \        Raw URI to POST to the server.  Uses the transport specified by the kubeconfig file.\n\
+        \    -R, --recursive=false:\n\
+        \        Process the directory used in -f, --filename recursively.\n"
+        [ Opt
+            [OptName "--edit" LongType]
+            "false"
+            "Edit the API resource before creating",
+          Opt
+            [OptName "--field-manager" LongType]
+            "'kubectl-create'"
+            "Name of the manager used to track field ownership.",
+          Opt
+            [OptName "--raw" LongType]
+            "''"
+            "Raw URI to POST to the server. Uses the transport specified by the kubeconfig file.",
+          Opt
+            [ OptName "-R" ShortType,
+              OptName "--recursive" LongType
+            ]
+            "false"
+            "Process the directory used in -f, --filename recursively."
+        ],
       ---- micromamba ----
       test_optPart
         "--env Excludes: --system --file"
@@ -465,12 +463,10 @@ optPartTests =
         \       --lowQ INT\n\
         \              Output contig regions with >=INT% inconsistency to the bed file with suffix lowQ.bed  [70].  Set  0  to\n\
         \              disable.\n"
-        [
-          Opt
+        [ Opt
             [OptName "--pri-range" LongType]
             "INT1[,INT2]"
-            "Min and max coverage cutoff of primary contigs. Keep contigs with coverage in this range at p_ctg.gfa. Inferred automatically in default. If INT2 is not specified, it is set to infinity. Set -1 to disable."
-          ,
+            "Min and max coverage cutoff of primary contigs. Keep contigs with coverage in this range at p_ctg.gfa. Inferred automatically in default. If INT2 is not specified, it is set to infinity. Set -1 to disable.",
           Opt
             [OptName "--lowQ" LongType]
             "INT"
@@ -484,6 +480,7 @@ optPartTests =
         " -out <File_Out, file name length > 0>"
         (["-out"], "<File_Out, file name length > 0>")
     ]
+
 unsupportedCases :: TestTree
 unsupportedCases =
   expectFail $
@@ -527,7 +524,30 @@ unsupportedCases =
           \                    The file must contain sets of named contaminants in the\n\
           \                    form name[tab]sequence.  Lines prefixed with a hash will\n\
           \                    be ignored."
-          (["-c", "--contaminants"], "", "Specifies a non-default file which contains the list of contaminants to screen overrepresented sequences against.")
+          (["-c", "--contaminants"], "", "Specifies a non-default file which contains the list of contaminants to screen overrepresented sequences against."),
+        ---- hmmalign ----
+        test_parseBlockwise
+          "  --mapali <f>    : include alignment in file <f> (same ali that HMM came from)\n\
+          \  --trim          : trim terminal tails of nonaligned residues from alignment\n\
+          \  --amino         : assert <seqfile>, <hmmfile> both protein: no autodetection\n\
+          \  --dna           : assert <seqfile>, <hmmfile> both DNA: no autodetection"
+          [ Opt
+              [OptName "--mapali" LongType]
+              "<f>"
+              "include alignment in file <f> (same ali that HMM came from)",
+            Opt
+              [OptName "--trim" LongType]
+              ""
+              "trim terminal tails of nonaligned residues from alignment",
+            Opt
+              [OptName "--amino" LongType]
+              ""
+              "assert <seqfile>, <hmmfile> both protein: no autodetection",
+            Opt
+              [OptName "--dna" LongType]
+              ""
+              "assert <seqfile>, <hmmfile> both DNA: no autodetection"
+          ]
       ]
 
 parseUsageTests :: TestTree
@@ -624,7 +644,6 @@ miscTests =
         Utils.isUsageBlock "Usage: rsem-bam2readdepth sorted_bam_input readdepth_output" @?= True,
       testCase "isUsageBlock" $
         Utils.isUsageBlock "SYNOPSIS\n      rsem-bam2readdepth sorted_bam_input readdepth_output" @?= True
-
     ]
 
 shellCompTests :: TestTree
