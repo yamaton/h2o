@@ -26,7 +26,7 @@ import Test.Tasty.Hedgehog (testProperty)
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
 import Type (Opt (..), OptName (..), OptNameType (..))
-import Utils (convertTabsToSpaces, getMostFrequent, splitsAt, toContiguousChunks, toRanges)
+import Utils (convertTabsToSpaces, getMostFrequent, splitsAt, toContiguousChunks, toRanges, isUsageBlock)
 
 main :: IO ()
 main = do
@@ -619,7 +619,12 @@ miscTests =
       testCase "fixOpt 1" $
         Postprocess.fixShortOptWithArgWithoutSpace
           (Opt [OptName "-Ttagsfile" OldType, OptName "--tag-file" LongType] "tagsfile" "Specifies a tags file...")
-          @?= Opt [OptName "-T" ShortType, OptName "--tag-file" LongType] "tagsfile" "Specifies a tags file..."
+          @?= Opt [OptName "-T" ShortType, OptName "--tag-file" LongType] "tagsfile" "Specifies a tags file...",
+      testCase "isUsageBlock" $
+        Utils.isUsageBlock "Usage: rsem-bam2readdepth sorted_bam_input readdepth_output" @?= True,
+      testCase "isUsageBlock" $
+        Utils.isUsageBlock "SYNOPSIS\n      rsem-bam2readdepth sorted_bam_input readdepth_output" @?= True
+
     ]
 
 shellCompTests :: TestTree

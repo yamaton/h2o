@@ -10,7 +10,7 @@ module IoHelper
     getManAndHelp,
     getManAndHelpSub,
     isManAvailableIO,
-    getVersion
+    getVersion,
   )
 where
 
@@ -40,7 +40,6 @@ getManAndHelpSub names = do
         else Utils.infoTrace "io: Using help for subcommand" $ return content2
     else Utils.infoTrace "io: Using manpage for subcommand" $ return content
 
--- |
 getHelpTemplateMeta :: (Text -> Bool) -> String -> [[String]] -> IO Text
 getHelpTemplateMeta _ _ [] = return ""
 getHelpTemplateMeta isGood name (args : argsBag) = do
@@ -63,7 +62,7 @@ fetchHelpInfo isGood name args = do
   let res
         | isCommandNotFound exitCode = Utils.warnTrace "CommandNotFound" Nothing
         | any (Utils.hasErrorMessageAtTop (T.pack name)) [stdoutText, stderrText] =
-          Utils.warnTrace ("The command seems invalid: " ++ unwords cmdSeq) Nothing
+            Utils.warnTrace ("The command seems invalid: " ++ unwords cmdSeq) Nothing
         | isGood stdoutText = Utils.debugTrace ("Using stdout: " ++ unwords cmdSeq) $ Just stdoutText
         | isGood stderrText = Utils.debugTrace ("Using stderr: " ++ unwords cmdSeq) $ Just stderrText
         | otherwise = Nothing
@@ -120,5 +119,8 @@ isManAvailableIO name = do
     pc = Process.shell $ printf "man -w %s" name
 
 getVersion :: String -> IO Text
-getVersion name = getHelpTemplateMeta (Utils.isNotNullAndErrorMessageAbsent (T.pack name)) name Config.versionOptions
-
+getVersion name = getHelpTemplateMeta isGood name Config.versionOptions
+  where
+    isGood t =
+      Utils.isNotNullAndErrorMessageAbsent t (T.pack name)
+        && (not . Utils.isUsageBlock) t
