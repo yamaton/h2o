@@ -848,8 +848,8 @@ prop_mergeRanges =
     let num = Gen.int (Range.constant 0 200)
     xs <- forAll $ Gen.list (Range.constant 0 300) num
     ys <- forAll $ Gen.list (Range.constant 0 300) num
-    let (xRanges, yRanges) = Layout.makeRanges (nubSort xs) (nubSort ys)
-    mergeRangesSlow xRanges yRanges === Layout.mergeRanges xRanges yRanges
+    let (xRanges, yRanges) = Layout.makeRangePair (nubSort xs) (nubSort ys)
+    mergeRangesSlow xRanges yRanges === Layout.mergeRange xRanges yRanges
 
 -- | O(N^2): Only for testing purposes
 mergeRangesSlow :: [(Int, Int)] -> [(Int, Int)] -> [(Int, Int, Int, Int)]

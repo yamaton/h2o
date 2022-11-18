@@ -4,8 +4,8 @@ module Layout
   ( parseBlockwise,
     preprocessBlockwise,
     getDescriptionOffset,
-    makeRanges,
-    mergeRanges,
+    makeRangePair,
+    mergeRange,
     parseMany,
     parseUsage,
   )
@@ -28,6 +28,9 @@ import qualified Utils
 
 -- | Location is defined by (row, col) order
 type Location = (Int, Int)
+
+-- | Range is also defined by [startIndex, lastIndex) where half-close, half-openBinaryFile
+type Range = (Int, Int)
 
 -- [TODO] memoise the calls
 -- https://stackoverflow.com/questions/3208258/memoization-in-haskell
@@ -159,7 +162,7 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
               (not . null) optLines, head optLines < r, r < last optLines + 5
               -- previous line cannot be blank
         ]
-    res = infoMsg "descOffsetWithCountInNonoptLines: " $ getMostFrequentWithCount indentations
+    res = infoMsg "descOffsetWithCountInNonoptLines:" $ getMostFrequentWithCount indentations
 
 -- | Take description locations that hangs an option line
 --
@@ -287,7 +290,7 @@ getDescriptionOffset s = fst $ getDescOffsetOptLocsPair 0 s
 
 -- | Returns option-description pairs based on layouts
 -- AND the option locations uncaught in the process.
-getOptionDescriptionPairsFromLayout :: Int -> String -> Maybe ([(String, String)], [(Int, Int)])
+getOptionDescriptionPairsFromLayout :: Int -> String -> Maybe ([(String, String)], [Location])
 getOptionDescriptionPairsFromLayout lineIdxBase s
   | Maybe.isNothing descOffsetMay || null res = Nothing
   | otherwise = Just (res, Utils.infoShowCoords "droppedOptLocs:" lineIdxBase droppedOptLocs)
@@ -416,8 +419,8 @@ toConsecutiveRangeQuartets :: [Int] -> [Int] -> ([(Int, Int, Int, Int)], [Int])
 toConsecutiveRangeQuartets xs ys =
   (res, droppedOptLines)
   where
-    (xRanges, yRanges) = makeRanges xs ys
-    res = mergeRanges xRanges yRanges
+    (xRanges, yRanges) = makeRangePair xs ys
+    res = mergeRange xRanges yRanges
     resXRanges = [(x1, x2) | (x1, x2, _, _) <- res]
     droppedOptLines = filter (not . Utils.contains resXRanges) xs
 
@@ -429,8 +432,8 @@ toConsecutiveRangeQuartets xs ys =
 -- although [x1, x2) and [y1, y2) have empty intersection.
 --
 -- [NOTE] this can drop some items in xs (after `last yEnds)
-makeRanges :: [Int] -> [Int] -> ([(Int, Int)], [(Int, Int)])
-makeRanges xs ys =
+makeRangePair :: [Int] -> [Int] -> ([Range], [Range])
+makeRangePair xs ys =
   (xRanges, yRanges)
   where
     xStarts = map fst (Utils.toRanges xs)
@@ -446,13 +449,13 @@ makeRanges xs ys =
 --
 -- [Note] As a special case, x2 == y1 is considered as a overlap
 -- although [x1, x2) and [y1, y2) have empty intersection.treatedd
-mergeRanges :: [(Int, Int)] -> [(Int, Int)] -> [(Int, Int, Int, Int)]
-mergeRanges _ [] = []
-mergeRanges [] _ = []
-mergeRanges ((x1, x2) : xs) ((y1, y2) : ys)
-  | x2 < y1 = mergeRanges xs ((y1, y2) : ys)
-  | y2 <= x1 = mergeRanges ((x1, x2) : xs) ys
-  | otherwise = assert cond $ (x1, x2, y1, y2) : mergeRanges xs ys
+mergeRange :: [Range] -> [Range] -> [(Int, Int, Int, Int)]
+mergeRange _ [] = []
+mergeRange [] _ = []
+mergeRange ((x1, x2) : xs) ((y1, y2) : ys)
+  | x2 < y1 = mergeRange xs ((y1, y2) : ys)
+  | y2 <= x1 = mergeRange ((x1, x2) : xs) ys
+  | otherwise = assert cond $ (x1, x2, y1, y2) : mergeRange xs ys
   where
     cond = x1 <= y1 && y1 <= x2 && x2 <= y2
 
