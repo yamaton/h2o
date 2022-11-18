@@ -328,3 +328,21 @@ toFstContiguousChunks = List.unfoldr f
     f xs = Just $ splitAt (n + 1) xs
       where
         n = length $ takeWhile (== 1) $ map (\(x, xNext) -> fst xNext - fst x) $ zip xs (tail xs)
+
+addOffsetToLines :: Int -> [(Int, Int)] -> [(Int, Int)]
+addOffsetToLines offset pairs = [(line + offset, character) | (line, character) <- pairs]
+
+infoShowIndices :: String -> Int -> [Int] -> [Int]
+infoShowIndices s offset indices = infoShow s coordsModified indices
+  where
+    coordsModified = map (+ offset) indices
+
+infoShowCoords :: String -> Int -> [(Int, Int)] -> [(Int, Int)]
+infoShowCoords s offset coords = infoShow s coordsModified coords
+  where
+    coordsModified = addOffsetToLines offset coords
+
+infoShowQuartets :: String -> Int -> [(Int, Int, Int, Int)] -> [(Int, Int, Int, Int)]
+infoShowQuartets s offset quartets = infoShow s modified quartets
+  where
+    modified = [(a + offset, b + offset, c + offset, d + offset) | (a, b, c, d) <- quartets]
