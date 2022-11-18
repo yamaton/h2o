@@ -315,10 +315,19 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
       | length xs == idx + 1 = True
       | otherwise =
           (not . isOptionLine) (idx + 1) && (not . isDescriptionOnly) (idx + 1)
-            || isDescriptionOnly (idx + 1) && (length x + 6 > descLineWidthTop10Percentile)
-            || isOptionLine (idx + 1) && descOffset >= 2 && last optSegment == ' ' && length (words descSegment) >= 2 -- [FIXME] too heuristic
+            || isDescriptionOnly (idx + 1)
+              && (length x + 6 > descLineWidthTop10Percentile)
+            || isOptionLine (idx + 1)
+              && descOffset >= 2
+              && (not . null) optSegment
+              && (not . null) descSegment
+              && last optSegment == ' '
+              && head descSegment /= ' '
+              && (length . words . trim) descSegment >= 2 -- [FIXME] too heuristic
             || hasSpacesAtMiddle x
-            || isParsedAsOptDescLine x && length x + 25 > descLineWidthTop10Percentile -- [FIXME] too heuristic
+            || isParsedAsOptDescLine x
+              && length x + 25 > descLineWidthTop10Percentile -- [FIXME] too heuristic
+            -- || isOptPartFailing/
       where
         x = xs !! idx
         isOptionLine i = i `Set.member` optLinesSet
@@ -326,6 +335,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         (optSegment, descSegment) = splitAt descOffset x
         isParsedAsOptDescLine = not . null . HelpParser.parseLine
         hasSpacesAtMiddle = ("   " `isInfixOf`) . trim
+        -- isOptPartFailing = null (readP_to_S HelpParser.optPart x)
 
     descLinesWithOptions =
       Utils.infoShowIndices
