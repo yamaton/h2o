@@ -313,24 +313,30 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
 
     -- The line must be long when description starts at the same line
     -- the option and continues to the next line.
+    -- [FIXME] too heuristic
     isOptionAndDescriptionLine idx
       | not (isOptionLine idx) = False
       | length xs == idx + 1 = True
+      | isOptionLine (idx + 1) =
+          -- When both current and the next lines have options
+          isSplittingNearly
+            && ( ( descOffset >= 2
+                     && (not . null) optSegment
+                     && (length . words . trim) descSegment >= 2
+                 )
+                   || hasSpacesAtMiddle x
+                   || isParsedAsOptDescLine x
+                     && length x + 25 > descLineWidthTop10Percentile
+               )
       | otherwise =
-          (not . isOptionLine) (idx + 1) && (not . isDescriptionOnly) (idx + 1)
-            || isDescriptionOnly (idx + 1)
-              && (length x + 6 > descLineWidthTop10Percentile)
-            || isOptionLine (idx + 1)
-              && descOffset >= 2
-              && (not . null) optSegment
-              && (not . null) descSegment
-              && last optSegment == ' '
-              && head descSegment /= ' '
-              && (length . words . trim) descSegment >= 2 -- [FIXME] too heuristic
-            || hasSpacesAtMiddle x
-            || isParsedAsOptDescLine x
-              && length x + 25 > descLineWidthTop10Percentile -- [FIXME] too heuristic
-            -- || isOptPartFailing/
+          -- When current one has an option, but NOT the next line
+          isSplittingNearly
+            && ( (not . isDescriptionOnly) (idx + 1)
+                   || length x + 6 > descLineWidthTop10Percentile
+                   || hasSpacesAtMiddle x
+                   || isParsedAsOptDescLine x
+                     && length x + 25 > descLineWidthTop10Percentile
+               )
       where
         x = xs !! idx
         isOptionLine i = i `Set.member` optLinesSet
@@ -338,14 +344,13 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         (optSegment, descSegment) = splitAt descOffset x
         isParsedAsOptDescLine = not . null . HelpParser.parseLine
         hasSpacesAtMiddle = ("   " `isInfixOf`) . trim
-        -- isOptPartFailing = null (readP_to_S HelpParser.optPart x)
+        isSplittingNearly = isWordStartingAround 2 descOffset x
 
     descLinesWithOptions =
       Utils.infoShowIndices
         "descLinesWithOptions:"
         lineIdxBase
-        [ idx | idx <- optLines, isWordStartingAround 2 descOffset (xs !! idx), isOptionAndDescriptionLine idx
-        ]
+        [idx | idx <- optLines, isOptionAndDescriptionLine idx]
     descLines =
       Utils.infoShowIndices "descLines:" lineIdxBase $
         nubSort (descLinesWithoutOptions ++ descLinesWithOptions)
