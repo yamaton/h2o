@@ -14,6 +14,7 @@ where
 import Control.Exception (assert)
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Char as Char
+import Data.List (isInfixOf)
 import qualified Data.List as List
 import Data.List.Extra (breakOnEnd, dropPrefix, dropSuffix, nubSort, trim, trimEnd, trimStart)
 import qualified Data.Maybe as Maybe
@@ -311,15 +312,18 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
     isOptionAndDescriptionLine idx
       | not (isOptionLine idx) = False
       | otherwise =
-          not (isOptionLine (idx + 1)) && not (isDescriptionOnly (idx + 1))
-            || isDescriptionOnly (idx + 1) && (length (xs !! idx) + 6 > descLineWidthTop10Percentile)
+          (not . isOptionLine) (idx + 1) && (not . isDescriptionOnly) (idx + 1)
+            || isDescriptionOnly (idx + 1) && (length x + 6 > descLineWidthTop10Percentile)
             || isOptionLine (idx + 1) && descOffset >= 2 && last optSegment == ' ' && length (words descSegment) >= 2 -- [FIXME] too heuristic
-            || isParsedAsOptDescLine && length (xs !! idx) + 25 > descLineWidthTop10Percentile
+            || hasSpacesAtMiddle x
+            || isParsedAsOptDescLine x && length x + 25 > descLineWidthTop10Percentile -- [FIXME] too heuristic
       where
+        x = xs !! idx
         isOptionLine i = i `Set.member` optLinesSet
         isDescriptionOnly i = i `Set.member` descLinesWithoutOptionsSet
-        (optSegment, descSegment) = splitAt descOffset (xs !! idx)
-        isParsedAsOptDescLine = not . null . HelpParser.parseLine $ xs !! idx
+        (optSegment, descSegment) = splitAt descOffset x
+        isParsedAsOptDescLine = not . null . HelpParser.parseLine
+        hasSpacesAtMiddle = ("   " `isInfixOf`) . trim
 
     descLinesWithOptions =
       infoMsg
