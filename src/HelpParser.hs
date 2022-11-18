@@ -53,16 +53,15 @@ argWordBare = do
   check <- isLongOptBracketed
   x <- satisfy (\c -> c `elem` alphanumChars ++ "\"`'_^#.@<")
   xs <- munch (\c -> c `elem` (alphanumChars ++ "\"`'_:<>+-*/|#.=@"))
-  if check
-    then pfail
-    else
-      if (x : xs) == "Excludes:"
-        then do
-          -- a special treatment for micromamba to take string
-          -- like "Excludes: --system --file" as an argument
-          rest <- munch (`notElem` "\n")
-          return ((x : xs) ++ rest)
-        else return (x : xs)
+  let res
+        | check = pfail
+        | (x : xs) == "Excludes:" = do
+            -- a special treatment for micromamba to take string
+            -- like "Excludes: --system --file" as an argument
+            rest <- munch (`notElem` "\n")
+            return ((x : xs) ++ rest)
+        | otherwise = return (x : xs)
+  res
 
 argWordSingleStar :: ReadP String
 argWordSingleStar = string "*"
@@ -216,8 +215,8 @@ optName = longOptName <++ doubleDash <++ oldOptName <++ shortOptName <++ singleD
 -- For bazel, disable above and enable below
 -- optName = longOptNameWithNo <++ longOptName <++ oldOptName <++ shortOptName <++ singleDash
 
-optArg :: ReadP OptArg
-optArg = do
+optArgBare :: ReadP OptArg
+optArgBare = do
   _ <- char '=' <++ singleSpace <++ pure ' '
   _ <- munch (== ' ')
   argWordBare
@@ -239,6 +238,9 @@ optArgAsNumber = do
   _ <- munch (== ' ')
   argWordNumber
 
+optArg :: ReadP OptArg
+optArg = optArgInBraket <++ optArgBare <++ optArgAsNumber <++ optArgAsSingleStar
+
 skip :: ReadP a -> ReadP ()
 skip a = a *> pure ()
 
@@ -259,7 +261,7 @@ heuristicSep args =
 optNameArgPair :: ReadP (OptName, OptArg)
 optNameArgPair = do
   name <- optName
-  (s, args) <- gather $ sepBy (optArgInBraket <++ optArg <++ optArgAsNumber <++ optArgAsSingleStar) argSep
+  (s, args) <- gather $ sepBy optArg argSep
   extra <- twoOrMoreDots <++ pure ""
   let s' = (trim . dropPrefix "=") s --- Exclude ':' as the last letter of an argument
   let cleanArg = s' ++ extra

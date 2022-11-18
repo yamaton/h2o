@@ -7,6 +7,7 @@
 -- | get statistical mode (= the most frequently appeareing item)
 module Utils where
 
+import qualified Constants as Const
 import qualified Data.Foldable as Foldable
 import Data.Function (on)
 import qualified Data.List as List
@@ -15,7 +16,6 @@ import qualified Data.Map as Map
 import Data.Text (Text)
 import qualified Data.Text as T
 import Debug.Trace (trace)
-import qualified Constants as Const
 
 getMostFrequent :: (Ord a) => [a] -> Maybe a
 getMostFrequent = fmap fst . getMostFrequentWithCount
@@ -229,12 +229,11 @@ hasErrorMessageAtTop name text
     errKeywords = filter (\k -> not (k `T.isInfixOf` name)) Const.errKeywords
     loweredFirstLine = (T.toLower . T.take 100 . head . T.lines . T.stripStart) text
 
-
 mayContainUseful :: Text -> Text -> Bool
 mayContainUseful name text
- | null xs = False
- | length xs == 1 = "usage" `T.isPrefixOf` (T.toLower . T.stripStart . head) xs
- | otherwise = True
+  | null xs = False
+  | length xs == 1 = "usage" `T.isPrefixOf` (T.toLower . T.stripStart . head) xs
+  | otherwise = True
   where
     xs = filter (isNotNullAndErrorMessageAbsent name) . T.lines $ text
 
@@ -244,11 +243,10 @@ isNotNullAndErrorMessageAbsent name text =
   isNotNull && (isUsageBlock bottomLine || isBottomWithoutError)
   where
     errKeywords = filter (\k -> not (k `T.isInfixOf` name)) Const.errKeywords
-    lowered =  (T.toLower . T.strip) text
+    lowered = (T.toLower . T.strip) text
     isNotNull = (not . T.null) lowered
     bottomLine = last (T.lines lowered)
     isBottomWithoutError = not (any (`T.isInfixOf` bottomLine) errKeywords)
-
 
 -- | splitsAt ... like Data.List.splitAt but multiple indices
 --
