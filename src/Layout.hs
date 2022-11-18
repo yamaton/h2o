@@ -319,7 +319,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
       | length xs == idx + 1 = True
       | isOptionLine (idx + 1) =
           -- When both current and the next lines have options
-          isSplittingNearly
+          isSplittingNearly -- [TODO] make this condition looser
             && ( ( descOffset >= 2
                      && (not . null) optSegment
                      && (length . words . trim) descSegment >= 2
