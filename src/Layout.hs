@@ -328,7 +328,9 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         hasSpacesAtMiddle = ("   " `isInfixOf`) . trim
 
     descLinesWithOptions =
-      Utils.infoShowIndices "descLinesWithOptions:" lineIdxBase
+      Utils.infoShowIndices
+        "descLinesWithOptions:"
+        lineIdxBase
         [ idx | idx <- optLines, isWordStartingAround 2 descOffset (xs !! idx), isOptionAndDescriptionLine idx
         ]
     descLines =
