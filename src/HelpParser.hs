@@ -12,6 +12,7 @@ import Type
     OptName (..),
     OptNameType (..),
   )
+import qualified Utils
 
 type OptArg = String
 
@@ -392,7 +393,7 @@ parseLine s = List.nub . concat $ results
     xs = readP_to_S preprocessor s
     pairs = map fst xs
     results =
-      [ (\ys -> if null ys then trace ("Failed pair: " ++ show (optStr, descStr)) ys else ys) $
+      [ (\ys -> if null ys then Utils.warnShow "⚠️Failed pair (parseLine)⚠️\n" (optStr, descStr) ys else ys) $
           map ((\(a, b) -> Opt a b descStr) . fst) $
             readP_to_S optPart optStr
         | (optStr, descStr) <- pairs
@@ -402,7 +403,7 @@ parseLine s = List.nub . concat $ results
 parseWithOptPart :: String -> String -> [Opt]
 parseWithOptPart optStr descStr
   | (not . null) res = map ((\(a, b) -> Opt a b descStr) . fst) res
-  | otherwise = trace "[warn] optPart fallback" $ parseLine (optStr ++ "   " ++ descStr) -- fallback
+  | otherwise = trace "🛑🛑🛑🛑🛑 optPart fallback 🛑🛑🛑🛑🛑" $ parseLine (optStr ++ "   " ++ descStr) -- fallback
   where
     res = readP_to_S optPart optStr
 
