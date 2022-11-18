@@ -312,6 +312,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
     -- the option and continues to the next line.
     isOptionAndDescriptionLine idx
       | not (isOptionLine idx) = False
+      | length xs == idx + 1 = True
       | otherwise =
           (not . isOptionLine) (idx + 1) && (not . isDescriptionOnly) (idx + 1)
             || isDescriptionOnly (idx + 1) && (length x + 6 > descLineWidthTop10Percentile)
