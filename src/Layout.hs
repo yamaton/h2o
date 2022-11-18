@@ -299,7 +299,9 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
     optLinesSet = Set.fromList optLines
     -- More accomodating description line matching seems to work better...
     descLinesWithoutOptions =
-      Utils.infoShowIndices "descLinesWithoutOptions:" lineIdxBase
+      Utils.infoShowIndices
+        "descLinesWithoutOptions:"
+        lineIdxBase
         [ idx | (idx, x) <- zip [0 ..] xs, isWordStartingWithIndentation descOffset x, idx `Set.notMember` optLinesSet
         ]
     linewidths = map (length . (xs !!)) descLinesWithoutOptions
