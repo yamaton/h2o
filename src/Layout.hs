@@ -253,7 +253,7 @@ isWordStartingAround margin idx x =
   where
     indices = [idx .. idx + margin]
     criteria i =
-      (not . null) before && (not . null) after && last before == ' ' && head after /= ' '
+      (not . null . trim) before && (not . null . trim) after && last before == ' ' && head after /= ' '
       where
         (before, after) = splitAt i x
 
