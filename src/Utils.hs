@@ -233,6 +233,7 @@ mayContainUseful :: Text -> Text -> Bool
 mayContainUseful name text
   | null xs = False
   | length xs == 1 = "usage" `T.isPrefixOf` (T.toLower . T.stripStart . head) xs
+  | name == "gatk" = length xs >= 4  -- special handling for GATK
   | otherwise = True
   where
     xs = filter (isNotNullAndErrorMessageAbsent name) . T.lines $ text
