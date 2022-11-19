@@ -1,3 +1,8 @@
+## 0.4.5 (2022-11-18)
+- Improvements in layout-based parsing
+- Bugfixes by adding null checks
+- Slightly better log messages with emojis ⚠️🛑
+
 ## 0.4.4 (2022-11-16)
 - Minor parser improvements
     - Exclude suffix ':' in option arguments
