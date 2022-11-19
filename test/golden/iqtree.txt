@@ -1,0 +1,100 @@
+Name:  iqtree-input
+
+
+Desc:  iqtree-input
+
+
+Usage:
+iqtree --alisim <OUTPUT_PREFIX> [-m MODEL] [-t TREE] ...
+
+
+(iqtree-input) --alisim  ::  OUTPUT_ALIGNMENT
+Activate AliSim and specify the output alignment filename
+
+(iqtree-input) -t  ::  TREE_FILE
+Set the input tree file name
+
+(iqtree-input) --length  ::  LENGTH
+Set the length of the root sequence
+
+(iqtree-input) --num-alignments  ::  NUMBER
+Set the number of output datasets
+
+(iqtree-input) --seqtype  ::  STRING
+BIN, DNA, AA, CODON, MORPH{NUM_STATES} (default: auto-detect) For morphological data, 0<NUM_STATES<=32
+
+(iqtree-input) --m  ::  MODEL_STRING
+Specify the evolutionary model. See Manual for more detail
+
+(iqtree-input) --mdef  ::  FILE
+Name of a NEXUS model file to define new models (see Manual)
+
+(iqtree-input) --fundi  ::  TAXA_LIST,RHO
+Specify a list of taxa, and Rho (Fundi weight) for FunDi model
+
+(iqtree-input) --indel  ::  <INS>,<DEL>
+Set the insertion and deletion rate of the indel model, relative to the substitution rate
+
+(iqtree-input) --indel-size  ::  <INS_DIS>,<DEL_DIS>
+Set the insertion and deletion size distributions
+
+(iqtree-input) --sub-level-mixture  ::  
+Enable the feature to simulate substitution-level mixture model
+
+(iqtree-input) --no-unaligned  ::  
+Disable outputing a file of unaligned sequences when using indel models
+
+(iqtree-input) --root-seq  ::  FILE,SEQ_NAME
+Specify the root sequence from an alignment
+
+(iqtree-input) -s  ::  FILE
+Specify the input sequence alignment
+
+(iqtree-input) --no-copy-gaps  ::  
+Disable copying gaps from input alignment (default: false)
+
+(iqtree-input) --site-freq  ::  <OPTION>
+Specify the option (MEAN (default), or SAMPLING, or MODEL) to mimic the site-frequencies for mixture models from the input alignment (see Manual)
+
+(iqtree-input) --site-rate  ::  <OPTION>
+Specify the option (MEAN (default), or SAMPLING, or MODEL) to mimic the discrete rate heterogeneity from the input alignment (see Manual)
+
+(iqtree-input) -t  ::  RANDOM{MODEL,NUM_TAXA}
+Specify the model and the number of taxa to generate a random tree
+
+(iqtree-input) -rlen  ::  MIN MEAN MAX
+Specify three numbers: minimum, mean and maximum branch lengths when generating a random tree
+
+(iqtree-input) -p  ::  FILE
+NEXUS/RAxML partition file Edge-linked proportional partition model
+
+(iqtree-input) -q  ::  FILE
+Like -p but edge-linked equal partition model
+
+(iqtree-input) -Q  ::  FILE
+Like -p but edge-unlinked partition model
+
+(iqtree-input) --distribution  ::  FILE
+Supply a definition file of distributions, which could be used to generate random model parameters
+
+(iqtree-input) --branch-distribution  ::  DIS
+Specify a distribution, from which branch lengths of the input trees are randomly generated and overridden.
+
+(iqtree-input) --branch-scale  ::  SCALE
+Specify a value to scale all branch lengths
+
+(iqtree-input) --single-output  ::  
+Output all alignments into a single file
+
+(iqtree-input) --write-all  ::  
+Enable outputting internal sequences
+
+(iqtree-input) --seed  ::  NUM
+Random seed number (default: CPU clock) Be careful to make the AliSim reproducible, users should specify the seed number
+
+(iqtree-input) -gz  ::  
+Enable output compression but taking longer running time
+
+(iqtree-input) -af  ::  phy|fasta
+Set the output format (default: phylip)
+

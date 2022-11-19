@@ -769,7 +769,8 @@ integratedGoldenTestsFileInput =
         "grep",
         "bcftools-stats",
         "bcftools-mpileup",
-        "snakemake"
+        "snakemake",
+        "iqtree"
       ] ::
         [String]
     inputFiles = [printf "test/golden/%s-input.txt" name | name <- commandNames]

@@ -21,6 +21,7 @@ import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import Debug.Trace (trace)
 import qualified HelpParser
+import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
 import Type (Opt)
 import Utils (debugMsg, getMostFrequent, getMostFrequentWithCount, infoMsg, warnShow)
@@ -247,15 +248,25 @@ isWordStartingWithIndentation n x =
 -- Ambiguity is set by margin value.
 isWordStartingAround :: Int -> Int -> String -> Bool
 isWordStartingAround _ _ "" = False
-isWordStartingAround margin idx x =
+isWordStartingAround margin offset x =
   assert ('\n' `notElem` x && '\t' `notElem` x) $
-    any criteria indices
+    any (`isWordStartingAt` x) indices
   where
-    indices = [idx .. idx + margin]
-    criteria i =
-      (not . null . trim) before && (not . null . trim) after && last before == ' ' && head after /= ' '
-      where
-        (before, after) = splitAt i x
+    indices = [offset .. offset + margin]
+
+isWordStartingAt :: Int -> String -> Bool
+isWordStartingAt offset x =
+  (not . null . trim) before && (not . null . trim) after && last before == ' ' && head after /= ' '
+  where
+    (before, after) = splitAt offset x
+
+splitAround :: Int -> Int -> String -> (String, String)
+splitAround offset margin x
+  | null found = (x, "")
+  | otherwise = head found
+  where
+    indices = [offset .. offset + margin]
+    found = [splitAt i x | i <- indices, isWordStartingAt i x]
 
 -- ================================================
 -- ============== Main stuff ======================
@@ -319,7 +330,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
       | length xs == idx + 1 = True
       | isOptionLine (idx + 1) =
           -- When both current and the next lines have options
-          isSplittingNearly -- [TODO] make this condition looser
+          isSplittingRoughly
             && ( ( descOffset >= 2
                      && (not . null) optSegment
                      && (length . words . trim) descSegment >= 2
@@ -345,6 +356,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         isParsedAsOptDescLine = not . null . HelpParser.parseLine
         hasSpacesAtMiddle = ("   " `isInfixOf`) . trim
         isSplittingNearly = isWordStartingAround 2 descOffset x
+        isSplittingRoughly = isWordStartingAround 8 descOffset x
 
     descLinesWithOptions =
       Utils.infoShowIndices
@@ -406,7 +418,13 @@ oneliners :: [String] -> Int -> Int -> Int -> [(String, String)]
 oneliners xs offset a b =
   [ (trim former, latter)
     | i <- take (b - a) [a, a + 1 ..],
-      let (former, latter) = splitAt offset (xs !! i)
+      let x = xs !! i,
+      let (former, latter)
+            | isWordStartingAt offset x = splitAt offset x
+            | (not . null) pairs = head pairs
+            | otherwise = splitAround offset 10 x
+            where
+              pairs = map fst (readP_to_S HelpParser.preprocessor x)
   ]
 
 updateDescFrom :: [String] -> Int -> Int -> Int -> Int
