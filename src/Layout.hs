@@ -260,13 +260,18 @@ isWordStartingAt offset x =
   where
     (before, after) = splitAt offset x
 
-splitAround :: Int -> Int -> String -> (String, String)
-splitAround offset margin x
+splitAfter :: Int -> String -> (String, String)
+splitAfter offset x
   | null found = (x, "")
   | otherwise = head found
   where
-    indices = [offset .. offset + margin]
-    found = [splitAt i x | i <- indices, isWordStartingAt i x]
+    indices = [offset .. length x - 1]
+    found =
+      [ splitAt i x
+        | i <- indices,
+          let ch = x !! (i - 1),
+          i == 0 || ch `elem` " }]>"
+      ]
 
 -- ================================================
 -- ============== Main stuff ======================
@@ -402,16 +407,16 @@ squashOptionsAndDescriptionsNoOverlap xs offset a b c = (opt, desc)
   where
     optLines = map (trim . (xs !!)) $ take (b - a) [a, a + 1 ..]
     opt = List.intercalate "," optLines
-    descLines = map (drop offset . (xs !!)) $ take (c - b) [b, b + 1 ..]
+    descLines = map (snd . splitAfter offset . (xs !!)) $ take (c - b) [b, b + 1 ..]
     desc = unlines descLines
 
 squashOptionsAndDescriptionsOverlap :: [String] -> Int -> Int -> Int -> Int -> (String, String)
 squashOptionsAndDescriptionsOverlap xs offset a b c = (opt, desc)
   where
     optLines = map (xs !!) $ take (b - a) [a, a + 1 ..]
-    optLinesLastTruncated = map trim (init optLines ++ [take offset (last optLines)])
+    optLinesLastTruncated = map trim (init optLines ++ [(fst . splitAfter offset . last) optLines])
     opt = List.intercalate "," optLinesLastTruncated
-    descLines = map (drop offset . (xs !!)) $ take (c - b + 1) [b - 1, b ..]
+    descLines = map (snd . splitAfter offset . (xs !!)) $ take (c - b + 1) [b - 1, b ..]
     desc = unlines descLines
 
 oneliners :: [String] -> Int -> Int -> Int -> [(String, String)]
@@ -422,7 +427,7 @@ oneliners xs offset a b =
       let (former, latter)
             | isWordStartingAt offset x = splitAt offset x
             | (not . null) pairs = head pairs
-            | otherwise = splitAround offset 10 x
+            | otherwise = splitAfter offset x
             where
               pairs = map fst (readP_to_S HelpParser.preprocessor x)
   ]

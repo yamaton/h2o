@@ -177,8 +177,8 @@ Define the list of channels
 (micromamba create) --override-channels  ::  
 Override channels
 
-(micromamba create) --channel-priority  ::  ENUM:valu
-e in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
+(micromamba create) --channel-priority  ::  ENUM:value
+in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
 
 (micromamba create) --channel-alias  ::  TEXT
 The prepended url location to associate with channel names
@@ -325,8 +325,8 @@ Define the list of channels
 (micromamba install) --override-channels  ::  
 Override channels
 
-(micromamba install) --channel-priority  ::  ENUM:valu
-e in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
+(micromamba install) --channel-priority  ::  ENUM:value
+in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
 
 (micromamba install) --channel-alias  ::  TEXT
 The prepended url location to associate with channel names
@@ -479,8 +479,8 @@ Define the list of channels
 (micromamba update) --override-channels  ::  
 Override channels
 
-(micromamba update) --channel-priority  ::  ENUM:valu
-e in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
+(micromamba update) --channel-priority  ::  ENUM:value
+in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
 
 (micromamba update) --channel-alias  ::  TEXT
 The prepended url location to associate with channel names
@@ -633,8 +633,8 @@ Define the list of channels
 (micromamba self-update) --override-channels  ::  
 Override channels
 
-(micromamba self-update) --channel-priority  ::  ENUM:valu
-e in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
+(micromamba self-update) --channel-priority  ::  ENUM:value
+in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
 
 (micromamba self-update) --channel-alias  ::  TEXT
 The prepended url location to associate with channel names
@@ -784,8 +784,8 @@ Define the list of channels
 (micromamba repoquery) --override-channels  ::  
 Override channels
 
-(micromamba repoquery) --channel-priority  ::  ENUM:valu
-e in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
+(micromamba repoquery) --channel-priority  ::  ENUM:value
+in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
 
 (micromamba repoquery) --channel-alias  ::  TEXT
 The prepended url location to associate with channel names
@@ -2040,8 +2040,8 @@ Define the list of channels
 (micromamba search) --override-channels  ::  
 Override channels
 
-(micromamba search) --channel-priority  ::  ENUM:valu
-e in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
+(micromamba search) --channel-priority  ::  ENUM:value
+in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
 
 (micromamba search) --channel-alias  ::  TEXT
 The prepended url location to associate with channel names
