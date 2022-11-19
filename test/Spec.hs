@@ -547,7 +547,15 @@ unsupportedCases =
               [OptName "--dna" LongType]
               ""
               "assert <seqfile>, <hmmfile> both DNA: no autodetection"
-          ]
+          ],
+        ---- gem ----
+        test_optPart
+          "-p, --[no-]http-proxy [URL]"
+          (["-p", "--no-http-proxy"], "[URL]"),
+        ---- neofetch ----
+        test_optPart
+          "--config /path/to/config"
+          (["--config"], "/path/to/config")
       ]
 
 parseUsageTests :: TestTree
