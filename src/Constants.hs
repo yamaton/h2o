@@ -8,8 +8,7 @@ import Data.Text (Text)
 -- the command will be discarded as invalid.
 errKeywords :: [Text]
 errKeywords =
-  [
-    "error",
+  [ "error",
     "invalid",
     "unrecognized",
     "not found",
@@ -22,3 +21,7 @@ errKeywords =
     "doesn\'t exist",
     "commandnotfound"
   ]
+
+-- | Letters used as bullet points
+bullets :: [Char]
+bullets = ['·', '•', 'o']

@@ -233,7 +233,7 @@ mayContainUseful :: Text -> Text -> Bool
 mayContainUseful name text
   | null xs = False
   | length xs == 1 = "usage" `T.isPrefixOf` (T.toLower . T.stripStart . head) xs
-  | name == "gatk" = length xs >= 4  -- special handling for GATK
+  | name == "gatk" = length xs >= 4 -- special handling for GATK
   | otherwise = True
   where
     xs = filter (isNotNullAndErrorMessageAbsent name) . T.lines $ text
@@ -347,3 +347,18 @@ infoShowQuartets :: String -> Int -> [(Int, Int, Int, Int)] -> [(Int, Int, Int, 
 infoShowQuartets s offset quartets = infoShow s modified quartets
   where
     modified = [(a + offset, b + offset, c + offset, d + offset) | (a, b, c, d) <- quartets]
+
+removeBullets :: Text -> Text
+removeBullets text = T.unlines ys
+  where
+    xs = T.lines text
+    pairs = map (T.break (`elem` Const.bullets)) xs
+    ys =
+      [ if T.null b
+          then a
+          else
+            if (T.null . T.stripStart) a && T.length b > 1 && (T.head . T.tail) b == ' '
+              then T.unwords [a, T.tail b]
+              else a `T.append` b
+        | (a, b) <- pairs
+      ]
