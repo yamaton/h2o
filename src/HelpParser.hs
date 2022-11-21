@@ -56,6 +56,7 @@ argWordBare = do
   xs <- munch (\c -> c `elem` (alphanumChars ++ "\"`'_:<>+-*/|#.=@"))
   let res
         | check = pfail
+        | map toLower (x : xs) == "or" = pfail  -- avoid conflict with "or" in optSep
         | (x : xs) == "Excludes:" = do
             -- a special treatment for micromamba to take string
             -- like "Excludes: --system --file" as an argument
