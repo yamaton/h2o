@@ -594,7 +594,10 @@ gh codespace rebuild [flags]
 
 
 (gh codespace rebuild) -c --codespace  ::  string
-Name of the codespace
+name of the codespace
+
+(gh codespace rebuild) --full  ::  
+perform a full rebuild
 
 (gh codespace rebuild) --help  ::  
 Show help for command
@@ -849,6 +852,7 @@ close                     (Close issue)
 comment                   (Add a comment to an issue)
 create                    (Create a new issue)
 delete                    (Delete issue)
+develop                   (Manage linked branches for an issue)
 edit                      (Edit an issue)
 list                      (List issues in a repository)
 pin                       (Pin a issue)
@@ -982,6 +986,40 @@ confirm deletion without prompting
 Show help for command
 
 (gh issue delete) -R --repo  ::  [HOST/]OWNER/REPO
+Select another repository using the [HOST/]OWNER/REPO format
+
+
+
+
+Name:  gh issue develop
+
+
+Desc:  Manage linked branches for an issue
+
+
+Usage:
+gh issue develop [flags] {<number> | <url>}
+
+
+(gh issue develop) -b --base  ::  string
+Name of the base branch you want to make your new branch from
+
+(gh issue develop) -c --checkout  ::  
+Checkout the branch after creating it
+
+(gh issue develop) -i --issue-repo  ::  string
+Name or URL of the issue's repository
+
+(gh issue develop) -l --list  ::  
+List linked branches for the issue
+
+(gh issue develop) -n --name  ::  string
+Name of the branch to create
+
+(gh issue develop) --help  ::  
+Show help for command
+
+(gh issue develop) -R --repo  ::  [HOST/]OWNER/REPO
 Select another repository using the [HOST/]OWNER/REPO format
 
 
@@ -1854,6 +1892,9 @@ Save the release as a draft instead of publishing it
 (gh release create) --generate-notes  ::  
 Automatically generate title and notes for the release
 
+(gh release create) --latest  ::  
+Mark this release as "Latest" (default: automatic based on date and version)
+
 (gh release create) -n --notes  ::  string
 Release notes
 
@@ -1922,8 +1963,11 @@ Download the source code archive in the specified format (zip or tar.gz)
 (gh release download) --clobber  ::  
 Overwrite existing files of the same name
 
-(gh release download) -D --dir  ::  string
+(gh release download) -D --dir  ::  directory
 The directory to download files into (default ".")
+
+(gh release download) -O --output  ::  file
+The file to write a single asset to (use "-" to write to standard output)
 
 (gh release download) -p --pattern  ::  stringArray
 Download only assets that match a glob pattern
@@ -1955,6 +1999,9 @@ Start a discussion in the specified category when publishing a draft
 
 (gh release edit) --draft  ::  
 Save the release as a draft instead of publishing it
+
+(gh release edit) --latest  ::  
+Explicitly mark the release as "Latest"
 
 (gh release edit) -n --notes  ::  string
 Release notes
@@ -2437,7 +2484,7 @@ Show only non-forks
 (gh repo list) -t --template  ::  string
 Format JSON output using a Go template; see "gh help formatting"
 
-(gh repo list) --topic  ::  string
+(gh repo list) --topic  ::  strings
 Filter by topic
 
 (gh repo list) --visibility  ::  string
@@ -3163,12 +3210,33 @@ Show help for command
 
 
 (gh extension)
+browse                    (Enter a UI for browsing, adding, and removing extensions)
 create                    (Create a new extension)
 exec                      (Execute an installed extension)
 install                   (Install a gh extension from a repository)
 list                      (List installed extension commands)
 remove                    (Remove an installed extension)
+search                    (Search extensions to the GitHub CLI)
 upgrade                   (Upgrade installed extensions)
+
+
+
+Name:  gh extension browse
+
+
+Desc:  Enter a UI for browsing, adding, and removing extensions
+
+
+Usage:
+gh extension browse [flags]
+
+
+(gh extension browse) --debug  ::  
+log to /tmp/extBrowse-*
+
+(gh extension browse) --help  ::  
+Show help for command
+
 
 
 
@@ -3247,6 +3315,49 @@ gh extension remove <name> [flags]
 
 
 (gh extension remove) --help  ::  
+Show help for command
+
+
+
+
+Name:  gh extension search
+
+
+Desc:  Search extensions to the GitHub CLI
+
+
+Usage:
+gh extension search [<query>] [flags]
+
+
+(gh extension search) -q --jq  ::  expression
+Filter JSON output using a jq expression
+
+(gh extension search) --json  ::  fields
+Output JSON with the specified fields
+
+(gh extension search) --license  ::  strings
+Filter based on license type
+
+(gh extension search) -L --limit  ::  int
+Maximum number of extensions to fetch (default 30)
+
+(gh extension search) --order  ::  string
+Order of repositories returned, ignored unless '--sort' flag is specified: {asc|desc} (default "desc")
+
+(gh extension search) --owner  ::  string
+Filter on owner
+
+(gh extension search) --sort  ::  string
+Sort fetched repositories: {forks|help-wanted-issues|stars|updated} (default "best-match")
+
+(gh extension search) -t --template  ::  string
+Format JSON output using a Go template; see "gh help formatting"
+
+(gh extension search) -w --web  ::  
+Open the search query in the web browser
+
+(gh extension search) --help  ::  
 Show help for command
 
 
@@ -4390,6 +4501,12 @@ The username to list codespaces for (used with --org)
 (gh reference) -f --follow  ::  
 Tail and follow the logs
 
+(gh reference) -c --codespace  ::  string
+name of the codespace
+
+(gh reference) --full  ::  
+perform a full rebuild
+
 (gh reference) --config  ::  
 Write OpenSSH configuration to stdout
 
@@ -4425,6 +4542,24 @@ Create a precompiled extension. Possible values: go, other
 
 (gh reference) --pin  ::  string
 pin extension to a release tag or commit ref
+
+(gh reference) --license  ::  strings
+Filter based on license type
+
+(gh reference) -L --limit  ::  int
+Maximum number of extensions to fetch (default 30)
+
+(gh reference) --order  ::  string
+Order of repositories returned, ignored unless '--sort' flag is specified: {asc|desc} (default "desc")
+
+(gh reference) --owner  ::  string
+Filter on owner
+
+(gh reference) --sort  ::  string
+Sort fetched repositories: {forks|help-wanted-issues|stars|updated} (default "best-match")
+
+(gh reference) -w --web  ::  
+Open the search query in the web browser
 
 (gh reference) --all  ::  
 Upgrade all extensions
@@ -4524,6 +4659,21 @@ Supply a title. Will prompt for one otherwise.
 
 (gh reference) -w --web  ::  
 Open the browser to create an issue
+
+(gh reference) -b --base  ::  string
+Name of the base branch you want to make your new branch from
+
+(gh reference) -c --checkout  ::  
+Checkout the branch after creating it
+
+(gh reference) -i --issue-repo  ::  string
+Name or URL of the issue's repository
+
+(gh reference) -l --list  ::  
+List linked branches for the issue
+
+(gh reference) -n --name  ::  string
+Name of the branch to create
 
 (gh reference) --add-assignee  ::  login
 Add assigned users by their login. Use "@me" to assign yourself.
@@ -4801,6 +4951,9 @@ Save the release as a draft instead of publishing it
 (gh reference) --generate-notes  ::  
 Automatically generate title and notes for the release
 
+(gh reference) --latest  ::  
+Mark this release as "Latest" (default: automatic based on date and version)
+
 (gh reference) -n --notes  ::  string
 Release notes
 
@@ -4831,8 +4984,11 @@ Download the source code archive in the specified format (zip or tar.gz)
 (gh reference) --clobber  ::  
 Overwrite existing files of the same name
 
-(gh reference) -D --dir  ::  string
+(gh reference) -D --dir  ::  directory
 The directory to download files into (default ".")
+
+(gh reference) -O --output  ::  file
+The file to write a single asset to (use "-" to write to standard output)
 
 (gh reference) -p --pattern  ::  stringArray
 Download only assets that match a glob pattern
@@ -4845,6 +5001,9 @@ Start a discussion in the specified category when publishing a draft
 
 (gh reference) --draft  ::  
 Save the release as a draft instead of publishing it
+
+(gh reference) --latest  ::  
+Explicitly mark the release as "Latest"
 
 (gh reference) --prerelease  ::  
 Mark the release as a prerelease
@@ -4996,7 +5155,7 @@ Omit archived repositories
 (gh reference) --source  ::  
 Show only non-forks
 
-(gh reference) --topic  ::  string
+(gh reference) --topic  ::  strings
 Filter by topic
 
 (gh reference) --visibility  ::  string
@@ -5164,9 +5323,6 @@ Filter on last updated at date
 (gh reference) --visibility  ::  strings
 Filter based on repository visibility: {public|private|internal}
 
-(gh reference) -w --web  ::  
-Open the search query in the web browser
-
 (gh reference) -B --base  ::  string
 Filter on base branch name
 
@@ -5215,9 +5371,6 @@ Filter on number of issues with the 'help wanted' label
 (gh reference) --include-forks  ::  string
 Include forks in fetched repositories: {false|true|only}
 
-(gh reference) --license  ::  strings
-Filter based on license type
-
 (gh reference) -L --limit  ::  int
 Maximum number of repositories to fetch (default 30)
 
@@ -5227,17 +5380,8 @@ Restrict search to specific field of repository: {name|description|readme}
 (gh reference) --number-topics  ::  number
 Filter on number of topics
 
-(gh reference) --order  ::  string
-Order of repositories returned, ignored unless '--sort' flag is specified: {asc|desc} (default "desc")
-
-(gh reference) --owner  ::  string
-Filter on owner
-
 (gh reference) --size  ::  string
 Filter on a size range, in kilobytes
-
-(gh reference) --sort  ::  string
-Sort fetched repositories: {forks|help-wanted-issues|stars|updated} (default "best-match")
 
 (gh reference) --stars  ::  number
 Filter on number of stars
