@@ -105,8 +105,9 @@ traceIf check run x
 --
 -- [FIXME] `smartUnwords ["git-", "status"]` should be "git-status" instead of "gitstatus".
 smartUnwords :: [String] -> String
-smartUnwords =
-  foldr1 f
+smartUnwords [] = ""
+smartUnwords xs =
+  foldr1 f xs
   where
     hyphens = ['-', '\8208']
     f "" acc = acc
