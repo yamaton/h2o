@@ -254,6 +254,15 @@ isWordStartingAround margin offset x =
   where
     indices = [offset .. offset + margin]
 
+-- | Similar to isWordStartingAround, but a dash-prefixed character sequence is not considered as a word
+isNonDashWordStartingAround :: Int -> Int -> String -> Bool
+isNonDashWordStartingAround _ _ "" = False
+isNonDashWordStartingAround margin offset x =
+  assert ('\n' `notElem` x && '\t' `notElem` x) $
+    any (\idx -> isWordStartingAt idx x && (x !! idx) /= '-') indices
+  where
+    indices = [offset .. offset + margin]
+
 isWordStartingAt :: Int -> String -> Bool
 isWordStartingAt offset x =
   (not . null . trim) before && (not . null . trim) after && last before == ' ' && head after /= ' '
@@ -360,7 +369,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         (optSegment, descSegment) = splitAt descOffset x
         isParsedAsOptDescLine = not . null . HelpParser.parseLine
         hasSpacesAtMiddle = ("   " `isInfixOf`) . trim
-        isSplittingNearly = isWordStartingAround 2 descOffset x
+        isSplittingNearly = isNonDashWordStartingAround 2 descOffset x
         isSplittingRoughly = isWordStartingAround 8 descOffset x
 
     descLinesWithOptions =
