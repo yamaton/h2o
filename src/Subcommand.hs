@@ -56,7 +56,10 @@ isAlphanumOrDashOrUnderscore c = c `elem` ('-' : '_' : alphanumChars)
 
 subcommandWord :: ReadP String
 subcommandWord = do
+  -- [NOTE] Assume subcommand starts with lowercase
+  -- Replace with the commented line if you want (uppercase OR lowercase) instead
   x <- satisfy $ \c -> c `elem` lowercase
+  -- x <- satisfy $ \c -> c `elem` alphChars  --
   xs <- munch isAlphanumOrDashOrUnderscore
   -- Discard postfix '*'.
   -- Never seen subcommand followed by * as special note,
