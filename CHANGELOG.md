@@ -1,3 +1,10 @@
+## 0.4.6 (2023-01-08)
+- Improve detection of description in an option line
+- Fix partial function in utility
+- Improve consumption order
+- Remove bullets before processing text
+- Allow option `-!` and `-_` seen in nano
+
 ## 0.4.5 (2022-11-18)
 - Improvements in layout-based parsing
 - Bugfixes by adding null checks
