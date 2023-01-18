@@ -1030,6 +1030,42 @@ micromamba package [OPTIONS] [SUBCOMMAND]
 (micromamba package) -h --help  ::  
 Print this help message and exit
 
+(micromamba package) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba package) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba package) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba package) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba package) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba package) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba package) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba package) --json  ::  
+Report all output as json
+
+(micromamba package) --offline  ::  
+Force use cached repodata
+
+(micromamba package) --dry-run  ::  
+Only display what would have been done
+
+(micromamba package) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba package) --experimental  ::  
+Enable experimental features
+
 
 
 
@@ -1671,6 +1707,7 @@ Name of the target prefix
 
 (micromamba env)
 list                      (List known environments)
+create                    (Create new environment (pre-commit.com compatibility alias for 'micromamba create'))
 export                    (Export environment)
 remove                    (Remove an environment)
 
@@ -1733,6 +1770,154 @@ Path to the target prefix
 
 (micromamba env list) -n --name  ::  TEXT
 Name of the target prefix
+
+
+
+
+Name:  micromamba env create
+
+
+Desc:  Create new environment (pre-commit.com compatibility alias for 'micromamba create')
+
+
+Usage:
+micromamba env create [OPTIONS] [specs...]
+
+
+(micromamba env create) -h --help  ::  
+Print this help message and exit
+
+(micromamba env create) -c --channel  ::  TEXT ...
+Define the list of channels
+
+(micromamba env create) --override-channels  ::  
+Override channels
+
+(micromamba env create) --channel-priority  ::  ENUM:value
+in {disabled->0,flexible->1,strict->2} OR {0,1,2} Define the channel priority ('strict' or 'disabled')
+
+(micromamba env create) --channel-alias  ::  TEXT
+The prepended url location to associate with channel names
+
+(micromamba env create) --strict-channel-priority  ::  
+Enable strict channel priority
+
+(micromamba env create) --no-channel-priority  ::  
+Disable channel priority
+
+(micromamba env create) -f --file  ::  TEXT ...
+File (yaml, explicit or plain)
+
+(micromamba env create) --no-pin --pin  ::  {false}
+Ignore pinned packages
+
+(micromamba env create) --no-py-pin --py-pin  ::  {false}
+Do not automatically pin Python
+
+(micromamba env create) --pyc --no-pyc  ::  {false}
+Defines if PYC files will be compiled or not
+
+(micromamba env create) --allow-uninstall --no-allow-uninstall  ::  {false}
+Allow uninstall when installing or updating packages. Default is true.
+
+(micromamba env create) --allow-downgrade --no-allow-downgrade  ::  {false}
+Allow downgrade when installing packages. Default is false.
+
+(micromamba env create) --allow-softlinks --no-allow-softlinks  ::  {false}
+Allow to use soft-links when hard-links are not possible
+
+(micromamba env create) --always-softlink --no-always-softlink  ::  {false}
+Use soft-link instead of hard-link
+
+(micromamba env create) --always-copy --no-always-copy  ::  {false}
+Use copy instead of hard-link
+
+(micromamba env create) --extra-safety-checks --no-extra-safety-checks  ::  {false}
+Run extra verifications on packages
+
+(micromamba env create) --lock-timeout  ::  UINT
+Lockfile timeout
+
+(micromamba env create) --shortcuts --no-shortcuts  ::  {false}
+Install start-menu shortcuts on Windows (not implemented on Linux / macOS)
+
+(micromamba env create) --safety-checks  ::  ENUM:value in {disabled->0,enabled->2,warn->1}
+OR {0,2,1}   Safety checks policy ('enabled', 'warn', or 'disabled')
+
+(micromamba env create) --verify-artifacts  ::  
+Run verifications on packages signatures
+
+(micromamba env create) --platform  ::  TEXT
+The platform description
+
+(micromamba env create) --no-deps  ::  
+Do not install dependencies. This WILL lead to broken environments and inconsistent behavior. Use at your own risk
+
+(micromamba env create) --only-deps  ::  
+Only install dependencies
+
+(micromamba env create) --category  ::  TEXT ...
+Categories of package to install from environment lockfile
+
+(micromamba env create) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba env create) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba env create) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba env create) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba env create) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba env create) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba env create) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba env create) --json  ::  
+Report all output as json
+
+(micromamba env create) --offline  ::  
+Force use cached repodata
+
+(micromamba env create) --dry-run  ::  
+Only display what would have been done
+
+(micromamba env create) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba env create) --experimental  ::  
+Enable experimental features
+
+(micromamba env create) -r --root-prefix  ::  TEXT
+Path to the root prefix
+
+(micromamba env create) -p --prefix  ::  TEXT
+Path to the target prefix
+
+(micromamba env create) -n --name  ::  TEXT
+Name of the target prefix
+
+(micromamba env create) --ssl-verify  ::  TEXT
+Verify SSL certificates for HTTPS requests
+
+(micromamba env create) --ssl-no-revoke  ::  
+SSL certificate revocation checks
+
+(micromamba env create) --cacert-path  ::  TEXT
+Path (file or directory) SSL certificate(s)
+
+(micromamba env create) --repodata-ttl  ::  UINT
+Repodata time-to-live
+
+(micromamba env create) --retry-clean-cache  ::  
+If solve fails, try to fetch updated repodata
 
 
 
