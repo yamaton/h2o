@@ -17,7 +17,10 @@ import Type
   )
 
 zshHeader :: String -> Text
-zshHeader cmd = sformat ("#compdef _" % string % " " % string % "\n\n") cmd cmd
+zshHeader cmd = sformat ("#compdef " % string % "\n\n") cmd
+
+zshExecutor :: String -> Text
+zshExecutor cmd = sformat ("_" % string % " \"$@\"\n\n") cmd
 
 zshHeaderOld :: String -> Text
 zshHeaderOld = sformat ("#compdef " % string % "\n\n")
@@ -185,6 +188,10 @@ toZshScriptHelper cmdSeqPrev (Command name _ _ opts subcmds _) = txt <> T.concat
 
 
 toZshScript :: Command -> Text
-toZshScript cmd = T.concat [header, comments] <> toZshScriptHelper [] cmd
+toZshScript cmd = T.concat [header, comments, body, executor]
   where
-    header = zshHeader (_name cmd)
+    name = _name cmd
+    header = zshHeader name
+    body = toZshScriptHelper [] cmd
+    executor = zshExecutor name
+
