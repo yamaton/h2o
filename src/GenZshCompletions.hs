@@ -13,14 +13,14 @@ import Type
   ( Command (..),
     Opt (..),
     OptName (..),
-    OptNameType (..)
+    OptNameType (..),
   )
 
 zshHeader :: String -> Text
-zshHeader cmd = sformat ("#compdef " % string % "\n\n") cmd
+zshHeader = sformat ("#compdef " % string % "\n\n")
 
 zshExecutor :: String -> Text
-zshExecutor cmd = sformat ("_" % string % " \"$@\"\n\n") cmd
+zshExecutor = sformat ("_" % string % " \"$@\"\n\n")
 
 zshHeaderOld :: String -> Text
 zshHeaderOld = sformat ("#compdef " % string % "\n\n")
@@ -186,7 +186,6 @@ toZshScriptHelper cmdSeqPrev (Command name _ _ opts subcmds _) = txt <> T.concat
     textFunctionClosing = T.unlines ["}", ""]
     rest = map (toZshScriptHelper cmdSeq) subcmds
 
-
 toZshScript :: Command -> Text
 toZshScript cmd = T.concat [header, comments, body, executor]
   where
@@ -194,4 +193,3 @@ toZshScript cmd = T.concat [header, comments, body, executor]
     header = zshHeader name
     body = toZshScriptHelper [] cmd
     executor = zshExecutor name
-
