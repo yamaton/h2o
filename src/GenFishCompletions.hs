@@ -9,7 +9,7 @@ import Data.List.Extra (nubOrd)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Text.Printf (printf)
-import Type (Command (..), Opt (..), OptName (..), OptNameType (..), Subcommand (..), asSubcommand)
+import Type (Command (..), Opt (..), OptName (..), OptNameType (..))
 
 -- -- https://unix.stackexchange.com/questions/296141/how-to-use-a-special-character-as-a-normal-one-in-unix-shells
 -- escapeSpecialChars :: Text -> Text
@@ -82,12 +82,12 @@ makeFishLineRootOption cmd subcmds opt@(Opt names _ desc) = line
     line = T.strip . T.pack $ printf "complete -c %s %s %s -d %s %s" cmd cond parts quotedDesc (optArgToFlag opt)
 
 -- | make a fish-completion line for a subcommand name:: String
-makeFishLineSubcommand :: String -> Subcommand -> Text
-makeFishLineSubcommand cmd (Subcommand subcmd desc) = line
+makeFishLineSubcommand :: String -> Command -> Text
+makeFishLineSubcommand name (Command subname desc _ _ _ _) = line
   where
     template = "complete -k -c %s -n __fish_use_subcommand -x -a %s -d %s"
     quotedDesc = show desc
-    line = T.pack $ printf template cmd subcmd quotedDesc
+    line = T.pack $ printf template name subname quotedDesc
 
 -- | make a fish-completion line for an option under a subcommand
 makeFishLineSubcommandOption :: String -> String -> Opt -> Text
@@ -114,7 +114,7 @@ genFishScriptRootOptions name subnames opts =
 -- | Generate fish completion script for subcommand names
 --
 -- [NOTE] The order is reversed because of fish's complete -k specification; last call is displayed first.
-genFishScriptSubcommands :: String -> [Subcommand] -> Text
+genFishScriptSubcommands :: String -> [Command] -> Text
 genFishScriptSubcommands name subcmds =
   unlineFishCommands [makeFishLineSubcommand name sub | sub <- List.reverse subcmds]
 
@@ -129,9 +129,8 @@ toFishScript (Command name _ _ opts subcmds _)
   | otherwise = escapeDollars . addMeta $ T.intercalate "\n\n\n" (filter (not . T.null) scriptsAll)
   where
     subnames = map _name subcmds
-    subcommands = map asSubcommand subcmds
     scriptRootOptions = genFishScriptRootOptions name subnames opts
-    scriptSubcommands = genFishScriptSubcommands name subcommands
+    scriptSubcommands = genFishScriptSubcommands name subcmds
     scriptSubcommandOptions = [genFishScriptSubcommandOptions name subcmd | subcmd <- subcmds]
     scriptsAll = [scriptRootOptions, scriptSubcommands] ++ scriptSubcommandOptions
     addMeta txt = "# Auto-generated with h2o\n\n" `T.append` txt
