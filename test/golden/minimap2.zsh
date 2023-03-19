@@ -1,20 +1,9 @@
-#compdef _minimap2 minimap2
+#compdef minimap2
 
 # Auto-generated with h2o
 
-
 function _minimap2 {
-    local line state
-
-    function _commands {
-        local -a commands
-        commands=(
-        )
-        _describe 'command' commands
-    }
- 
-
-    _arguments -C \
+    _arguments \
         '-k[Minimizer k-mer length \[15\]]' \
         '-w[Minimizer window size \[2/3 of k-mer length\]. A minimizer is the smallest k-mer in a window of w consecutive k-mers.]' \
         '-H[Use homopolymer-compressed (HPC) minimizers. An HPC sequence is constructed by contracting homopolymer runs to a single base. An HPC minimizer is a minimizer on the HPC sequence.]' \
@@ -93,17 +82,9 @@ function _minimap2 {
         '--no-kalloc[Use the libc default allocator instead of the kalloc thread-local allocator. This debugging option is mostly used with Valgrind to detect invalid memory accesses. Minimap2 runs slower with this option, especially in the multi-threading mode.]' \
         '--print-qname[Print query names to stderr, mostly to see which query is crashing minimap2.]' \
         '--print-seeds[Print seed positions to stderr, for debugging only.]' \
-        '*: :_files'
-
-    case $state in
-    (cmd)
-        _commands
-        ;;
-    (subcmd)
-        case $line[1] in
-        esac
-        ;;
-     esac
+        "*: :_files"
 
 }
+
+_minimap2 "$@"
 
