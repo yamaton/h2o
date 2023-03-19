@@ -3333,6 +3333,7 @@ Show help for command
 (gh extension)
 browse                    (Enter a UI for browsing, adding, and removing extensions)
 create                    (Create a new extension)
+exec                      (Execute an installed extension)
 install                   (Install a gh extension from a repository)
 list                      (List installed extension commands)
 remove                    (Remove an installed extension)
@@ -3376,6 +3377,16 @@ Create a precompiled extension. Possible values: go, other
 (gh extension create) --help  ::  
 Show help for command
 
+
+
+
+Name:  gh extension exec
+
+
+Desc:  Execute an installed extension
+
+
+Usage:
 
 
 
