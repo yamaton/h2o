@@ -58,7 +58,7 @@ getSubcommandFunc name (Command subname _ _ opts subsubcmds _)
           "    done",
           "",
           "    while [[ ( $subcommand_index < $COMP_CWORD ) ]]; do",
-          "        local s=\"${COMP_WORDS[subcommand_index}\"",
+          "        local s=\"${COMP_WORDS[subcommand_index]}\"",
           "        case \"$s\" in"
         ]
 
