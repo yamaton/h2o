@@ -14,62 +14,68 @@ import Type (Command (..), Opt (..), OptName (..))
 getOptsArray :: [Opt] -> Text
 getOptsArray opts = T.unwords $ concatMap (map (T.pack . _raw) . _names) opts
 
-getSubcommandCall :: String -> String -> Text
-getSubcommandCall name subname =
+getSubcommandCall :: [String] -> String -> Text
+getSubcommandCall cmdSeq subname =
   T.unlines
-    [ sformat ("          " % string % ") " % string) subname funcName,
+    [ sformat ("        " % string % ") " % string) subname funcName,
       "            return",
       "            ;;"
     ]
   where
-    funcName = toBashFuncName [name, subname]
+    funcName = toBashFuncName (cmdSeq <> [subname])
 
-getSubcommandFunc :: String -> Command -> Text
-getSubcommandFunc name (Command subname _ _ opts subsubcmds _)
+getSubcommandFunc :: [String] -> Command -> Text
+getSubcommandFunc cmdSeq (Command subname _ _ opts subsubcmds _)
   | null subsubcmds && null opts = ""
   | null subsubcmds = T.concat [prefix, suffix]
-  | otherwise = T.concat [prefix, subsubCallPrefix, subsubCallBody, subsubCallSuffix, suffix, subsubFuncs]
+  | otherwise = T.concat [prefix, subsubCallPrefix, subsubCallBody, subsubCallSuffix, subsubFuncs]
   where
     subsubNames = [T.pack subsubname | (Command subsubname _ _ _ _ _) <- subsubcmds]
     optsNames = concat [map (T.pack . _raw) optnames | (Opt optnames _ _) <- opts]
     subsubNamesAndSubOptionsText = T.unwords (subsubNames ++ optsNames)
-    funcName = toBashFuncName [name, subname]
+    funcName = toBashFuncName (cmdSeq ++ [subname])
     prefix =
       T.unlines
-        [ sformat (string % " ()") funcName,
-          "{",
-          "    local cur word_list"
+        [
+          sformat (string % " ()") funcName,
+          "{"
         ]
 
     subsubCallPrefix =
       T.unlines
-        [ "    local i=1 subcommand_index",
+        [
+          "    local i=1 cmd cur word_list",
+          "    cur=\"${COMP_WORDS[COMP_CWORD]}\"",
           "",
           "    # take the last word that's NOT starting with -",
-          "    while [[ ( $i < $COMP_CWORD ) ]]; do",
+          "    while [[ ( \"$i\" < \"$COMP_CWORD\" ) ]]; do",
           "        local s=\"${COMP_WORDS[i]}\"",
           "        case \"$s\" in",
-          sformat ("          " % string % ")") subname,
-          "            subcommand_index=$i",
-          "            break",
+          "          -*) ;;",
+          "          *)",
+          "            cmd=\"$s\"",
           "            ;;",
           "        esac",
           "        (( i++ ))",
           "    done",
           "",
-          "    while [[ ( $subcommand_index < $COMP_CWORD ) ]]; do",
-          "        local s=\"${COMP_WORDS[subcommand_index]}\"",
-          "        case \"$s\" in"
+          "    case \"$cmd\" in"
         ]
 
-    subsubCallBody = T.unlines $ map (getSubcommandCall name . _name) subsubcmds
+    cmdSeqMore = cmdSeq ++ [subname]
+    subsubCallBody = T.unlines $ map (getSubcommandCall cmdSeqMore . _name) subsubcmds
+    subsubFuncs = T.concat $ map (getSubcommandFunc cmdSeqMore) subsubcmds
 
     subsubCallSuffix =
       T.unlines
-        [ "          *)  ;; ",
-          "        esac",
-          "        (( subcommand_index++ ))",
-          "    done",
+        [ "        *) ",
+          sformat ("            word_list=\" " % stext % "\" ") subsubNamesAndSubOptionsText,
+          "            cur=\"${COMP_WORDS[COMP_CWORD]}\"",
+          "            COMPREPLY=( $(compgen -W \"${word_list}\" -- \"${cur}\") )",
+          "            return",
+          "            ;; ",
+          "    esac",
+          "}",
           ""
         ]
 
@@ -82,7 +88,6 @@ getSubcommandFunc name (Command subname _ _ opts subsubcmds _)
           ""
         ]
 
-    subsubFuncs = T.concat $ map (getSubcommandFunc subname) subsubcmds
 
 getSubcmdsArray :: [Command] -> Text
 getSubcmdsArray subcmds = T.unwords subnames
@@ -127,7 +132,7 @@ toBashScript (Command name _ _ opts subcmds _)
           "",
           "    case \"$cmd\" in"
         ]
-    mainSubcommandCalls = T.unlines $ map (getSubcommandCall name . _name) subcmds
+    mainSubcommandCalls = T.unlines $ map (getSubcommandCall [name] . _name) subcmds
     mainSuffix =
       T.unlines
         [ "      *)",
@@ -139,7 +144,7 @@ toBashScript (Command name _ _ opts subcmds _)
           "}",
           ""
         ]
-    subcommandFuncs = T.concat $ map (getSubcommandFunc name) subcmds
+    subcommandFuncs = T.concat $ map (getSubcommandFunc [name]) subcmds
 
     compStatement =
       T.unlines
