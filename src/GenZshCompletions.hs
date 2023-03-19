@@ -62,8 +62,8 @@ genZshBodyOptions _ opts = res
     template = "args=(\n%s)\n\n_arguments %s$args\n"
     res = T.pack $ printf template args flags
 
-genZshBodyRootOptions :: String -> [Opt] -> Bool -> Text
-genZshBodyRootOptions _ opts isSubcmdsNull =
+genZshNodeOptionList :: String -> [Opt] -> Bool -> Text
+genZshNodeOptionList _ opts isSubcmdsNull =
   T.concat $ map T.unlines [linesPrefix, linesCore, linesSuffix]
   where
     linesPrefix =
@@ -82,8 +82,8 @@ genZshBodyRootOptions _ opts isSubcmdsNull =
           ]
     linesCore = map (addSuffix " \\" . indent 8 . getOptAsText) opts
 
-genZshBodySubcommands :: [Command] -> Text
-genZshBodySubcommands subcommands = res
+genZshSubcommandList :: [Command] -> Text
+genZshSubcommandList subcommands = res
   where
     textPrefix =
       [ "    function _commands {",
@@ -100,34 +100,35 @@ genZshBodySubcommands subcommands = res
 
     res = T.unlines $ concat [textPrefix, textCore, textSuffix]
 
-zshSubcommandOptionFunction :: String -> Command -> Text
-zshSubcommandOptionFunction name (Command subname _ _ opts _ _) =
-  T.concat $ map T.unlines [linesPrefix, linesCore, linesSuffix]
+genZshLeafOptionList :: [String] -> [Opt] -> Text
+genZshLeafOptionList cmdSeq opts =
+  T.concat $ map T.unlines [header, body, footer]
   where
-    linesPrefix =
-      [ sformat ("    function _" % string % "_" % string % " {") name subname,
-        "        _arguments \\"
+    header =
+      [ sformat ("function _" % string % " {") (List.intercalate "_" cmdSeq),
+        "    _arguments \\"
       ]
-    linesSuffix =
-      [ "            \"*: :_files\"",
+    body = map (addSuffix " \\" . indent 8 . getOptAsText) opts
+    footer =
+      [ "        \"*: :_files\"",
         "",
-        "    }",
+        "}",
         ""
       ]
-    linesCore = map (addSuffix " \\" . indent 12 . getOptAsText) opts
 
-zshSubcommandOptionCall :: String -> String -> Text
-zshSubcommandOptionCall name subname = T.unlines xs
+zshSubcommandOptionCall :: [String] -> String -> Text
+zshSubcommandOptionCall cmdSeq subname = T.unlines xs
   where
+    accName = List.intercalate "_" cmdSeq
     xs =
       [ sformat ("        (" % string % ")") subname,
-        sformat ("            _" % string % "_" % string) name subname,
+        sformat ("            _" % string % "_" % string) accName subname,
         "            ;;",
         ""
       ]
 
-genZshBodySubcommandOptions :: String -> [Command] -> Text
-genZshBodySubcommandOptions cmd subcommands =
+genZshBodySubcommandOptions :: [String] -> [Command] -> Text
+genZshBodySubcommandOptions cmdSeq subcommands =
   T.concat [textPrefix, textCore, textSuffix]
   where
     subnames = [subname | (Command subname _ _ _ _ _) <- subcommands]
@@ -140,7 +141,7 @@ genZshBodySubcommandOptions cmd subcommands =
           "    (subcmd)",
           "        case $line[1] in"
         ]
-    textCore = T.concat $ map (zshSubcommandOptionCall cmd) subnames
+    textCore = T.concat $ map (zshSubcommandOptionCall cmdSeq) subnames
     textSuffix =
       T.unlines
         [ "        esac",
@@ -149,29 +150,41 @@ genZshBodySubcommandOptions cmd subcommands =
           ""
         ]
 
-meta :: Text
-meta = "# Auto-generated with h2o\n\n"
+comments :: Text
+comments = "# Auto-generated with h2o\n\n"
 
 genZshScript :: String -> [Opt] -> Text
-genZshScript cmd opts = T.concat [header, meta, body]
+genZshScript cmd opts = T.concat [header, comments, body]
   where
     header = zshHeaderOld cmd
     body = genZshBodyOptions cmd opts
 
-toZshScript :: Command -> Text
-toZshScript (Command name _ _ opts subcmds _) =
-  T.concat [textHeader, meta, textSubcmdFuncs, textFunctionOpening, textSubcommands, textRootOptions, textSubcommandOptionCalls, textFunctionClosing]
+------------------
+
+toZshScriptHelper :: [String] -> Command -> Text
+toZshScriptHelper cmdSeqPrev (Command name _ _ opts [] _) = genZshLeafOptionList accName opts
   where
-    textHeader = zshHeader name
-    textSubcmdFuncs = T.concat $ map (zshSubcommandOptionFunction name) subcmds
+    accName = cmdSeqPrev ++ [name]
+toZshScriptHelper cmdSeqPrev (Command name _ _ opts subcmds _) = txt <> T.concat rest
+  where
+    txt = T.concat [textFunctionOpening, textSubcommands, textRootOptions, textSubcommandOptionCalls, textFunctionClosing]
+    cmdSeq = cmdSeqPrev ++ [name]
+    accSeq = List.intercalate "_" cmdSeq
     textFunctionOpening =
       T.unlines
         [ "",
-          sformat ("function _" % string % " {") name,
+          sformat ("function _" % string % " {") accSeq,
           "    local line state",
           ""
         ]
-    textSubcommands = genZshBodySubcommands subcmds
-    textRootOptions = genZshBodyRootOptions name opts (null subcmds)
-    textSubcommandOptionCalls = genZshBodySubcommandOptions name subcmds
+    textSubcommands = genZshSubcommandList subcmds
+    textRootOptions = genZshNodeOptionList name opts (null subcmds)
+    textSubcommandOptionCalls = genZshBodySubcommandOptions cmdSeq subcmds
     textFunctionClosing = T.unlines ["}", ""]
+    rest = map (toZshScriptHelper cmdSeq) subcmds
+
+
+toZshScript :: Command -> Text
+toZshScript cmd = T.concat [header, comments] <> toZshScriptHelper [] cmd
+  where
+    header = zshHeader (_name cmd)
