@@ -694,19 +694,6 @@ shellCompTests =
       \    local cur prev words cword\n\
       \    _init_completion -s || return\n\
       \\n\
-      \    local cmd i subcommands\n\
-      \    local subcommands=\" \"\n\
-      \\n\
-      \    for (( i=1; i < cword; i++ )); do\n\
-      \        if [[ \" ${subcommands[*]} \" == *\" ${words[i]} \"* ]]; then\n\
-      \            cmd=${words[i]}\n\
-      \            break\n\
-      \        fi\n\
-      \    done\n\
-      \\n\
-      \    case \"$cmd\" in\n\
-      \    esac\n\
-      \\n\
       \    local word_list=\"  -o --output --help\"\n\
       \    COMPREPLY=( $(compgen -W \"${word_list}\" -- \"$cur\") )\n\
       \}\n\n\
