@@ -7,7 +7,7 @@ module GenZshCompletions (toZshScript, genZshScript) where
 import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
-import Formatting
+import Formatting ( string, (%), sformat )
 import Text.Printf (printf)
 import Type
   ( Command (..),

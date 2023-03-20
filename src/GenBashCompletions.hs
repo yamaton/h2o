@@ -8,7 +8,7 @@ import qualified Data.Char as Char
 import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
-import Formatting
+import Formatting (sformat, stext, string, (%))
 import Type (Command (..), Opt (..), OptName (..))
 
 getOptsArray :: [Opt] -> Text
