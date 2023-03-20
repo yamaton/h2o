@@ -2,10 +2,20 @@
 
 _minimap2()
 {
-    local cur prev
+    local cur prev words cword
     _init_completion -s || return
 
-    case "$prev" in
+    local cmd i subcommands
+    local subcommands=" "
+
+    for (( i=1; i < cword; i++ )); do
+        if [[ " ${subcommands[*]} " == *" ${words[i]} "* ]]; then
+            cmd=${words[i]}
+            break
+        fi
+    done
+
+    case "$cmd" in
     esac
 
     if ((cword == 1)); then

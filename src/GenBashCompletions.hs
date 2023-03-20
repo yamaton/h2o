@@ -36,15 +36,13 @@ getSubcommandFunc cmdSeq (Command subname _ _ opts subsubcmds _)
     funcName = toBashFuncName (cmdSeq ++ [subname])
     prefix =
       T.unlines
-        [
-          sformat (string % " ()") funcName,
+        [ sformat (string % " ()") funcName,
           "{"
         ]
 
     subsubCallPrefix =
       T.unlines
-        [
-          "",
+        [ "",
           "    case \"$prev\" in"
         ]
 
@@ -54,8 +52,7 @@ getSubcommandFunc cmdSeq (Command subname _ _ opts subsubcmds _)
 
     subsubCallSuffix =
       T.unlines
-        [
-          "    esac",
+        [ "    esac",
           "",
           "    if ((cword == 2)); then",
           sformat ("        local word_list=\" " % stext % "\" ") subsubNamesAndSubOptionsText,
@@ -72,7 +69,6 @@ getSubcommandFunc cmdSeq (Command subname _ _ opts subsubcmds _)
           "}",
           ""
         ]
-
 
 getSubcmdsArray :: [Command] -> Text
 getSubcmdsArray subcmds = T.unwords subnames
@@ -92,6 +88,7 @@ toBashScript (Command name _ _ opts subcmds _)
   | null subcmds = T.concat [mainPrefix, mainSuffix, compStatement]
   | otherwise = T.concat [mainPrefix, mainSubcommandCalls, mainSuffix, subcommandFuncs, compStatement]
   where
+    subcommandsText = T.unwords [getSubcmdsArray subcmds]
     subcommandsAndOptsText = T.unwords [getSubcmdsArray subcmds, getOptsArray opts]
     funcName = toBashFuncName [name]
     mainPrefix =
@@ -100,16 +97,26 @@ toBashScript (Command name _ _ opts subcmds _)
           "",
           sformat (string % "()") funcName,
           "{",
-          "    local cur prev",
+          "    local cur prev words cword",
           "    _init_completion -s || return",
           "",
-          "    case \"$prev\" in"
+          "    local cmd i subcommands",
+          sformat ("    local subcommands=\" " % stext % "\"") subcommandsText,
+          "",
+          "    for (( i=1; i < cword; i++ )); do",
+          "        if [[ \" ${subcommands[*]} \" == *\" ${words[i]} \"* ]]; then",
+          "            cmd=${words[i]}",
+          "            break",
+          "        fi",
+          "    done",
+          "",
+          "    case \"$cmd\" in"
         ]
     mainSubcommandCalls = T.unlines $ map (getSubcommandCall [name] . _name) subcmds
+
     mainSuffix =
       T.unlines
-        [
-          "    esac",
+        [ "    esac",
           "",
           "    if ((cword == 1)); then",
           sformat ("        local word_list=\" " % stext % "\"") subcommandsAndOptsText,
