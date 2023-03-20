@@ -707,10 +707,8 @@ shellCompTests =
       \    case \"$cmd\" in\n\
       \    esac\n\
       \\n\
-      \    if ((cword == 1)); then\n\
-      \        local word_list=\"  -o --output --help\"\n\
-      \        COMPREPLY=( $(compgen -W \"${word_list}\" -- \"$cur\") )\n\
-      \    fi\n\
+      \    local word_list=\"  -o --output --help\"\n\
+      \    COMPREPLY=( $(compgen -W \"${word_list}\" -- \"$cur\") )\n\
       \}\n\n\
       \## -o bashdefault and -o default are fallback\n\
       \complete -o bashdefault -o default -F _nanachi nanachi\n"

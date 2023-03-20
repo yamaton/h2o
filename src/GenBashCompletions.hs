@@ -28,7 +28,7 @@ getSubcommandFunc :: [String] -> Command -> Text
 getSubcommandFunc cmdSeq (Command subname _ _ opts subsubcmds _)
   | null subsubcmds && null opts = ""
   | null subsubcmds = T.concat [prefix, suffix]
-  | otherwise = T.concat [prefix, subsubCallPrefix, subsubCallBody, subsubCallSuffix, subsubFuncs]
+  | otherwise = T.concat [prefix, subsubCallPrefix, subsubCallBody, subsubCallSuffix, suffix, subsubFuncs]
   where
     subsubNames = [T.pack subsubname | (Command subsubname _ _ _ _ _) <- subsubcmds]
     optsNames = concat [map (T.pack . _raw) optnames | (Opt optnames _ _) <- opts]
@@ -53,12 +53,6 @@ getSubcommandFunc cmdSeq (Command subname _ _ opts subsubcmds _)
     subsubCallSuffix =
       T.unlines
         [ "    esac",
-          "",
-          "    if ((cword == 2)); then",
-          sformat ("        local word_list=\" " % stext % "\" ") subsubNamesAndSubOptionsText,
-          "        COMPREPLY=( $(compgen -W \"${word_list}\" -- \"$cur\") )",
-          "    fi",
-          "}",
           ""
         ]
 
@@ -83,19 +77,19 @@ toBashFuncName cmdSeq = '_' : List.intercalate "_" xs
   where
     xs = map (filter Char.isAlphaNum) cmdSeq
 
+bashHeader :: Text
+bashHeader = "# Auto-generated with h2o\n\n"
+
 toBashScript :: Command -> Text
-toBashScript (Command name _ _ opts subcmds _)
-  | null subcmds = T.concat [mainPrefix, mainSuffix, compStatement]
-  | otherwise = T.concat [mainPrefix, mainSubcommandCalls, mainSuffix, subcommandFuncs, compStatement]
+toBashScript (Command name _ _ opts subcmds _) =
+  T.concat [bashHeader, mainPrefix, mainSubcommandCalls, mainSuffix, subcommandFuncs, compStatement]
   where
     subcommandsText = T.unwords [getSubcmdsArray subcmds]
     subcommandsAndOptsText = T.unwords [getSubcmdsArray subcmds, getOptsArray opts]
     funcName = toBashFuncName [name]
     mainPrefix =
       T.unlines
-        [ meta,
-          "",
-          sformat (string % "()") funcName,
+        [ sformat (string % "()") funcName,
           "{",
           "    local cur prev words cword",
           "    _init_completion -s || return",
@@ -118,10 +112,8 @@ toBashScript (Command name _ _ opts subcmds _)
       T.unlines
         [ "    esac",
           "",
-          "    if ((cword == 1)); then",
-          sformat ("        local word_list=\" " % stext % "\"") subcommandsAndOptsText,
-          "        COMPREPLY=( $(compgen -W \"${word_list}\" -- \"$cur\") )",
-          "    fi",
+          sformat ("    local word_list=\" " % stext % "\"") subcommandsAndOptsText,
+          "    COMPREPLY=( $(compgen -W \"${word_list}\" -- \"$cur\") )",
           "}",
           ""
         ]
@@ -132,4 +124,3 @@ toBashScript (Command name _ _ opts subcmds _)
         [ "## -o bashdefault and -o default are fallback",
           sformat ("complete -o bashdefault -o default -F " % string % " " % string) funcName name
         ]
-    meta = "# Auto-generated with h2o"
