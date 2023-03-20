@@ -691,28 +691,16 @@ shellCompTests =
       \\n\
       \_nanachi()\n\
       \{\n\
-      \    local i=1 cmd cur word_list\n\
-      \    cur=\"${COMP_WORDS[COMP_CWORD]}\"\n\
+      \    local cur prev\n\
+      \    _init_completion -s || return\n\
       \\n\
-      \    # take the last word that's NOT starting with -\n\
-      \    while [[ ( \"$i\" < \"$COMP_CWORD\" ) ]]; do\n\
-      \        local s=\"${COMP_WORDS[i]}\"\n\
-      \        case \"$s\" in\n\
-      \          -*) ;;\n\
-      \          *)\n\
-      \            cmd=\"$s\"\n\
-      \            ;;\n\
-      \        esac\n\
-      \        (( i++ ))\n\
-      \    done\n\
-      \\n\
-      \    case \"$cmd\" in\n\
-      \      *)\n\
-      \          word_list=\"  -o --output --help\"\n\
-      \          COMPREPLY=( $(compgen -W \"${word_list}\" -- \"${cur}\") )\n\
-      \          ;;\n\
+      \    case \"$prev\" in\n\
       \    esac\n\
       \\n\
+      \    if ((cword == 1)); then\n\
+      \        local word_list=\"  -o --output --help\"\n\
+      \        COMPREPLY=( $(compgen -W \"${word_list}\" -- \"$cur\") )\n\
+      \    fi\n\
       \}\n\n\
       \## -o bashdefault and -o default are fallback\n\
       \complete -o bashdefault -o default -F _nanachi nanachi\n"

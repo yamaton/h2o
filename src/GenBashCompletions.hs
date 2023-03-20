@@ -44,22 +44,8 @@ getSubcommandFunc cmdSeq (Command subname _ _ opts subsubcmds _)
     subsubCallPrefix =
       T.unlines
         [
-          "    local i=1 cmd cur word_list",
-          "    cur=\"${COMP_WORDS[COMP_CWORD]}\"",
           "",
-          "    # take the last word that's NOT starting with -",
-          "    while [[ ( \"$i\" < \"$COMP_CWORD\" ) ]]; do",
-          "        local s=\"${COMP_WORDS[i]}\"",
-          "        case \"$s\" in",
-          "          -*) ;;",
-          "          *)",
-          "            cmd=\"$s\"",
-          "            ;;",
-          "        esac",
-          "        (( i++ ))",
-          "    done",
-          "",
-          "    case \"$cmd\" in"
+          "    case \"$prev\" in"
         ]
 
     cmdSeqMore = cmdSeq ++ [subname]
@@ -68,22 +54,21 @@ getSubcommandFunc cmdSeq (Command subname _ _ opts subsubcmds _)
 
     subsubCallSuffix =
       T.unlines
-        [ "        *) ",
-          sformat ("            word_list=\" " % stext % "\" ") subsubNamesAndSubOptionsText,
-          "            cur=\"${COMP_WORDS[COMP_CWORD]}\"",
-          "            COMPREPLY=( $(compgen -W \"${word_list}\" -- \"${cur}\") )",
-          "            return",
-          "            ;; ",
+        [
           "    esac",
+          "",
+          "    if ((cword == 2)); then",
+          sformat ("        local word_list=\" " % stext % "\" ") subsubNamesAndSubOptionsText,
+          "        COMPREPLY=( $(compgen -W \"${word_list}\" -- \"$cur\") )",
+          "    fi",
           "}",
           ""
         ]
 
     suffix =
       T.unlines
-        [ sformat ("    word_list=\" " % stext % "\" ") subsubNamesAndSubOptionsText,
-          "    cur=\"${COMP_WORDS[COMP_CWORD]}\"",
-          "    COMPREPLY=( $(compgen -W \"${word_list}\" -- \"${cur}\") )",
+        [ sformat ("    local word_list=\" " % stext % "\" ") subsubNamesAndSubOptionsText,
+          "    COMPREPLY=( $(compgen -W \"${word_list}\" -- \"$cur\") )",
           "}",
           ""
         ]
@@ -115,32 +100,21 @@ toBashScript (Command name _ _ opts subcmds _)
           "",
           sformat (string % "()") funcName,
           "{",
-          "    local i=1 cmd cur word_list",
-          "    cur=\"${COMP_WORDS[COMP_CWORD]}\"",
+          "    local cur prev",
+          "    _init_completion -s || return",
           "",
-          "    # take the last word that's NOT starting with -",
-          "    while [[ ( \"$i\" < \"$COMP_CWORD\" ) ]]; do",
-          "        local s=\"${COMP_WORDS[i]}\"",
-          "        case \"$s\" in",
-          "          -*) ;;",
-          "          *)",
-          "            cmd=\"$s\"",
-          "            ;;",
-          "        esac",
-          "        (( i++ ))",
-          "    done",
-          "",
-          "    case \"$cmd\" in"
+          "    case \"$prev\" in"
         ]
     mainSubcommandCalls = T.unlines $ map (getSubcommandCall [name] . _name) subcmds
     mainSuffix =
       T.unlines
-        [ "      *)",
-          sformat ("          word_list=\" " % stext % "\"") subcommandsAndOptsText,
-          "          COMPREPLY=( $(compgen -W \"${word_list}\" -- \"${cur}\") )",
-          "          ;;",
+        [
           "    esac",
           "",
+          "    if ((cword == 1)); then",
+          sformat ("        local word_list=\" " % stext % "\"") subcommandsAndOptsText,
+          "        COMPREPLY=( $(compgen -W \"${word_list}\" -- \"$cur\") )",
+          "    fi",
           "}",
           ""
         ]
