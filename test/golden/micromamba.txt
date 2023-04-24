@@ -53,6 +53,9 @@ Path to the root prefix
 (micromamba) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -285,6 +288,9 @@ Path to the root prefix
 (micromamba create) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba create) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba create) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -438,6 +444,9 @@ Path to the root prefix
 
 (micromamba install) -p --prefix  ::  TEXT
 Path to the target prefix
+
+(micromamba install) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
 
 (micromamba install) -n --name  ::  TEXT
 Name of the target prefix
@@ -593,6 +602,9 @@ Path to the root prefix
 (micromamba update) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba update) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba update) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -744,6 +756,9 @@ Path to the root prefix
 (micromamba self-update) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba self-update) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba self-update) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -799,11 +814,14 @@ Disable channel priority
 (micromamba repoquery) -t --tree  ::  
 Show result as a tree
 
+(micromamba repoquery) --recursive  ::  
+Show dependencies recursively, i.e. transitive dependencies (only for `depends`)
+
 (micromamba repoquery) --pretty  ::  
 Pretty print result (only for search)
 
-(micromamba repoquery) --local --remote  ::  {false} [0]
-Use installed data or remote repositories
+(micromamba repoquery) --use-local  ::  INT
+Use installed data (--use-local=1, default for `depends` and `whoneeds`) or remote repositories (--use-local=0, default for `search`). If the `-c,--channel` option is set, it has the priority and --use-local is set to 0
 
 (micromamba repoquery) --platform  ::  TEXT
 The platform description
@@ -849,6 +867,9 @@ Path to the root prefix
 
 (micromamba repoquery) -p --prefix  ::  TEXT
 Path to the target prefix
+
+(micromamba repoquery) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
 
 (micromamba repoquery) -n --name  ::  TEXT
 Name of the target prefix
@@ -950,6 +971,9 @@ Path to the root prefix
 (micromamba remove) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba remove) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba remove) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -1010,6 +1034,9 @@ Path to the root prefix
 
 (micromamba list) -p --prefix  ::  TEXT
 Path to the target prefix
+
+(micromamba list) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
 
 (micromamba list) -n --name  ::  TEXT
 Name of the target prefix
@@ -1197,6 +1224,9 @@ Path to the root prefix
 (micromamba config) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba config) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba config) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -1286,6 +1316,9 @@ Path to the root prefix
 (micromamba config list) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba config list) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba config list) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -1346,6 +1379,9 @@ Path to the root prefix
 
 (micromamba config sources) -p --prefix  ::  TEXT
 Path to the target prefix
+
+(micromamba config sources) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
 
 (micromamba config sources) -n --name  ::  TEXT
 Name of the target prefix
@@ -1613,6 +1649,9 @@ Path to the root prefix
 (micromamba info) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba info) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba info) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -1699,6 +1738,9 @@ Path to the root prefix
 (micromamba env) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba env) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba env) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -1767,6 +1809,9 @@ Path to the root prefix
 
 (micromamba env list) -p --prefix  ::  TEXT
 Path to the target prefix
+
+(micromamba env list) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
 
 (micromamba env list) -n --name  ::  TEXT
 Name of the target prefix
@@ -1901,6 +1946,9 @@ Path to the root prefix
 (micromamba env create) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba env create) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba env create) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -1989,6 +2037,9 @@ Path to the root prefix
 (micromamba env export) -p --prefix  ::  TEXT
 Path to the target prefix
 
+(micromamba env export) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
+
 (micromamba env export) -n --name  ::  TEXT
 Name of the target prefix
 
@@ -2049,6 +2100,9 @@ Path to the root prefix
 
 (micromamba env remove) -p --prefix  ::  TEXT
 Path to the target prefix
+
+(micromamba env remove) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
 
 (micromamba env remove) -n --name  ::  TEXT
 Name of the target prefix
@@ -2111,6 +2165,9 @@ Path to the root prefix
 
 (micromamba run) -p --prefix  ::  TEXT
 Path to the target prefix
+
+(micromamba run) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
 
 (micromamba run) -n --name  ::  TEXT
 Name of the target prefix
@@ -2240,11 +2297,14 @@ Disable channel priority
 (micromamba search) -t --tree  ::  
 Show result as a tree
 
+(micromamba search) --recursive  ::  
+Show dependencies recursively, i.e. transitive dependencies (only for `depends`)
+
 (micromamba search) --pretty  ::  
 Pretty print result (only for search)
 
-(micromamba search) --local --remote  ::  {false} [0]
-Use installed data or remote repositories
+(micromamba search) --use-local  ::  INT
+Use installed data (--use-local=1, default for `depends` and `whoneeds`) or remote repositories (--use-local=0, default for `search`). If the `-c,--channel` option is set, it has the priority and --use-local is set to 0
 
 (micromamba search) --platform  ::  TEXT
 The platform description
@@ -2290,6 +2350,9 @@ Path to the root prefix
 
 (micromamba search) -p --prefix  ::  TEXT
 Path to the target prefix
+
+(micromamba search) --relocate-prefix  ::  TEXT
+Path to the relocation prefix
 
 (micromamba search) -n --name  ::  TEXT
 Name of the target prefix
