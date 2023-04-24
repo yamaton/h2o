@@ -45,7 +45,7 @@ executables:
       # - -eventlog     # for threadscope
       ## ---------------------------------------------------------------------------------------
       ## Require following to build static executable with ghc-musl docker image:
-      ## stack build --docker --docker-image "utdemir/ghc-musl:v24-ghc902" --no-nix --copy-bins
+      ## stack build --docker --docker-image "utdemir/ghc-musl:v25-ghc925" --no-nix --copy-bins
       ##
       # - -O2
       # - -static

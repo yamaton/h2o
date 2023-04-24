@@ -175,13 +175,17 @@ startsWithLongOption :: String -> Bool
 startsWithLongOption s = startsWithDoubleDash s && length ss >= 3 && c `notElem` [' ', '-']
   where
     ss = trimStart s
-    _ : _ : c : _ = ss
+    c = case ss of
+      (_ : _ : c' : _ : _) | length ss >= 3 -> c'
+      _ -> '\0' -- never executed and won't affect the result
 
 startsWithShortOrOldOption :: String -> Bool
 startsWithShortOrOldOption s = startsWithDash s && length ss >= 2 && c `notElem` [' ', '-']
   where
     ss = trimStart s
-    _ : c : _ = ss
+    c = case ss of
+      (_ : c' : _) | length ss >= 2 -> c'
+      _ -> '\0' -- never executed and won't affect the result
 
 -- | A speculative criteria for non-critical purposes
 mayContainOptions :: [Text] -> Bool
