@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           h2o
-version:        0.4.6
+version:        0.4.7
 description:    Please see the README on GitHub at <https://github.com/yamaton/h2o#readme>
 homepage:       https://github.com/yamaton/h2o#readme
 bug-reports:    https://github.com/yamaton/h2o/issues

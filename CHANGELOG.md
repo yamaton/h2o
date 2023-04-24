@@ -1,3 +1,8 @@
+## 0.4.7 (2023-04-24)
+ - Bump to GHC 9.2
+ - Support nested subcommands in bash outputs
+ - Support nested subcommands in zsh outputs
+
 ## 0.4.6 (2023-01-08)
 - Improve detection of description in an option line
 - Fix partial function in utility
