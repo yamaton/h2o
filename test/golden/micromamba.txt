@@ -2235,11 +2235,17 @@ User name for the account
 (micromamba auth login) -t --token  ::  TEXT
 Token for the account
 
+(micromamba auth login) -b --bearer  ::  TEXT
+Bearer token for the account
+
 (micromamba auth login) --password-stdin  ::  
 Read password from stdin
 
 (micromamba auth login) --token-stdin  ::  
 Read token from stdin
+
+(micromamba auth login) --bearer-stdin  ::  
+Read bearer token from stdin
 
 
 

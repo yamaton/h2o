@@ -3,16 +3,19 @@ name: release
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+env:
+  micromamba: "1.4.4"
+  ghc: "9.2.8"
 
 jobs:
   build-release:
-    name: stack w/ ghc ${{ matrix.ghc }} for ${{ matrix.build }}
+    name: stack w/ ghc ${{ env.ghc }} for ${{ matrix.build }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['9.2.7']
-        build: ['macos']
+        build: ["macos"]
         include:
           # - build: linux
           #   os: ubuntu-latest
@@ -28,15 +31,15 @@ jobs:
       - name: Setup Haskell Stack
         uses: haskell/actions/setup@v2
         with:
-          ghc-version: ${{ matrix.ghc }}
+          ghc-version: ${{ env.ghc }}
           enable-stack: true
-          stack-version: 'latest'
+          stack-version: "latest"
 
       - name: Make ~/.stack as cache
         uses: actions/cache@v3
         with:
           path: ~/.stack
-          key: ${{ runner.os }}-${{ matrix.ghc }}-stack
+          key: ${{ runner.os }}-${{ env.ghc }}-stack
 
       - name: Build release binary
         run: |

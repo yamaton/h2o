@@ -1,6 +1,10 @@
 on: [push]
 name: build and test
 
+env:
+  micromamba: "1.4.4"
+  ghc: "9.2.8"
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -8,13 +12,13 @@ jobs:
       - uses: actions/checkout@v3
       - uses: mamba-org/provision-with-micromamba@main
         with:
-          micromamba-version: '1.4.2'
+          micromamba-version: ${{ env.micromamba }}
           environment-file: .github/env.yml
       - uses: haskell/actions/setup@v2
         with:
-          ghc-version: '9.2.7' # Exact version of ghc to use
+          ghc-version: ${{ env.ghc }}
           enable-stack: true
-          stack-version: 'latest'
+          stack-version: "latest"
       - run: |
           micromamba --version
       - run: |
