@@ -92,20 +92,17 @@ Desc:  Generate shell init scripts
 
 
 Usage:
-micromamba shell [OPTIONS] [action] [prefix]
+micromamba shell [OPTIONS] [prefix_or_name] [SUBCOMMAND]
 
 
 (micromamba shell) -h --help  ::  
 Print this help message and exit
 
-(micromamba shell) -s --shell  ::  TEXT:{bash,cmd.exe,dash,fish,posix,powershell,tcsh,xonsh,zsh}
-A shell type
+(micromamba shell) -p --prefix  ::  TEXT Excludes: --name prefix_or_name
+Path to the target prefix
 
-(micromamba shell) --stack  ::  
-Stack the environment being activated
-
-(micromamba shell) -p -n --prefix --name  ::  TEXT
-The root prefix to configure (for init and hook), and the prefix to activate for activate, either by name or by path
+(micromamba shell) -n --name  ::  TEXT Excludes: --prefix prefix_or_name
+Name of the target prefix
 
 (micromamba shell) --rc-file  ::  TEXT ...
 Paths to the configuration files to use
@@ -147,17 +144,469 @@ Enable experimental features
 
 
 (micromamba shell)
-action                    (TEXT:{init,deinit,reinit,hook,activate,deactivate,reactivate})
+init                      (Add initialization in script to rc files)
+deinit                    (Remove activation script from rc files)
+reinit                    (Restore activation script from rc files)
+hook                      (Micromamba hook scripts)
+activate                  (Output activation code for the given shell)
+reactivate                (Output reactivateion code for the given shell)
+deactivate                (Output deactivation code for the given shell)
+enable_long_path_support  (Output deactivation code for the given shell)
 
 
 
-Name:  micromamba shell action
+Name:  micromamba shell init
 
 
-Desc:  TEXT:{init,deinit,reinit,hook,activate,deactivate,reactivate}
+Desc:  Add initialization in script to rc files
 
 
 Usage:
+micromamba shell init [OPTIONS] [root_prefix]
+
+
+(micromamba shell init) -h --help  ::  
+Print this help message and exit
+
+(micromamba shell init) -s --shell  ::  TEXT:{bash,cmd.exe,dash,fish,posix,powershell,tcsh,xonsh,zsh}
+A shell type
+
+(micromamba shell init) -r -p -n --root-prefix --prefix --name  ::  TEXT
+Path to the root prefix
+
+(micromamba shell init) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba shell init) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba shell init) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba shell init) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba shell init) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba shell init) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba shell init) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba shell init) --json  ::  
+Report all output as json
+
+(micromamba shell init) --offline  ::  
+Force use cached repodata
+
+(micromamba shell init) --dry-run  ::  
+Only display what would have been done
+
+(micromamba shell init) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba shell init) --experimental  ::  
+Enable experimental features
+
+
+
+
+Name:  micromamba shell deinit
+
+
+Desc:  Remove activation script from rc files
+
+
+Usage:
+micromamba shell deinit [OPTIONS] [root_prefix]
+
+
+(micromamba shell deinit) -h --help  ::  
+Print this help message and exit
+
+(micromamba shell deinit) -s --shell  ::  TEXT:{bash,cmd.exe,dash,fish,posix,powershell,tcsh,xonsh,zsh}
+A shell type
+
+(micromamba shell deinit) -r -p -n --root-prefix --prefix --name  ::  TEXT
+Path to the root prefix
+
+(micromamba shell deinit) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba shell deinit) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba shell deinit) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba shell deinit) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba shell deinit) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba shell deinit) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba shell deinit) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba shell deinit) --json  ::  
+Report all output as json
+
+(micromamba shell deinit) --offline  ::  
+Force use cached repodata
+
+(micromamba shell deinit) --dry-run  ::  
+Only display what would have been done
+
+(micromamba shell deinit) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba shell deinit) --experimental  ::  
+Enable experimental features
+
+
+
+
+Name:  micromamba shell reinit
+
+
+Desc:  Restore activation script from rc files
+
+
+Usage:
+micromamba shell reinit [OPTIONS]
+
+
+(micromamba shell reinit) -h --help  ::  
+Print this help message and exit
+
+(micromamba shell reinit) -s --shell  ::  TEXT:{bash,cmd.exe,dash,fish,posix,powershell,tcsh,xonsh,zsh}
+A shell type
+
+(micromamba shell reinit) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba shell reinit) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba shell reinit) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba shell reinit) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba shell reinit) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba shell reinit) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba shell reinit) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba shell reinit) --json  ::  
+Report all output as json
+
+(micromamba shell reinit) --offline  ::  
+Force use cached repodata
+
+(micromamba shell reinit) --dry-run  ::  
+Only display what would have been done
+
+(micromamba shell reinit) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba shell reinit) --experimental  ::  
+Enable experimental features
+
+
+
+
+Name:  micromamba shell hook
+
+
+Desc:  Micromamba hook scripts
+
+
+Usage:
+micromamba shell hook [OPTIONS] [root_prefix]
+
+
+(micromamba shell hook) -h --help  ::  
+Print this help message and exit
+
+(micromamba shell hook) -s --shell  ::  TEXT:{bash,cmd.exe,dash,fish,posix,powershell,tcsh,xonsh,zsh}
+A shell type
+
+(micromamba shell hook) -r -p -n --root-prefix --prefix --name  ::  TEXT
+Path to the root prefix
+
+(micromamba shell hook) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba shell hook) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba shell hook) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba shell hook) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba shell hook) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba shell hook) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba shell hook) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba shell hook) --json  ::  
+Report all output as json
+
+(micromamba shell hook) --offline  ::  
+Force use cached repodata
+
+(micromamba shell hook) --dry-run  ::  
+Only display what would have been done
+
+(micromamba shell hook) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba shell hook) --experimental  ::  
+Enable experimental features
+
+
+
+
+Name:  micromamba shell activate
+
+
+Desc:  Output activation code for the given shell
+
+
+Usage:
+micromamba shell activate [OPTIONS] [prefix_or_name]
+
+
+(micromamba shell activate) -h --help  ::  
+Print this help message and exit
+
+(micromamba shell activate) -s --shell  ::  TEXT:{bash,cmd.exe,dash,fish,posix,powershell,tcsh,xonsh,zsh}
+A shell type
+
+(micromamba shell activate) -p --prefix  ::  TEXT Excludes: --name prefix_or_name
+Path to the target prefix
+
+(micromamba shell activate) -n --name  ::  TEXT Excludes: --prefix prefix_or_name
+Name of the target prefix
+
+(micromamba shell activate) --stack  ::  
+Stack the environment being activated
+
+(micromamba shell activate) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba shell activate) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba shell activate) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba shell activate) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba shell activate) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba shell activate) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba shell activate) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba shell activate) --json  ::  
+Report all output as json
+
+(micromamba shell activate) --offline  ::  
+Force use cached repodata
+
+(micromamba shell activate) --dry-run  ::  
+Only display what would have been done
+
+(micromamba shell activate) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba shell activate) --experimental  ::  
+Enable experimental features
+
+
+
+
+Name:  micromamba shell reactivate
+
+
+Desc:  Output reactivateion code for the given shell
+
+
+Usage:
+micromamba shell reactivate [OPTIONS]
+
+
+(micromamba shell reactivate) -h --help  ::  
+Print this help message and exit
+
+(micromamba shell reactivate) -s --shell  ::  TEXT:{bash,cmd.exe,dash,fish,posix,powershell,tcsh,xonsh,zsh}
+A shell type
+
+(micromamba shell reactivate) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba shell reactivate) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba shell reactivate) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba shell reactivate) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba shell reactivate) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba shell reactivate) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba shell reactivate) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba shell reactivate) --json  ::  
+Report all output as json
+
+(micromamba shell reactivate) --offline  ::  
+Force use cached repodata
+
+(micromamba shell reactivate) --dry-run  ::  
+Only display what would have been done
+
+(micromamba shell reactivate) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba shell reactivate) --experimental  ::  
+Enable experimental features
+
+
+
+
+Name:  micromamba shell deactivate
+
+
+Desc:  Output deactivation code for the given shell
+
+
+Usage:
+micromamba shell deactivate [OPTIONS]
+
+
+(micromamba shell deactivate) -h --help  ::  
+Print this help message and exit
+
+(micromamba shell deactivate) -s --shell  ::  TEXT:{bash,cmd.exe,dash,fish,posix,powershell,tcsh,xonsh,zsh}
+A shell type
+
+(micromamba shell deactivate) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba shell deactivate) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba shell deactivate) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba shell deactivate) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba shell deactivate) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba shell deactivate) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba shell deactivate) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba shell deactivate) --json  ::  
+Report all output as json
+
+(micromamba shell deactivate) --offline  ::  
+Force use cached repodata
+
+(micromamba shell deactivate) --dry-run  ::  
+Only display what would have been done
+
+(micromamba shell deactivate) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba shell deactivate) --experimental  ::  
+Enable experimental features
+
+
+
+
+Name:  micromamba shell enable_long_path_support
+
+
+Desc:  Output deactivation code for the given shell
+
+
+Usage:
+micromamba shell enable_long_path_support [OPTIONS]
+
+
+(micromamba shell enable_long_path_support) -h --help  ::  
+Print this help message and exit
+
+(micromamba shell enable_long_path_support) --rc-file  ::  TEXT ...
+Paths to the configuration files to use
+
+(micromamba shell enable_long_path_support) --no-rc  ::  
+Disable the use of configuration files
+
+(micromamba shell enable_long_path_support) --no-env  ::  
+Disable the use of environment variables
+
+(micromamba shell enable_long_path_support) -v --verbose  ::  
+Set verbosity (higher verbosity with multiple -v, e.g. -vvv)
+
+(micromamba shell enable_long_path_support) --log-level  ::  ENUM:value in {critical->5,debug->1,error->4,info->2,off->6,trace->0,warning->3}
+OR {5,1,4,2,6,0,3}   Set the log level
+
+(micromamba shell enable_long_path_support) -q --quiet  ::  
+Set quiet mode (print less output)
+
+(micromamba shell enable_long_path_support) -y --yes  ::  
+Automatically answer yes on prompted questions
+
+(micromamba shell enable_long_path_support) --json  ::  
+Report all output as json
+
+(micromamba shell enable_long_path_support) --offline  ::  
+Force use cached repodata
+
+(micromamba shell enable_long_path_support) --dry-run  ::  
+Only display what would have been done
+
+(micromamba shell enable_long_path_support) --download-only  ::  
+Only download and extract packages, do not link them into environment.
+
+(micromamba shell enable_long_path_support) --experimental  ::  
+Enable experimental features
+
 
 
 
