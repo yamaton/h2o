@@ -478,7 +478,11 @@ optPartTests =
         (["-out"], "<File_Out, file name length < 256>"),
       test_optPart
         " -out <File_Out, file name length > 0>"
-        (["-out"], "<File_Out, file name length > 0>")
+        (["-out"], "<File_Out, file name length > 0>"),
+      ---- kubectl
+       test_optPart
+        "    -f, --filename=[]"
+        (["-f", "--filename"], "[]")
     ]
 
 unsupportedCases :: TestTree
