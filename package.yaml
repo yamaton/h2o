@@ -4,7 +4,7 @@ github: yamaton/h2o
 license: MIT
 author: "Yamato Matsuoka"
 maintainer: yamato.matsuoka@tetradresearch.com
-copyright: "2022 Tetrad Research"
+copyright: "2023 Triton Lab, LLC"
 
 extra-source-files:
   - README.md

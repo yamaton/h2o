@@ -11,7 +11,7 @@ homepage:       https://github.com/yamaton/h2o#readme
 bug-reports:    https://github.com/yamaton/h2o/issues
 author:         Yamato Matsuoka
 maintainer:     yamato.matsuoka@tetradresearch.com
-copyright:      2022 Tetrad Research
+copyright:      2023 Triton Lab, LLC
 license:        MIT
 license-file:   LICENSE
 build-type:     Simple
