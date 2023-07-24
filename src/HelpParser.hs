@@ -78,14 +78,14 @@ argWordNumber = do
 
 argWordBracketedHelper :: Char -> Char -> ReadP String
 argWordBracketedHelper bra ket = do
-  (consumed, _) <- gather $ between (char bra) (char ket) (many1 (argWordBracketedHelper bra ket <++ nonBracketLetters))
+  (consumed, _) <- gather $ between (char bra) (char ket) (many (argWordBracketedHelper bra ket <++ nonBracketLetters))
   return consumed
   where
     nonBracketLetters = munch1 (`notElem` ['\n', bra, ket])
 
 argWordBracketedHelperEased :: Char -> Char -> ReadP String
 argWordBracketedHelperEased bra ket = do
-  (consumed, _) <- gather $ between (char bra) (char ket) (many1 (argWordBracketedHelper bra ket <++ nonClosingLetters))
+  (consumed, _) <- gather $ between (char bra) (char ket) (many (argWordBracketedHelper bra ket <++ nonClosingLetters))
   return consumed
   where
     nonClosingLetters = munch1 (`notElem` ['\n', ket])
