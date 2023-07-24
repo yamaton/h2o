@@ -1,3 +1,7 @@
+## 0.4.8 (2023-07-23)
+ - Fix parser handling empty brackets, like '[]', as an option argument
+ - Copyright to "Triton Lab, LLC"
+
 ## 0.4.7 (2023-04-24)
  - Bump to GHC 9.2
  - Support nested subcommands in bash outputs
