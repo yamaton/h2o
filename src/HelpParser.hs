@@ -232,7 +232,9 @@ optArgInBraket :: ReadP OptArg
 optArgInBraket = do
   _ <- char '=' <++ singleSpace <++ pure ' ' -- ok not to have a delimiter before
   _ <- munch (== ' ')
-  argWordBracketed
+  x <- argWordBracketed
+  postfix <- option "" (string "?")
+  return (x ++ postfix)
 
 optArgAsNumber :: ReadP OptArg
 optArgAsNumber = do

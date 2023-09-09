@@ -482,7 +482,11 @@ optPartTests =
       ---- kubectl
        test_optPart
         "    -f, --filename=[]"
-        (["-f", "--filename"], "[]")
+        (["-f", "--filename"], "[]"),
+      ---- bun
+       test_optPart
+        "--inspect <STR>?"
+        (["--inspect"], "<STR>?")
     ]
 
 unsupportedCases :: TestTree
