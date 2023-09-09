@@ -284,9 +284,6 @@ micromamba shell reinit [OPTIONS]
 (micromamba shell reinit) -h --help  ::  
 Print this help message and exit
 
-(micromamba shell reinit) -s --shell  ::  TEXT:{bash,cmd.exe,dash,fish,posix,powershell,tcsh,xonsh,zsh}
-A shell type
-
 (micromamba shell reinit) --rc-file  ::  TEXT ...
 Paths to the configuration files to use
 
@@ -1880,7 +1877,7 @@ Set configuration on system's rc file
 Set configuration on env's rc file
 
 (micromamba config prepend) --file  ::  TEXT Excludes: --system --env
-Set configuration on system's rc file
+Set configuration on specified file
 
 
 
@@ -1920,7 +1917,7 @@ Set configuration on system's rc file
 Set configuration on env's rc file
 
 (micromamba config append) --file  ::  TEXT Excludes: --system --env
-Set configuration on system's rc file
+Set configuration on specified file
 
 
 
@@ -1960,7 +1957,7 @@ Set configuration on system's rc file
 Set configuration on env's rc file
 
 (micromamba config remove-key) --file  ::  TEXT Excludes: --system --env
-Set configuration on system's rc file
+Set configuration on specified file
 
 
 
@@ -1985,7 +1982,7 @@ Set configuration on system's rc file
 Set configuration on env's rc file
 
 (micromamba config remove) --file  ::  TEXT Excludes: --system --env
-Set configuration on system's rc file
+Set configuration on specified file
 
 
 
@@ -2010,7 +2007,7 @@ Set configuration on system's rc file
 Set configuration on env's rc file
 
 (micromamba config set) --file  ::  TEXT Excludes: --system --env
-Set configuration on system's rc file
+Set configuration on specified file
 
 
 
@@ -2035,7 +2032,7 @@ Set configuration on system's rc file
 Set configuration on env's rc file
 
 (micromamba config get) --file  ::  TEXT Excludes: --system --env
-Set configuration on system's rc file
+Set configuration on specified file
 
 
 
@@ -2435,11 +2432,14 @@ Print this help message and exit
 (micromamba env export) -e --explicit  ::  
 Use explicit format
 
-(micromamba env export) --no-md5 --md5  ::  {false}
+(micromamba env export) --no-md5 --md5  ::  {false} [0]
 Disable md5
 
 (micromamba env export) --no-build --build  ::  {false}
 Disable the build string in spec
+
+(micromamba env export) --channel-subdir  ::  
+Enable channel/subdir in spec
 
 (micromamba env export) --from-history  ::  
 Build environment spec from explicit specs in history

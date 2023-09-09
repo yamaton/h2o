@@ -2,7 +2,7 @@ on: [push]
 name: build and test
 
 env:
-  micromamba: "1.4.9"
+  micromamba: "1.5.1"
   ghc: "9.2.8"
 
 jobs:
