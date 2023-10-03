@@ -1,18 +1,19 @@
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
 
 module GenBashCompletions (toBashScript, genBashScript) where
 
-import qualified Data.Char as Char
-import qualified Data.List as List
-import Data.Text (Text)
-import qualified Data.Text as T
-import Formatting (sformat, stext, string, (%))
-import Type (Command (..), Opt (..), OptName (..))
+import qualified Data.Char  as Char
+import qualified Data.List  as List
+import           Data.Text  (Text)
+import qualified Data.Text  as T
+import           Formatting (sformat, stext, string, (%))
+import           Type       (Command (..), Opt (..), OptName (..),
+                             OptNameType (..))
 
 getOptsArray :: [Opt] -> Text
-getOptsArray opts = T.unwords $ concatMap (map (T.pack . _raw) . _names) opts
+getOptsArray opts = T.unwords $ concatMap (map (T.pack . _raw) . _names . quote) opts
 
 getSubcommandCall :: [String] -> String -> Text
 getSubcommandCall cmdSeq subname =
@@ -36,6 +37,19 @@ toBashFuncName :: [String] -> String
 toBashFuncName cmdSeq = '_' : List.intercalate "_" xs
   where
     xs = map (filter Char.isAlphaNum) cmdSeq
+
+quoteShort :: String -> String
+quoteShort "-\"" = "-\\\""
+quoteShort s     = s
+
+quoteShortType :: OptName -> OptName
+quoteShortType (OptName n ShortType) = OptName (quoteShort n) ShortType
+quoteShortType optName               = optName
+
+quote :: Opt -> Opt
+quote (Opt names args desc) = Opt (map quoteShortType names) args quotedDesc
+  where
+    quotedDesc = T.unpack . T.replace "\"" "\\\"" . T.pack $ desc
 
 bashHeader :: Text
 bashHeader = "# Auto-generated with h2o\n\n"
