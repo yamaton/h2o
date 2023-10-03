@@ -1,3 +1,8 @@
+## 0.4.9 (2023-10-02)
+ - Bump to GHC 9.4 (lts-21.14)
+ - Fix errors in zsh/bash outputs by quoting special symbols properly
+ - Support suffix ? like '<STR>?' as an option argument
+
 ## 0.4.8 (2023-07-23)
  - Fix parser handling empty brackets, like '[]', as an option argument
  - Copyright to "Triton Lab, LLC"
