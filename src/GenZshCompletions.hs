@@ -28,6 +28,23 @@ zshHeaderOld = sformat ("#compdef " % string % "\n\n")
 quote :: Text -> Text
 quote = T.replace "]" "\\]" . T.replace "[" "\\[" . T.replace "'" "'\\''"
 
+quoteShort :: String -> String
+quoteShort ('-':c:_) = case c of
+  '#' -> "-\\#"
+  '?' -> "-\\?"
+  '!' -> "-\\!"
+  '"' -> "-\\\""
+  '\'' -> "-\\'"
+  '$' -> "-\\$"
+  '&' -> "-\\&"
+  '*' -> "-\\*"
+  a -> '-':a:""
+quoteShort s = s
+
+quoteShortType :: OptName -> OptName
+quoteShortType (OptName n ShortType) = OptName (quoteShort n) ShortType
+quoteShortType optName = optName
+
 getOptAsText :: Opt -> Text
 getOptAsText (Opt optnames arg desc)
   | isArgAboutFile = T.concat [formatted, ":file:_files"]
@@ -35,7 +52,7 @@ getOptAsText (Opt optnames arg desc)
   where
     argUppercase = T.toUpper (T.pack arg)
     isArgAboutFile = any (`T.isInfixOf` argUppercase) ["FILE", "PATH", "DIR", "ARCHIVE"]
-    raws = map _raw optnames
+    raws = map (_raw . quoteShortType) optnames
     optionNames = List.intercalate "," raws
     quotedDesc = quote . T.pack $ desc
     formatted = case raws of
