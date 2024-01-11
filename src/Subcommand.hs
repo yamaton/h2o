@@ -10,6 +10,7 @@ import Text.ParserCombinators.ReadP
 import Type (Subcommand (..))
 import Utils (infoMsg)
 import qualified Utils
+import Data.Char (toLower)
 
 type Layout = (Int, Int)
 
@@ -58,7 +59,7 @@ subcommandWord :: ReadP String
 subcommandWord = do
   -- [NOTE] Assume subcommand starts with lowercase
   -- Replace with the commented line if you want (uppercase OR lowercase) instead
-  x <- satisfy $ \c -> c `elem` lowercase
+  x <- satisfy $ \c -> toLower c `elem` lowercase
   -- x <- satisfy $ \c -> c `elem` alphChars  --
   xs <- munch isAlphanumOrDashOrUnderscore
   -- Discard postfix '*'.

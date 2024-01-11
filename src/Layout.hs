@@ -569,7 +569,7 @@ parseBlockwise s = List.nub . concat $ results
   where
     pairs = preprocessBlockwise s
     results =
-      [ (\xs -> if null xs then warnShow "⚠️Failed pair (parseBlockwise)⚠️\n" (optStr, descStr) xs else xs) $
+      [ (\xs -> if null xs then warnShow "⚠️ Failed pair (parseBlockwise) ⚠️ \n" (optStr, descStr) xs else xs) $
           HelpParser.parseWithOptPart optStr descStr
         | (optStr, descStr) <- pairs,
           (optStr, descStr) /= ("", "")
@@ -591,7 +591,7 @@ preprocessMeta fallbackFunc lineIdxBase content = filter (/= ("", "")) $ map (Bi
           paragraphs = map (Utils.getParagraph xs) rangeForFallback
           indices = map fst rangeForFallback
           fallbackResults =
-            (\rrr -> if null rrr then rrr else Utils.warnMsg "⚠️opt-desc pairs from the fallback⚠️\n" rrr) $
+            (\rrr -> if null rrr then rrr else Utils.warnMsg "⚠️ opt-desc pairs from the fallback ⚠️ \n" rrr) $
               concatMap (uncurry fallbackFunc) (zip indices paragraphs)
       Nothing ->
         trace
@@ -616,7 +616,7 @@ parseMany s = List.nub . concat $ results
   where
     pairs = preprocessAll 0 s
     results =
-      [ (\xs -> if null xs then warnShow "⚠️Failed pair (parseMany)⚠️\n" (optStr, descStr) xs else xs) $
+      [ (\xs -> if null xs then warnShow "⚠️ Failed pair (parseMany) ⚠️ \n" (optStr, descStr) xs else xs) $
           HelpParser.parseWithOptPart optStr descStr
         | (optStr, descStr) <- pairs,
           (optStr, descStr) /= ("", "")
