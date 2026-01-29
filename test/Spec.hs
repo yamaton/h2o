@@ -25,7 +25,8 @@ import Test.Tasty.HUnit (testCase, (@?=))
 import Test.Tasty.Hedgehog (testProperty)
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
-import Type (Opt (..), OptName (..), OptNameType (..))
+import Type (Command (..), Opt (..), OptName (..), OptNameType (..))
+import qualified Data.Text as T
 import Utils (convertTabsToSpaces, getMostFrequent, isUsageBlock, splitsAt, toContiguousChunks, toRanges)
 
 main :: IO ()
@@ -671,7 +672,17 @@ shellCompTests =
       testCase "zsh script generation" $
         GenZsh.genZshScript cmd opts @?= zshScriptExpected,
       testCase "bash script generation" $
-        GenBash.genBashScript cmd opts @?= bashScriptExpected
+        GenBash.genBashScript cmd opts @?= bashScriptExpected,
+      testCase "fish multi-level ancestor condition (root)" $
+        GenFish.makeAncestorCondition ["mycmd"] @?= T.pack "",
+      testCase "fish multi-level ancestor condition (1 level)" $
+        GenFish.makeAncestorCondition ["mycmd", "sub1"] @?= T.pack "__fish_seen_subcommand_from sub1",
+      testCase "fish multi-level ancestor condition (2 levels)" $
+        GenFish.makeAncestorCondition ["mycmd", "sub1", "subsub1"] @?= T.pack "__fish_seen_subcommand_from sub1; and __fish_seen_subcommand_from subsub1",
+      testCase "fish no child condition (empty)" $
+        GenFish.makeNoChildCondition [] @?= T.pack "",
+      testCase "fish no child condition (with children)" $
+        GenFish.makeNoChildCondition [dummyCmd "child1", dummyCmd "child2"] @?= T.pack "not __fish_seen_subcommand_from child1 child2"
     ]
   where
     cmd = "nanachi"
@@ -707,6 +718,7 @@ shellCompTests =
       \}\n\n\
       \## -o bashdefault and -o default are fallback\n\
       \complete -o bashdefault -o default -F _nanachi nanachi\n"
+    dummyCmd n = Command n "" "" [] [] ""
 
 shellCompGoldenTests :: TestTree
 shellCompGoldenTests =
