@@ -3,7 +3,7 @@ name: build and test
 
 env:
   micromamba: "1.5.1"
-  ghc: "9.4.8"
+  ghc: "9.8.4"
 
 jobs:
   test:

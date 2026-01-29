@@ -6,7 +6,7 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+"
 
 env:
-  ghc: "9.4.8"
+  ghc: "9.8.4"
 
 jobs:
   build-release:
@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - ghc: "9.4.8"
+          - ghc: "9.8.4"
             build: macos
             os: macos-latest
             target: x86_64-apple-darwin
