@@ -1,0 +1,113 @@
+#!/bin/bash
+# Mock command for testing h2o's subcommand parsing
+# This script mimics a CLI tool with multi-level subcommands
+
+case "$*" in
+  "--help" | "-h" | "")
+    cat << 'EOF'
+mockcmd - A mock command for testing
+
+Usage: mockcmd [OPTIONS] [SUBCOMMAND]
+
+Options:
+  -h, --help             Show this help message
+  -v, --verbose          Enable verbose output
+  -c, --config FILE      Path to config file
+  --version              Show version
+
+Subcommands:
+  init                   Initialize a new project
+  remote                 Manage remote connections
+  config                 Get and set options
+EOF
+    ;;
+
+  "init --help" | "init -h")
+    cat << 'EOF'
+Initialize a new project
+
+Usage: mockcmd init [OPTIONS] [NAME]
+
+Options:
+  -h, --help             Show this help message
+  -t, --template NAME    Use a template
+  --bare                 Create a bare project
+  -q, --quiet            Suppress output
+EOF
+    ;;
+
+  "remote --help" | "remote -h")
+    cat << 'EOF'
+Manage remote connections
+
+Usage: mockcmd remote [OPTIONS] [SUBCOMMAND]
+
+Options:
+  -h, --help            Show this help message
+  -v, --verbose         Be verbose
+
+Subcommands:
+  add                   Add a new remote
+  remove                Remove a remote
+  list                  List all remotes
+EOF
+    ;;
+
+  "remote add --help" | "remote add -h")
+    cat << 'EOF'
+Add a new remote
+
+Usage: mockcmd remote add [OPTIONS] NAME URL
+
+Options:
+  -h, --help            Show this help message
+  -f, --fetch           Fetch after adding
+  --tags                Import tags
+  -t, --track REF       Branch to track
+EOF
+    ;;
+
+  "remote remove --help" | "remote remove -h")
+    cat << 'EOF'
+Remove a remote
+
+Usage: mockcmd remote remove [OPTIONS] NAME
+
+Options:
+  -h, --help            Show this help message
+  --force               Force removal
+EOF
+    ;;
+
+  "remote list --help" | "remote list -h")
+    cat << 'EOF'
+List all remotes
+
+Usage: mockcmd remote list [OPTIONS]
+
+Options:
+  -h, --help            Show this help message
+  --verbose             Show URLs
+EOF
+    ;;
+
+  "config --help" | "config -h")
+    cat << 'EOF'
+Get and set options
+
+Usage: mockcmd config [OPTIONS] [KEY] [VALUE]
+
+Options:
+  -h, --help            Show this help message
+  --global              Use global config
+  --local               Use local config
+  -l, --list            List all settings
+  --unset               Remove a setting
+EOF
+    ;;
+
+  *)
+    echo "Unknown command: $*" >&2
+    exit 1
+    ;;
+esac

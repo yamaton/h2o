@@ -757,7 +757,7 @@ integratedGoldenTestsCommandInput =
     "Integrated tests"
     (map toTestTree commands)
   where
-    commands = ["h2o", "micromamba"]
+    commands = ["h2o", "mockcmd"]
     toLazyByteString = TLE.encodeUtf8 . TL.fromStrict
     conf name = C_ (Config (CommandInput name True) Native False False False 4)
     runWithCommand name = toLazyByteString <$> run (conf name)

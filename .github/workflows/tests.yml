@@ -2,25 +2,22 @@ on: [push]
 name: build and test
 
 env:
-  micromamba: "1.5.1"
   ghc: "9.8.4"
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: mamba-org/provision-with-micromamba@main
-        with:
-          micromamba-version: ${{ env.micromamba }}
-          environment-file: .github/env.yml
-      - uses: haskell/actions/setup@v2
+      - uses: actions/checkout@v4
+      - uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ env.ghc }}
           enable-stack: true
           stack-version: "latest"
-      - run: |
-          micromamba --version
+      - name: Install test fixtures
+        run: |
+          sudo cp test/fixtures/mockcmd /usr/local/bin/
+          sudo chmod +x /usr/local/bin/mockcmd
       - run: |
           gh --version
       - run: |

@@ -1,0 +1,171 @@
+Name:  mockcmd
+
+
+Desc:  mockcmd
+
+
+Usage:
+mockcmd [OPTIONS] [SUBCOMMAND]
+
+
+(mockcmd) -h --help  ::  
+Show this help message
+
+(mockcmd) -v --verbose  ::  
+Enable verbose output
+
+(mockcmd) -c --config  ::  FILE
+Path to config file
+
+(mockcmd) --version  ::  
+Show version
+
+
+
+
+(mockcmd)
+init                      (Initialize a new project)
+remote                    (Manage remote connections)
+config                    (Get and set options)
+
+
+
+Name:  mockcmd init
+
+
+Desc:  Initialize a new project
+
+
+Usage:
+mockcmd init [OPTIONS] [NAME]
+
+
+(mockcmd init) -h --help  ::  
+Show this help message
+
+(mockcmd init) -t --template  ::  NAME
+Use a template
+
+(mockcmd init) --bare  ::  
+Create a bare project
+
+(mockcmd init) -q --quiet  ::  
+Suppress output
+
+
+
+
+Name:  mockcmd remote
+
+
+Desc:  Manage remote connections
+
+
+Usage:
+mockcmd remote [OPTIONS] [SUBCOMMAND]
+
+
+(mockcmd remote) -h --help  ::  
+Show this help message
+
+(mockcmd remote) -v --verbose  ::  
+Be verbose
+
+
+
+
+(mockcmd remote)
+add                       (Add a new remote)
+remove                    (Remove a remote)
+list                      (List all remotes)
+
+
+
+Name:  mockcmd remote add
+
+
+Desc:  Add a new remote
+
+
+Usage:
+mockcmd remote add [OPTIONS] NAME URL
+
+
+(mockcmd remote add) -h --help  ::  
+Show this help message
+
+(mockcmd remote add) -f --fetch  ::  
+Fetch after adding
+
+(mockcmd remote add) --tags  ::  
+Import tags
+
+(mockcmd remote add) -t --track  ::  REF
+Branch to track
+
+
+
+
+Name:  mockcmd remote remove
+
+
+Desc:  Remove a remote
+
+
+Usage:
+mockcmd remote remove [OPTIONS] NAME
+
+
+(mockcmd remote remove) -h --help  ::  
+Show this help message
+
+(mockcmd remote remove) --force  ::  
+Force removal
+
+
+
+
+Name:  mockcmd remote list
+
+
+Desc:  List all remotes
+
+
+Usage:
+mockcmd remote list [OPTIONS]
+
+
+(mockcmd remote list) -h --help  ::  
+Show this help message
+
+(mockcmd remote list) --verbose  ::  
+Show URLs
+
+
+
+
+Name:  mockcmd config
+
+
+Desc:  Get and set options
+
+
+Usage:
+mockcmd config [OPTIONS] [KEY] [VALUE]
+
+
+(mockcmd config) -h --help  ::  
+Show this help message
+
+(mockcmd config) --global  ::  
+Use global config
+
+(mockcmd config) --local  ::  
+Use local config
+
+(mockcmd config) -l --list  ::  
+List all settings
+
+(mockcmd config) --unset  ::  
+Remove a setting
+
