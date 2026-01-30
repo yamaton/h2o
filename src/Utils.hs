@@ -274,7 +274,7 @@ splitsAt xs ns = reverse $ filter (not . null) $ List.unfoldr f (xs, reverse ns'
         (former, latter) = List.splitAt k ys
 
 topTenPercentile :: (Ord a) => [a] -> a
-topTenPercentile [] = error "Cannot compute percentile against null!"
+topTenPercentile [] = error "topTenPercentile: empty list (this is a bug in h2o)"
 topTenPercentile xs = sortedXs !! idx
   where
     n = length xs

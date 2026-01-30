@@ -152,7 +152,7 @@ pageToCommandIO name skipMan depth content = do
           || (not . null . _usage) cmd
   if status && isSuccess
     then Postprocess.fixCommand cmd
-    else error ("Failed to extract information for a Command: " ++ name)
+    else die $ "Error: Could not extract options from '" ++ name ++ "'. The help text may have an unsupported format."
 
 -- | Scan subcommand recursively for its options and sub-sub commands
 --
@@ -205,7 +205,7 @@ getSubcmdCandidates content =
 pageToCommandSimple :: String -> String -> IO Command
 pageToCommandSimple name content =
   if null rootOptions
-    then error ("Failed to extract information for a Command: " ++ name)
+    then die $ "Error: Could not extract options from '" ++ name ++ "'. The help text may have an unsupported format."
     else Postprocess.fixCommand $ Command name name usage rootOptions [] ""
   where
     rootOptions = parseBlockwise content

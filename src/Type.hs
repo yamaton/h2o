@@ -123,7 +123,7 @@ toOptionNameType s
   | "--" `T.isPrefixOf` s = LongType
   | "-" `T.isPrefixOf` s && T.length s == 2 = ShortType
   | "-" `T.isPrefixOf` s = OldType
-  | otherwise = error "Invalid option name!"
+  | otherwise = error $ "toOptionNameType: invalid option name '" ++ T.unpack s ++ "' (this is a bug in h2o)"
 
 asSubcommand :: Command -> Subcommand
 asSubcommand (Command n desc _ _ _ _) = Subcommand n desc

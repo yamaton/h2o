@@ -115,7 +115,7 @@ score (Opt names arg desc) =
 
     nameScore :: [OptName] -> Int
     nameScore optnames
-      | null optnames = error "Something is wrong with option names"
+      | null optnames = error "nameScore: empty option names list (this is a bug in h2o)"
       | length optnames == 1 && topElem `elem` [ShortType, LongType, OldType] = 1
       | Set.fromList [LongType, ShortType] == types = 2
       | otherwise = 0
