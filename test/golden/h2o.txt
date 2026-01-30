@@ -8,7 +8,7 @@ Usage:
 h2o (
       ((-c|--command <string>) [--skip-man] | (-f|--file <file>) 
         [--skip-man] |
-        (-s|--subcommand <string-string>) | --loadjson <file>) 
+        (-s|--subcommand <command-subcommand>) | --loadjson <file>) 
       [--format {bash|zsh|fish|json|native}] [--json] 
       [--list-subcommands] [--debug] [--depth <int>] [-v|--verbose] |
       --version)
@@ -23,7 +23,7 @@ Skip scanning manpage and focus on help text. Does not apply if input source is 
 (h2o) -f --file  ::  <file>
 Extract CLI options form the text file.
 
-(h2o) -s --subcommand  ::  <string-string>
+(h2o) -s --subcommand  ::  <command-subcommand>
 Extract CLI options from the subcommand-specific help text or man page. Enter a command-subcommand pair, like git-log, as the argument.
 
 (h2o) --loadjson  ::  <file>

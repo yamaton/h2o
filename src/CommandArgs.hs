@@ -5,7 +5,6 @@
 module CommandArgs where
 
 import Data.List.Extra (stripInfix)
-import qualified Data.Maybe as Maybe
 import qualified Data.Text as T
 import Options.Applicative
 
@@ -46,13 +45,19 @@ toOutputFormat s
   where
     s' = T.toLower . T.pack $ s
 
+parseSubcommandPair :: ReadM (String, String)
+parseSubcommandPair = eitherReader $ \s ->
+  case stripInfix "-" s of
+    Just pair -> Right pair
+    Nothing -> Left $ "Invalid format: '" ++ s ++ "'. Expected 'command-subcommand' (e.g., git-log)"
+
 subcommandInput :: Parser Input
 subcommandInput =
-  uncurry SubcommandInput . Maybe.fromJust . stripInfix "-"
-    <$> strOption
+  uncurry SubcommandInput
+    <$> option parseSubcommandPair
       ( long "subcommand"
           <> short 's'
-          <> metavar "<string-string>"
+          <> metavar "<command-subcommand>"
           <> help "Extract CLI options from the subcommand-specific help text or man page. Enter a command-subcommand pair, like git-log, as the argument."
       )
     <*> switch
