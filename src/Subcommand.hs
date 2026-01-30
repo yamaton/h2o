@@ -31,7 +31,7 @@ getLayoutMaybe :: [String] -> Int -> Maybe Layout
 getLayoutMaybe xs offset = liftM2 (,) first second
   where
     pairs =
-      infoMsg "subcommand: first two word locations:" $
+      infoMsg "First two word locations:" $
         filter (\(a, b) -> a > 0 && b >= a + 6 && a < offset) $
           map firstTwoWordsLoc xs
     second = Utils.getMostFrequent [b | (_, b) <- pairs]
@@ -45,9 +45,9 @@ getAlignedLines s =
   where
     xs = filter removeJunkDashLine (lines s)
     offsetMay = getDescriptionOffset (unlines xs)
-    offset = infoMsg "subcommand: offset: " $ Maybe.fromMaybe 50 offsetMay
+    offset = infoMsg "Description offset:" $ Maybe.fromMaybe 50 offsetMay
     ys = filter removeJunkLine (lines s)
-    layoutMay = infoMsg "subcommand: " $ getLayoutMaybe ys offset
+    layoutMay = infoMsg "Detected layout:" $ getLayoutMaybe ys offset
 
 lowercase :: String
 lowercase = "abcdefghijklmnopqrstuvwxyz"
@@ -108,7 +108,7 @@ removeJunkLine s =
     && (not . Utils.startsWithChar '[' $ s)
 
 parseSubcommand :: String -> [Subcommand]
-parseSubcommand content = infoMsg "subcommand: parseSubcommand" results
+parseSubcommand content = infoMsg "Parsed subcommands:" results
   where
     xs = getAlignedLines content
     results = (map (fst . last) . filter (not . null)) [readP_to_S subcommand x | x <- xs]

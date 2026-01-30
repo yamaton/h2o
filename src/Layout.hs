@@ -113,11 +113,11 @@ getDescOffsetEstimate lineIdxBase s optLocs =
   case descOffsetWithCountInNonoptLines lineIdxBase s optLocs of
     (Nothing, optLocsRemoved) ->
       case descOffsetWithCountInOptionLines lineIdxBase s (filter (`notElem` optLocsRemoved) optLocs) of
-        Nothing -> Utils.infoTrace "Retrieved absolutely zero information" (Nothing, optLocsRemoved)
+        Nothing -> Utils.infoTrace "No layout information found" (Nothing, optLocsRemoved)
         Just (x2, c2) ->
           if isAlignedMoreThan75Percent c2
             then Utils.infoTrace "Descriptions always appear in the lines with options" (Just x2, optLocsRemoved)
-            else Utils.infoTrace "Retrieved nothing from layout" (Nothing, optLocsRemoved)
+            else Utils.infoTrace "Layout analysis yielded no results" (Nothing, optLocsRemoved)
     (Just (x1, c1), optLocsRemoved) ->
       case descOffsetWithCountInOptionLines lineIdxBase s (filter (`notElem` optLocsRemoved) optLocs) of
         Nothing -> Utils.infoTrace "Descriptions never appear in the lines with options" (Just x1, optLocsRemoved)
@@ -144,7 +144,7 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
   | otherwise = (res, optLocsRemoved)
   where
     descLocs =
-      Utils.infoShowCoords "descLocs:" lineIdxBase $
+      Utils.infoShowCoords "Description locations:" lineIdxBase $
         takeHangingDesc lineIdxBase optLocs $
           getNonoptLocations s
     (_, descOffsets) = unzip descLocs
@@ -152,10 +152,10 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
     offsetOverlaps = Set.toList $ Set.intersection (Set.fromList optOffsets) (Set.fromList descOffsets)
     (optOffsets', optOffsetsRemoved) = span (< 10) optOffsets
     optLocsRemoved =
-      Utils.infoShowCoords "optLocsRemoved:" lineIdxBase $
+      Utils.infoShowCoords "Removed option locations:" lineIdxBase $
         filter (\(_, c) -> c `elem` optOffsetsRemoved) optLocs
     indentations =
-      infoMsg "descIndentations:" $
+      infoMsg "Description indentations:" $
         [ x | (r, x) <- descLocs,
               -- description's offset is equal (rare case!) or greater than option's
               null optOffsets' || (List.maximum optOffsets' <= x),
@@ -163,7 +163,7 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
               (not . null) optLines, head optLines < r, r < last optLines + 5
               -- previous line cannot be blank
         ]
-    res = infoMsg "descOffsetWithCountInNonoptLines:" $ getMostFrequentWithCount indentations
+    res = infoMsg "Description offset (from non-option lines):" $ getMostFrequentWithCount indentations
 
 -- | Take description locations that hangs an option line
 --
@@ -196,7 +196,7 @@ takeHangingDesc lineIdxBase optLocs descLocs = descLocSelected
     (optLines, _) = unzip optLocs
     (descLines, _) = unzip descLocs
     cueDescLocs =
-      Utils.infoShowCoords "cueDescLocs:" lineIdxBase $
+      Utils.infoShowCoords "Cue description locations:" lineIdxBase $
         [ (descLineNum, descIndentation)
           | (i, (descLineNum, descIndentation)) <- zip [0 ..] descLocs,
             (descLineNum - 1) `elem` optLines,
@@ -221,7 +221,7 @@ takeHangingDesc lineIdxBase optLocs descLocs = descLocSelected
 -- Returns Just (offset size, match count) if matches
 descOffsetWithCountInOptionLines :: Int -> String -> [Location] -> Maybe (Int, Int)
 descOffsetWithCountInOptionLines _ s optLocs =
-  infoMsg "descOffsetWithCountInOptionLines: " res
+  infoMsg "Description offset (from option lines):" res
   where
     sep = "   " -- hardcoded as 3 spaces for now
     xs = lines s
@@ -291,23 +291,23 @@ splitAfter offset x
 -- [FIXME] Should attempt more when descriptionOffsetMay is Nothing.
 getDescOffsetOptLocsPair :: Int -> String -> (Maybe Int, [(Int, Int)])
 getDescOffsetOptLocsPair lineIdxBase s
-  | null optionOffsets = Utils.infoTrace "optionOffsets is null" (Nothing, [])
-  | null optLocsFixed = Utils.infoTrace "optLocsFixed is null" (Nothing, [])
-  | Maybe.isNothing descriptionOffsetMay = Utils.infoTrace "getDescOffsetOptLocsPair: descriptionOffsetMay is Nothing" (Nothing, optLocsFixed)
-  | descOffset <= 3 = Utils.infoTrace "getDescOffsetOptLocsPair: descOffset too small" (Nothing, optLocsFixed)
-  | otherwise = Utils.infoTrace "getDescOffsetOptLocsPair" (Just descOffset, optLocsFixed)
+  | null optionOffsets = Utils.infoTrace "No option offsets found" (Nothing, [])
+  | null optLocsFixed = Utils.infoTrace "No option locations found" (Nothing, [])
+  | Maybe.isNothing descriptionOffsetMay = Utils.infoTrace "Description offset could not be determined" (Nothing, optLocsFixed)
+  | descOffset <= 3 = Utils.infoTrace "Description offset too small (<=3)" (Nothing, optLocsFixed)
+  | otherwise = Utils.infoTrace "Description offset and option locations:" (Just descOffset, optLocsFixed)
   where
-    optionOffsets = infoMsg "optionOffsets:" $ getOptionOffsets s
+    optionOffsets = infoMsg "Option offsets:" $ getOptionOffsets s
     optLocsCandidates = getOptionLocations s
 
     -- Split the option locations by comparing the horizontal offsets with the most frequent one
     (optLocs, _) = List.partition (\(_, c) -> c `elem` optionOffsets) optLocsCandidates
     (descriptionOffsetMay, optLocsRemoved) =
       getDescOffsetEstimate lineIdxBase s $
-        Utils.infoShowCoords "optLocs:" lineIdxBase optLocs
-    descOffset = infoMsg "descOffset:" $ Maybe.fromJust descriptionOffsetMay
+        Utils.infoShowCoords "Option locations:" lineIdxBase optLocs
+    descOffset = infoMsg "Description offset:" $ Maybe.fromJust descriptionOffsetMay
     optLocsFixed =
-      Utils.infoShowCoords "optLinesFixed:" lineIdxBase $
+      Utils.infoShowCoords "Fixed option locations:" lineIdxBase $
         filter (`notElem` optLocsRemoved) optLocs
 
 getDescriptionOffset :: String -> Maybe Int
@@ -318,7 +318,7 @@ getDescriptionOffset s = fst $ getDescOffsetOptLocsPair 0 s
 getOptionDescriptionPairsFromLayout :: Int -> String -> Maybe ([(String, String)], [Location])
 getOptionDescriptionPairsFromLayout lineIdxBase s
   | Maybe.isNothing descOffsetMay || null res = Nothing
-  | otherwise = Just (res, Utils.infoShowCoords "droppedOptLocs:" lineIdxBase droppedOptLocs)
+  | otherwise = Just (res, Utils.infoShowCoords "Dropped option locations:" lineIdxBase droppedOptLocs)
   where
     (descOffsetMay, optLocs) = getDescOffsetOptLocsPair lineIdxBase s
     descOffset = Maybe.fromJust descOffsetMay
@@ -333,7 +333,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         [ idx | (idx, x) <- zip [0 ..] xs, isWordStartingWithIndentation descOffset x, idx `Set.notMember` optLinesSet
         ]
     linewidths = map (length . (xs !!)) descLinesWithoutOptions
-    descLineWidthTop10Percentile = infoMsg "descLineWidthTop10Percentile: " $ if null linewidths then 80 else Utils.topTenPercentile linewidths
+    descLineWidthTop10Percentile = infoMsg "Description line width (90th percentile):" $ if null linewidths then 80 else Utils.topTenPercentile linewidths
     descLinesWithoutOptionsSet = Set.fromList descLinesWithoutOptions
 
     -- The line must be long when description starts at the same line
@@ -444,7 +444,7 @@ oneliners xs offset a b =
 updateDescFrom :: [String] -> Int -> Int -> Int -> Int
 updateDescFrom xs offset optFrom descFrom
   | null ys = descFrom
-  | otherwise = debugMsg "updateDescFrom (res) =" res
+  | otherwise = debugMsg "Updated description from:" res
   where
     indices = take (optFrom - descFrom) [descFrom - 1, descFrom - 2 ..]
     ys = takeWhile (\i -> isWordStartingAround 2 offset (xs !! i)) indices
@@ -520,7 +520,7 @@ getHeadingIndices xs
   | count >= 2 || null indentations' = [idx | (idx, indentation) <- zip [0 ..] indentations, indentation == minval]
   | otherwise = [idx | (idx, indentation) <- zip [0 ..] indentations, indentation == secondMinval]
   where
-    indentations = debugMsg "indentations: " $ map (\x -> if null (trim x) then 80 else length . takeWhile (== ' ') $ x) xs
+    indentations = debugMsg "Line indentations:" $ map (\x -> if null (trim x) then 80 else length . takeWhile (== ' ') $ x) xs
     minval = List.minimum indentations
     count = length $ filter (== minval) indentations
     indentations' = filter (/= minval) indentations
@@ -587,7 +587,7 @@ preprocessMeta fallbackFunc lineIdxBase content = filter (/= ("", "")) $ map (Bi
           descLinesExtra = map fst $ takeHangingDesc lineIdxBase droppedOptLocs $ getNonoptLocations content
           droppedOptLines = map fst droppedOptLocs
           lineNums = List.sort $ droppedOptLines ++ descLinesExtra
-          rangeForFallback = Utils.infoShowCoords "rangeForFallback:" lineIdxBase $ Utils.toRanges lineNums
+          rangeForFallback = Utils.infoShowCoords "Fallback range:" lineIdxBase $ Utils.toRanges lineNums
           paragraphs = map (Utils.getParagraph xs) rangeForFallback
           indices = map fst rangeForFallback
           fallbackResults =
@@ -628,7 +628,7 @@ parseUsage content
   | null blockFiltered = Utils.debugShow "[parseUsage] NOT FOUND" blocks ""
   | foundSynopsis = Utils.debugMsg "[parseUsage] SYNOPSIS: " result
   | foundUsage = Utils.debugMsg "[parseUsage] Usage: " result
-  | otherwise = Utils.debugTrace "[parseUsage] something is wrong" ""
+  | otherwise = Utils.debugTrace "[parseUsage] Unexpected state: no matching condition" ""
   where
     headerSynopsis = "SYNOPSIS"
     headerUsage = "Usage"
@@ -638,7 +638,7 @@ parseUsage content
     foundPrefix s = any (`isPrefixOf` s) keywords
     blocks = (splitByHeadersForUsage . lines) content
     blockFiltered = filter foundPrefix blocks
-    theBlock = Utils.debugMsg "[parseUsage] theBlock:" $ head blockFiltered
+    theBlock = Utils.debugMsg "[parseUsage] Selected block:" $ head blockFiltered
     foundSynopsis = headerSynopsis `isPrefixOf` theBlock
     foundUsage = headerUsage `isPrefixOf` theBlock
     getBody = trimEnd . unlines . trimFixedIndents . tail . lines
@@ -647,11 +647,11 @@ parseUsage content
     firstLine = head xs
     result
       | Maybe.isNothing offsetMaybe = Utils.debugShow "[parseUsage] Something is wrong" firstLine ""
-      | (null . trim) firstLineRest = Utils.debugMsg "[parseUsage] baba" $ getBody theBlock
+      | (null . trim) firstLineRest = Utils.debugMsg "[parseUsage] Header-only first line:" $ getBody theBlock
       | otherwise = trimEnd (unlines ys)
       where
         offsetMaybe = length <$> HelpParser.parseUsageHeader keywords theBlock
-        offset = Utils.debugMsg "[parseUsage] offset" $ Maybe.fromJust offsetMaybe
+        offset = Utils.debugMsg "[parseUsage] Detected offset:" $ Maybe.fromJust offsetMaybe
         firstLineRest = drop offset firstLine
         pairs = map (splitAt offset) xs
         ys = snd (head pairs) : map snd (takeWhile (null . trim . fst) (tail pairs))
@@ -683,8 +683,8 @@ getHeadingIndicesSimple xs =
 -- | Drop by the shallowest indentation in the given lines
 trimFixedIndents :: [String] -> [String]
 trimFixedIndents xs
-  | null ys = Utils.debugMsg "[parseUsage] what's wrong?" xs
-  | otherwise = Utils.debugMsg "[parseUsage] looks okay" $ map (drop size) xs
+  | null ys = Utils.debugMsg "[parseUsage] No non-empty lines found:" xs
+  | otherwise = Utils.debugMsg "[parseUsage] Trimmed lines:" $ map (drop size) xs
   where
     ys = filter (not . null . trim) xs
     size = minimum (map (length . takeWhile (== ' ')) ys)

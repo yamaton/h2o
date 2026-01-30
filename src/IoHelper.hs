@@ -37,8 +37,8 @@ getManAndHelpSub names = do
       content2 <- getHelpSub names
       if T.null content2
         then die $ "Error: No help or man page found for '" ++ List.intercalate " " names ++ "'. Is the command installed?"
-        else Utils.infoTrace "io: Using help for subcommand" $ return content2
-    else Utils.infoTrace "io: Using manpage for subcommand" $ return content
+        else Utils.infoTrace "Using help text for subcommand" $ return content2
+    else Utils.infoTrace "Using man page for subcommand" $ return content
 
 getHelpTemplateMeta :: (Text -> Bool) -> String -> [[String]] -> IO Text
 getHelpTemplateMeta _ _ [] = return ""
@@ -60,11 +60,11 @@ fetchHelpInfo isGood name args = do
   let stdoutText = TL.toStrict . TLE.decodeUtf8 $ stdout
   let stderrText = TL.toStrict . TLE.decodeUtf8 $ stderr
   let res
-        | isCommandNotFound exitCode = Utils.warnTrace "CommandNotFound" Nothing
+        | isCommandNotFound exitCode = Utils.warnTrace "Command not found" Nothing
         | any (Utils.hasErrorMessageAtTop (T.pack name)) [stdoutText, stderrText] =
-            Utils.warnTrace ("The command seems invalid: " ++ unwords cmdSeq) Nothing
-        | isGood stdoutText = Utils.debugTrace ("Using stdout: " ++ unwords cmdSeq) $ Just stdoutText
-        | isGood stderrText = Utils.debugTrace ("Using stderr: " ++ unwords cmdSeq) $ Just stderrText
+            Utils.warnTrace ("Command appears invalid: " ++ unwords cmdSeq) Nothing
+        | isGood stdoutText = Utils.debugTrace ("Using stdout from: " ++ unwords cmdSeq) $ Just stdoutText
+        | isGood stderrText = Utils.debugTrace ("Using stderr from: " ++ unwords cmdSeq) $ Just stderrText
         | otherwise = Nothing
   return res
   where
@@ -106,8 +106,8 @@ getManAndHelp name = do
       content2 <- getHelp name
       if T.null content2
         then die $ "Error: No help or man page found for '" ++ name ++ "'. Is the command installed?"
-        else Utils.infoTrace "io: Using help" $ return content2
-    else Utils.infoTrace "io: Using manpage" $ return content
+        else Utils.infoTrace "Using help text" $ return content2
+    else Utils.infoTrace "Using man page" $ return content
 
 -- | Checks if man page is available
 isManAvailableIO :: String -> IO Bool

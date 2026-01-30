@@ -40,13 +40,13 @@ run Version = return (T.concat ["h2o ", Version.versionStr, "\n"])
 -- Or, do some utility work
 run (C_ (Config input _ isExportingJSON isListingSubcommands isPreprocessOnly depth _))
   | isExportingJSON =
-      Utils.warnTrace "io: Deprecated: Use --format json instead" $
+      Utils.warnTrace "Deprecated: --json flag. Use --format json instead" $
         run (C_ (Config input Json False False False depth False))
   | isListingSubcommands =
-      Utils.infoTrace "io: Listing subcommands...\n" $
+      Utils.infoTrace "Listing subcommands..." $
         T.unlines <$> listSubcommandsIO input
   | isPreprocessOnly =
-      Utils.infoTrace "io: processing (option+arg, description) splitting only" $
+      Utils.infoTrace "Running preprocessing only (splitting options and descriptions)" $
         T.pack . formatStringPairs . preprocessBlockwise <$> getInputContent input
   where
     formatStringPairs = unlines . map (\(a, b) -> unlines [a, b])
@@ -186,14 +186,14 @@ getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
   subCommands <- subCommandsM
   let usage = parseUsage content
   let result = Command (last cmdSeq) desc usage opts subCommands ""
-  return (result, Utils.infoMsg ("getCommandRec isSuccess: " ++ unwords cmdSeq) isSuccess)
+  return (result, Utils.infoMsg ("Extraction succeeded for " ++ unwords cmdSeq ++ ":") isSuccess)
   where
     readFunc = if useMan then getManSub else getHelpSub
 
 -- | scan `content` for a list of possible subcommand
 getSubcmdCandidates :: String -> [Subcommand]
 getSubcmdCandidates content =
-  Utils.infoMsg "subcommand candidates: \n" $
+  Utils.infoMsg "Subcommand candidates:" $
     uniqSubcommands . parseSubcommand $
       content
   where

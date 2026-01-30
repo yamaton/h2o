@@ -406,7 +406,7 @@ parseLine s = List.nub . concat $ results
 parseWithOptPart :: String -> String -> [Opt]
 parseWithOptPart optStr descStr
   | (not . null) res = map ((\(a, b) -> Opt a b descStr) . fst) res
-  | otherwise = trace "🛑🛑🛑🛑🛑 optPart fallback 🛑🛑🛑🛑🛑" $ parseLine (optStr ++ "   " ++ descStr) -- fallback
+  | otherwise = trace "🛑🛑🛑🛑🛑 optPart parser failed, using fallback 🛑🛑🛑🛑🛑" $ parseLine (optStr ++ "   " ++ descStr) -- fallback
   where
     res = readP_to_S optPart optStr
 
