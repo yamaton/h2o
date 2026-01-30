@@ -60,6 +60,15 @@ tests:
   h2o-test:
     main: Spec.hs
     source-dirs: test
+    other-modules:
+      - Test.Helpers
+      - Test.HelpParser.OptNameTests
+      - Test.HelpParser.OptPartTests
+      - Test.LayoutTests
+      - Test.PropertyTests
+      - Test.ShellCompletionTests
+      - Test.GoldenTests
+      - Test.UtilsTests
     ghc-options:
       - -Wall
       - -threaded
@@ -67,6 +76,7 @@ tests:
       - -with-rtsopts=-N
     dependencies:
       - h2o
+      - bytestring
       - tasty
       - tasty-hunit
       - hedgehog

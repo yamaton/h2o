@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.1.
+-- This file has been generated from package.yaml by hpack version 0.38.1.
 --
 -- see: https://github.com/sol/hpack
 
@@ -82,13 +82,21 @@ test-suite h2o-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_h2o
+      Test.Helpers
+      Test.HelpParser.OptNameTests
+      Test.HelpParser.OptPartTests
+      Test.LayoutTests
+      Test.PropertyTests
+      Test.ShellCompletionTests
+      Test.GoldenTests
+      Test.UtilsTests
   hs-source-dirs:
       test
   ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , containers
     , extra
     , filepath
