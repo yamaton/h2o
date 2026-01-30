@@ -7,6 +7,7 @@
 -- | get statistical mode (= the most frequently appeareing item)
 module Utils where
 
+import Config (isVerbose)
 import qualified Constants as Const
 import qualified Data.Foldable as Foldable
 import Data.Function (on)
@@ -15,7 +16,7 @@ import Data.List.Extra (nubSort, trimStart)
 import qualified Data.Map as Map
 import Data.Text (Text)
 import qualified Data.Text as T
-import Debug.Trace (trace)
+import qualified Debug.Trace as Debug
 
 getMostFrequent :: (Ord a) => [a] -> Maybe a
 getMostFrequent = fmap fst . getMostFrequentWithCount
@@ -57,6 +58,9 @@ infoTag = "[info]"
 
 warnTag :: String
 warnTag = "[warn]"
+
+trace :: String -> a -> a
+trace msg x = if isVerbose then Debug.trace msg x else x
 
 traceMsgHelper :: (Show a) => String -> String -> a -> a
 traceMsgHelper tag msg x = trace (unwords [tag, msg, show x, "\n"]) x

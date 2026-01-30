@@ -5,7 +5,7 @@ module HelpParser where
 import Data.Char (isNumber, toLower)
 import qualified Data.List as List
 import Data.List.Extra (dropPrefix, nubOrd, trim)
-import Debug.Trace (trace)
+import Utils (trace)
 import Text.ParserCombinators.ReadP
 import Type
   ( Opt (..),

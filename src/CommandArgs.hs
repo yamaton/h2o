@@ -28,7 +28,8 @@ data Config = Config
     _isOutputJSON :: Bool,
     _isListingSubcommands :: Bool,
     _isPreprocessOnly :: Bool,
-    _depth :: Int
+    _depth :: Int,
+    _verbose :: Bool
   }
 
 data ConfigOrVersion = Version | C_ Config
@@ -133,6 +134,11 @@ config =
                   <> showDefault
                   <> value 4
                   <> help "Set upper bound of the depth of subcommand level"
+              )
+            <*> switch
+              ( long "verbose"
+                  <> short 'v'
+                  <> help "Enable verbose output showing parser diagnostics"
               )
         )
 

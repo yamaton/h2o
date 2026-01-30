@@ -19,7 +19,7 @@ import qualified Data.List as List
 import Data.List.Extra (breakOnEnd, dropPrefix, dropSuffix, nubSort, trim, trimEnd, trimStart)
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
-import Debug.Trace (trace)
+import Utils (trace)
 import qualified HelpParser
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)

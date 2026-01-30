@@ -5,7 +5,8 @@
 
 module Main where
 
-import CommandArgs (configOrVersion)
+import CommandArgs (Config (..), ConfigOrVersion (..), configOrVersion)
+import Config (setVerbose)
 import qualified Data.Text.IO as TIO
 import Io (run)
 import Options.Applicative
@@ -21,7 +22,7 @@ import System.Environment (setEnv)
 main :: IO ()
 main = do
   setEnv "COLUMNS" "1000"
-  execParser opts >>= run >>= TIO.putStr
+  execParser opts >>= initialize >>= run >>= TIO.putStr
   where
     opts =
       info
@@ -29,3 +30,10 @@ main = do
         ( fullDesc
             <> progDesc "Parse help or manpage texts, extract command options, and generate shell completion scripts"
         )
+
+initialize :: ConfigOrVersion -> IO ConfigOrVersion
+initialize cfg = do
+  case cfg of
+    C_ c -> setVerbose (_verbose c)
+    _ -> pure ()
+  pure cfg

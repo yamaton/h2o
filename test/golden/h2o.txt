@@ -10,7 +10,7 @@ h2o (
         [--skip-man] |
         (-s|--subcommand <string-string>) | --loadjson <file>) 
       [--format {bash|zsh|fish|json|native}] [--json] 
-      [--list-subcommands] [--debug] [--depth <int>] |
+      [--list-subcommands] [--debug] [--depth <int>] [-v|--verbose] |
       --version)
 
 
@@ -43,6 +43,9 @@ Output in JSON. Same as --format=json
 
 (h2o) --depth  ::  <int>
 Set upper bound of the depth of subcommand level (default: 4)
+
+(h2o) -v --verbose  ::  
+Enable verbose output showing parser diagnostics
 
 (h2o) --version  ::  
 Show version
