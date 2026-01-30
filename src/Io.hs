@@ -26,6 +26,7 @@ import IoHelper
 import Layout (parseBlockwise, parseUsage, preprocessBlockwise)
 import qualified Postprocess
 import Subcommand (parseSubcommand)
+import System.Exit (die)
 import System.FilePath (takeBaseName)
 import Text.Printf (printf)
 import Type (Command (..), Opt, Subcommand (..), asSubcommand)
@@ -70,14 +71,12 @@ run (C_ (Config input@(SubcommandInput name subname _) format _ _ _ _ _)) =
     nameSubname = name ++ "-" ++ subname
 
 -- Or, load Command from JSON
-run (C_ (Config input@(JsonInput _) format _ _ _ _ _)) = do
+run (C_ (Config input@(JsonInput f) format _ _ _ _ _)) = do
   content <- TLE.encodeUtf8 . TL.pack <$> getInputContent input
   let cmdMay = Aeson.decode content :: Maybe Command
-  let commandIO =
-        case cmdMay of
-          Nothing -> error "Cannot decode JSON!"
-          Just c -> return c
-  toScript format <$> commandIO
+  case cmdMay of
+    Nothing -> die $ "Error: Cannot decode JSON from '" ++ f ++ "'. Ensure the file contains valid Command schema."
+    Just c -> toScript format <$> return c
 
 toOptsText :: [Opt] -> Text
 toOptsText = T.unlines . map (T.pack . show)

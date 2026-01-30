@@ -21,7 +21,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TLE
-import qualified System.Exit
+import System.Exit (ExitCode (..), die)
 import qualified System.Process.Typed as Process
 import Text.Printf (printf)
 import qualified Utils
@@ -36,7 +36,7 @@ getManAndHelpSub names = do
     then do
       content2 <- getHelpSub names
       if T.null content2
-        then error ("io: Neither help or man pages available: " ++ List.intercalate "-" names)
+        then die $ "Error: No help or man page found for '" ++ List.intercalate " " names ++ "'. Is the command installed?"
         else Utils.infoTrace "io: Using help for subcommand" $ return content2
     else Utils.infoTrace "io: Using manpage for subcommand" $ return content
 
@@ -72,8 +72,8 @@ fetchHelpInfo isGood name args = do
     pc = Process.shell $ unwords cmdSeq ++ removeColorPostfix
     removeColorPostfix = " | sed -r 's/.\x08//g' | sed -r 's/\x1B\\[(([0-9]{1,2})?(;)?([0-9]{1,2})?)?[m,K,H,f,J]//g'"
 
-isCommandNotFound :: System.Exit.ExitCode -> Bool
-isCommandNotFound exitCode = exitCode == System.Exit.ExitFailure 127
+isCommandNotFound :: ExitCode -> Bool
+isCommandNotFound exitCode = exitCode == ExitFailure 127
 
 getHelp :: String -> IO Text
 getHelp name = getHelpTemplate name Config.helpOptions
@@ -92,7 +92,7 @@ getMan :: String -> IO Text
 getMan name = do
   (exitCode, stdout, _) <- Process.readProcess pc
   -- The exit code is actually thrown when piped to others...
-  if exitCode == System.Exit.ExitFailure 16
+  if exitCode == ExitFailure 16
     then return ""
     else return . TL.toStrict . TLE.decodeUtf8 $ stdout
   where
@@ -105,7 +105,7 @@ getManAndHelp name = do
     then do
       content2 <- getHelp name
       if T.null content2
-        then error ("io: Neither help or man pages available: " ++ name)
+        then die $ "Error: No help or man page found for '" ++ name ++ "'. Is the command installed?"
         else Utils.infoTrace "io: Using help" $ return content2
     else Utils.infoTrace "io: Using manpage" $ return content
 
@@ -114,7 +114,7 @@ isManAvailableIO :: String -> IO Bool
 isManAvailableIO name = do
   (exitCode, _, _) <- Process.readProcess pc
   -- The exit code is actually thrown when piped to others...
-  return $ exitCode == System.Exit.ExitSuccess
+  return $ exitCode == ExitSuccess
   where
     pc = Process.shell $ printf "man -w %s" name
 
