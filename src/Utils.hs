@@ -150,9 +150,10 @@ getParagraph xs range = unlines $ map (xs !!) (fromRange range)
 
 -- | check if the string starts with non-space char `c`
 startsWithChar :: Char -> String -> Bool
-startsWithChar c s = (not . null) ss && head ss == c
-  where
-    ss = trimStart s
+startsWithChar c s =
+  case trimStart s of
+    (x : _) -> x == c
+    [] -> False
 
 -- | check if the string starts with dash - possibly after spaces and tabs
 startsWithDash :: String -> Bool
@@ -229,14 +230,14 @@ isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s
 -- | A speculative criteria for non-critical purposes
 -- [TODO] Scrutinize this as it's now used for critical purposes
 hasErrorMessageAtTop :: Text -> Text -> Bool
-hasErrorMessageAtTop name text
-  | (T.null . T.stripStart) text = False
-  | Utils.isUsageBlock loweredFirstLine = False
-  | otherwise = any (`T.isInfixOf` loweredFirstLine) errKeywords
-  where
-    --
-    errKeywords = filter (\k -> not (k `T.isInfixOf` name)) Const.errKeywords
-    loweredFirstLine = (T.toLower . T.take 100 . head . T.lines . T.stripStart) text
+hasErrorMessageAtTop name text =
+  case T.lines (T.stripStart text) of
+    [] -> False
+    (l : _) ->
+      let loweredFirstLine = T.toLower . T.take 100 $ l
+          validKeywords = filter (not . (`T.isInfixOf` name)) Const.errKeywords
+      in not (Utils.isUsageBlock loweredFirstLine)
+         && any (`T.isInfixOf` loweredFirstLine) validKeywords
 
 mayContainUseful :: Text -> Text -> Bool
 mayContainUseful name text
@@ -317,27 +318,22 @@ bracketPairs =
     ('(', ')')
   ]
 
--- | Split increasing integers into contiguous chunks
---
--- >>> toContiguousChunks [2, 3, 4, 8, 10, 11]
--- [[2, 3, 4], [8], [10, 11]]
-toContiguousChunks :: [Int] -> [[Int]]
-toContiguousChunks = List.unfoldr f
+-- | Group elements into chunks where the projected integer key is consecutive.
+groupConsecutiveOn :: (a -> Int) -> [a] -> [[a]]
+groupConsecutiveOn f = foldr step []
   where
-    f :: [Int] -> Maybe ([Int], [Int])
-    f [] = Nothing
-    f xs = Just $ splitAt (n + 1) xs
-      where
-        n = length $ takeWhile (== 1) $ map (\(x, xNext) -> xNext - x) $ zip xs (tail xs)
+    step x [] = [[x]]
+    step x (g@(y : _) : gs)
+      | f y == f x + 1 = (x : g) : gs
+      | otherwise = [x] : g : gs
 
-toFstContiguousChunks :: [(Int, a)] -> [[(Int, a)]]
-toFstContiguousChunks = List.unfoldr f
-  where
-    f :: [(Int, a)] -> Maybe ([(Int, a)], [(Int, a)])
-    f [] = Nothing
-    f xs = Just $ splitAt (n + 1) xs
-      where
-        n = length $ takeWhile (== 1) $ map (\(x, xNext) -> fst xNext - fst x) $ zip xs (tail xs)
+-- | Specialized for Int
+groupConsecutive :: [Int] -> [[Int]]
+groupConsecutive = groupConsecutiveOn id
+
+-- | Specialized for Tuples
+groupConsecutiveByFst :: [(Int, a)] -> [[(Int, a)]]
+groupConsecutiveByFst = groupConsecutiveOn fst
 
 addOffsetToLines :: Int -> [(Int, Int)] -> [(Int, Int)]
 addOffsetToLines offset pairs = [(line + offset, character) | (line, character) <- pairs]

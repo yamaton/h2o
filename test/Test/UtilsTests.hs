@@ -8,7 +8,7 @@ import Subcommand (firstTwoWordsLoc)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 import Type (Opt (..), OptName (..), OptNameType (..))
-import Utils (getMostFrequent, isUsageBlock, splitsAt, toContiguousChunks, toRanges)
+import Utils (getMostFrequent, isUsageBlock, splitsAt, groupConsecutive, toRanges)
 
 tests :: TestTree
 tests =
@@ -36,8 +36,8 @@ tests =
           @?= (3, 20),
       testCase "getMostFrequent [1, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] == Just (-4)" $
         getMostFrequent [1 :: Int, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] @?= Just (-4 :: Int),
-      testCase "toContiguousChunks [2, 3, 4, 8, 10, 11] == [[2, 3, 4], [8], [10, 11]]" $
-        toContiguousChunks [2, 3, 4, 8, 10, 11] @?= [[2, 3, 4], [8], [10, 11]],
+      testCase "groupConsecutive [2, 3, 4, 8, 10, 11] == [[2, 3, 4], [8], [10, 11]]" $
+        groupConsecutive [2, 3, 4, 8, 10, 11] @?= [[2, 3, 4], [8], [10, 11]],
       testCase "toRanges [2, 3, 4, 8, 10, 11] == [(2, 5), (8, 9), (10, 12)]" $
         toRanges [2, 3, 4, 8, 10, 11] @?= [(2, 5), (8, 9), (10, 12)],
       testCase "splitsAt \"0123456789\" [0, 3, 5] == [\"012\", \"34\", \"56789\"]" $

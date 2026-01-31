@@ -295,7 +295,7 @@ takeHangingDesc lineIdxBase optLocs descLocs = descLocSelected
               || snd (descLocs !! (i - 1)) /= optIndentation
         ]
     (cueLines, _) = unzip cueDescLocs
-    descLocChunks = Utils.toFstContiguousChunks descLocs
+    descLocChunks = Utils.groupConsecutiveByFst descLocs
     descLocChunks' = filter (\chunk -> (not . null) chunk && fst (head chunk) `elem` cueLines) descLocChunks
     descLocSelected =
       concatMap
