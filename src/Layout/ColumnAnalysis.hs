@@ -382,30 +382,38 @@ splitAfter offset x
 -- Main Layout Analysis
 --------------------------------------------------------------------------------
 
--- | Returns option line's (1) consensus beginning of description
--- and (2) option locations [(row, col)]. All in 0-based indexing.
+-- | Returns option line's
+-- (1) consensus beginning of description
+-- (2) option locations [(row, col)]. All in 0-based indexing.
 --
--- [FIXME] Should attempt more when descriptionOffsetMay is Nothing.
+-- [TODO] Should attempt more when descriptionOffsetMay is Nothing.
 getDescOffsetOptLocsPair :: Int -> String -> (Maybe Int, [(Int, Int)])
 getDescOffsetOptLocsPair lineIdxBase s
-  | null optionOffsets = Utils.infoTrace "No option offsets found" (Nothing, [])
-  | null optLocsFixed = Utils.infoTrace "No option locations found" (Nothing, [])
-  | Maybe.isNothing descriptionOffsetMay = Utils.infoTrace "Description offset could not be determined" (Nothing, optLocsFixed)
-  | descOffset <= 3 = Utils.infoTrace "Description offset too small (<=3)" (Nothing, optLocsFixed)
-  | otherwise = Utils.infoTrace "Description offset and option locations:" (Just descOffset, optLocsFixed)
+    | null optionOffsets = Utils.infoTrace "No option offsets found" (Nothing, [])
+    | otherwise = case descriptionOffsetMay of
+        Nothing ->
+            Utils.infoTrace "Description offset could not be determined" (Nothing, optLocsFixed)
+        Just descOffset
+            | descOffset <= 3 ->
+                Utils.infoTrace "Description offset too small (<=3)" (Nothing, optLocsFixed)
+            | null optLocsFixed ->
+                Utils.infoTrace "No option locations found" (Nothing, [])
+            | otherwise ->
+                Utils.infoTrace "Description offset and option locations:" (Just descOffset, optLocsFixed)
   where
     optionOffsets = infoMsg "Option offsets:" $ getOptionOffsets s
     optLocsCandidates = getOptionLocations s
 
-    -- Split the option locations by comparing the horizontal offsets with the most frequent one
     (optLocs, _) = List.partition (\(_, c) -> c `elem` optionOffsets) optLocsCandidates
+
+    -- Deconstruct the tuple once
     (descriptionOffsetMay, optLocsRemoved) =
-      getDescOffsetEstimate lineIdxBase s $
-        Utils.infoShowCoords "Option locations:" lineIdxBase optLocs
-    descOffset = infoMsg "Description offset:" $ Maybe.fromJust descriptionOffsetMay
+        getDescOffsetEstimate lineIdxBase s $
+            Utils.infoShowCoords "Option locations:" lineIdxBase optLocs
+
     optLocsFixed =
-      Utils.infoShowCoords "Fixed option locations:" lineIdxBase $
-        filter (`notElem` optLocsRemoved) optLocs
+        Utils.infoShowCoords "Fixed option locations:" lineIdxBase $
+            filter (`notElem` optLocsRemoved) optLocs
 
 -- | Get description offset from text (convenience function)
 getDescriptionOffset :: String -> Maybe Int
