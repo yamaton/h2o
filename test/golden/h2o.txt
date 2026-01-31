@@ -6,10 +6,9 @@ Desc:  h2o
 
 Usage:
 h2o (
-      ((-c|--command <string>) [--skip-man] | (-f|--file <file>) 
-        [--skip-man] |
+      ((-c|--command <string>) | (-f|--file <file>) | 
         (-s|--subcommand <command-subcommand>) | --loadjson <file>) 
-      [--format {bash|zsh|fish|json|native}] [--json] 
+      [--skip-man] [--format {bash|zsh|fish|json|native}] [--json] 
       [--list-subcommands] [--debug] [--depth <int>] [-v|--verbose] |
       --version)
 
@@ -17,17 +16,17 @@ h2o (
 (h2o) -c --command  ::  <string>
 Extract CLI options from the help texts or man pages associated with the command. Subcommand pages are also scanned automatically.
 
-(h2o) --skip-man  ::  
-Skip scanning manpage and focus on help text. Does not apply if input source is a file.
-
 (h2o) -f --file  ::  <file>
-Extract CLI options form the text file.
+Extract CLI options from the text file.
 
 (h2o) -s --subcommand  ::  <command-subcommand>
 Extract CLI options from the subcommand-specific help text or man page. Enter a command-subcommand pair, like git-log, as the argument.
 
 (h2o) --loadjson  ::  <file>
 Load JSON file in Command schema.
+
+(h2o) --skip-man  ::  
+Skip scanning manpage and focus on help text. Does not apply if input source is a file.
 
 (h2o) --format  ::  {bash|zsh|fish|json|native}
 Select output format of the completion script (bash|zsh|fish|json|native) (default: "native")

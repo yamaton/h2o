@@ -51,60 +51,71 @@ parseSubcommandPair = eitherReader $ \s ->
     Just pair -> Right pair
     Nothing -> Left $ "Invalid format: '" ++ s ++ "'. Expected 'command-subcommand' (e.g., git-log)"
 
-subcommandInput :: Parser Input
-subcommandInput =
-  uncurry SubcommandInput
+-- | Internal type representing input source selection (without skipMan flag)
+data InputSource
+  = CommandSource String
+  | FileSource FilePath
+  | SubcommandSource String String
+  | JsonSource FilePath
+
+-- | Convert input source and skipMan flag to Input
+toInput :: InputSource -> Bool -> Input
+toInput (CommandSource cmd) skipMan = CommandInput cmd skipMan
+toInput (FileSource path) skipMan = FileInput path skipMan
+toInput (SubcommandSource cmd sub) skipMan = SubcommandInput cmd sub skipMan
+toInput (JsonSource path) _ = JsonInput path
+
+subcommandSource :: Parser InputSource
+subcommandSource =
+  uncurry SubcommandSource
     <$> option parseSubcommandPair
       ( long "subcommand"
           <> short 's'
           <> metavar "<command-subcommand>"
           <> help "Extract CLI options from the subcommand-specific help text or man page. Enter a command-subcommand pair, like git-log, as the argument."
       )
-    <*> switch
-      ( long "skip-man"
-          <> hidden
-          <> help "Skip scanning manpage and focus on help text. Does not apply if input source is a file."
-      )
 
-commandInput :: Parser Input
-commandInput =
-  CommandInput
+commandSource :: Parser InputSource
+commandSource =
+  CommandSource
     <$> strOption
       ( long "command"
           <> short 'c'
           <> metavar "<string>"
           <> help "Extract CLI options from the help texts or man pages associated with the command. Subcommand pages are also scanned automatically."
       )
-    <*> switch
-      ( long "skip-man"
-          <> help "Skip scanning manpage and focus on help text. Does not apply if input source is a file."
-      )
 
-fileInput :: Parser Input
-fileInput =
-  FileInput
+fileSource :: Parser InputSource
+fileSource =
+  FileSource
     <$> strOption
       ( long "file"
           <> short 'f'
           <> metavar "<file>"
-          <> help "Extract CLI options form the text file."
-      )
-    <*> switch
-      ( long "skip-man"
-          <> help "Skip scanning manpage and focus on help text. Does not apply if input source is a file."
+          <> help "Extract CLI options from the text file."
       )
 
-jsonInput :: Parser Input
-jsonInput =
-  JsonInput
+jsonSource :: Parser InputSource
+jsonSource =
+  JsonSource
     <$> strOption
       ( long "loadjson"
           <> metavar "<file>"
           <> help "Load JSON file in Command schema."
       )
 
+inputSourceP :: Parser InputSource
+inputSourceP = commandSource <|> fileSource <|> subcommandSource <|> jsonSource
+
+skipManSwitch :: Parser Bool
+skipManSwitch =
+  switch
+    ( long "skip-man"
+        <> help "Skip scanning manpage and focus on help text. Does not apply if input source is a file."
+    )
+
 inputP :: Parser Input
-inputP = commandInput <|> fileInput <|> subcommandInput <|> jsonInput
+inputP = toInput <$> inputSourceP <*> skipManSwitch
 
 config :: Parser ConfigOrVersion
 config =
