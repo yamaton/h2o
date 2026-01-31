@@ -2,7 +2,7 @@
 
 module HelpParser where
 
-import Data.Char (isNumber, toLower)
+import Data.Char (isNumber, toLower, isSpace)
 import qualified Data.List as List
 import Data.List.Extra (dropPrefix, nubOrd, trim)
 import Utils (trace)
@@ -177,23 +177,22 @@ longOptNameBracketedHelper bra ket = do
 isLongOptBracketed :: ReadP Bool
 isLongOptBracketed = (True <$ longOptNameBracketed) <++ pure False
 
-doubleDash :: ReadP OptName
-doubleDash = do
-  _ <- count 2 dash
-  let res = OptName "--" DoubleDashOnlyType
+-- | Parses a specific dash string and ensures it is followed by a word boundary.
+dashParser :: String -> OptName -> ReadP OptName
+dashParser prefix res = do
+  _ <- string prefix
   s <- look
-  if null s || head s `elem` " "
-    then return res
-    else pfail
+  -- Fail if not at EOF and the next char is not a space
+  case s of
+    (c:_) | isSpace c -> return res
+    [] -> return res
+    _ -> pfail
+
+doubleDash :: ReadP OptName
+doubleDash = dashParser "--" (OptName "--" DoubleDashOnlyType)
 
 singleDash :: ReadP OptName
-singleDash = do
-  _ <- char '-'
-  let res = OptName "-" SingleDashOnlyType
-  s <- look
-  if null s || head s `elem` " "
-    then return res
-    else pfail
+singleDash = dashParser "-" (OptName "-" SingleDashOnlyType)
 
 shortOptName :: ReadP OptName
 shortOptName = do
