@@ -4,6 +4,14 @@
 
 -- | Fish shell completion script generation.
 --
+-- == Naming Conventions
+--
+-- This module follows a consistent prefix pattern:
+--
+--   * @to*@ - Top-level entry points that transform a Command to Text
+--   * @gen*@ - Mid-level functions that generate script sections from collections
+--   * @make*@ - Low-level functions that construct single lines or pieces
+--
 -- == Known Limitations
 --
 -- Fish's @__fish_seen_subcommand_from@ function checks if a subcommand name
@@ -41,8 +49,8 @@ optArgToFlag (Opt _ arg desc)
 -- [NOTE] Return empty text if option is only dashes.
 -- Fish completion does not seem to support them.
 optNameToFishArg :: OptName -> Text
-optNameToFishArg (OptName _ SingleDashAlone) = ""
-optNameToFishArg (OptName _ DoubleDashAlone) = ""
+optNameToFishArg (OptName _ SingleDashOnlyType) = ""
+optNameToFishArg (OptName _ DoubleDashOnlyType) = ""
 optNameToFishArg (OptName raw t) = chunk
   where
     dashlessName = T.dropWhile (== '-') (T.pack raw)

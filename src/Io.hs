@@ -174,11 +174,11 @@ getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
   let subCandidates = if extraDepth <= 0 then [] else getSubcmdCandidates content
   let subCommandCandidsM =
         mapM
-          ( \(Subcommand subName subDesc) ->
-              getCommandRec (extraDepth - 1) useMan (cmdSeq ++ [subName]) subDesc page ""
+          ( \(Subcommand name subDesc) ->
+              getCommandRec (extraDepth - 1) useMan (cmdSeq ++ [name]) subDesc page ""
           )
           ( filter
-              (\(Subcommand subName _) -> null cmdSeq || (last cmdSeq /= subName))
+              (\(Subcommand name _) -> null cmdSeq || (last cmdSeq /= name))
               subCandidates
           )
   let subCommandsM = map fst . filter snd <$> subCommandCandidsM
@@ -197,7 +197,7 @@ getSubcmdCandidates content =
     uniqSubcommands . parseSubcommand $
       content
   where
-    sub2pair (Subcommand s1 s2) = (s1, s2)
+    sub2pair (Subcommand n d) = (n, d)
     pair2sub = uncurry Subcommand
     uniqSubcommands = map pair2sub . OMap.assocs . OMap.fromList . map sub2pair
 
@@ -216,7 +216,7 @@ listSubcommandsIO input = getSubnames <$> (pageToCommandIO name skipMan 1 =<< ge
   where
     name = getName input
     skipMan = getSkipMan input
-    getSubnames = map (T.pack . _name) . _subcommands
+    getSubnames = map (\(Command n _ _ _ _ _) -> T.pack n) . _subcommands
 
 getName :: Input -> String
 getName (CommandInput n _) = n

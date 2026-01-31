@@ -2,6 +2,11 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 
+-- | Bash shell completion script generation.
+--
+-- == Naming Conventions
+--
+-- See "GenFishCompletions" for the @to*@/@gen*@/@make*@ prefix pattern.
 module GenBashCompletions (toBashScript, genBashScript) where
 
 import qualified Data.Char  as Char

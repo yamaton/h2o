@@ -2,6 +2,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+-- | Zsh shell completion script generation.
+--
+-- == Naming Conventions
+--
+-- See "GenFishCompletions" for the @to*@/@gen*@/@make*@ prefix pattern.
 module GenZshCompletions (toZshScript, genZshScript) where
 
 import qualified Data.List as List

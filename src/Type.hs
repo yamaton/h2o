@@ -3,6 +3,7 @@
 
 module Type where
 
+import Control.Applicative ((<|>))
 import Data.Aeson
   ( FromJSON (parseJSON),
     KeyValue ((.=)),
@@ -36,13 +37,16 @@ data Opt = Opt
   deriving (Eq)
 
 data Subcommand = Subcommand
-  { _cmd :: String,
+  { _name :: String,
     _desc :: String
   }
-  deriving (Eq, Ord)
+  deriving (Eq)
 
 instance Show Subcommand where
-  show (Subcommand cmd desc) = printf "%-25s (%s)" cmd desc
+  show (Subcommand name desc) = printf "%-25s (%s)" name desc
+
+instance Ord Subcommand where
+  compare (Subcommand n1 _) (Subcommand n2 _) = compare n1 n2
 
 data OptName = OptName
   { _raw :: String,
@@ -50,7 +54,7 @@ data OptName = OptName
   }
   deriving (Eq)
 
-data OptNameType = LongType | ShortType | OldType | DoubleDashAlone | SingleDashAlone deriving (Eq, Show, Ord)
+data OptNameType = LongType | ShortType | OldType | DoubleDashOnlyType | SingleDashOnlyType deriving (Eq, Show, Ord)
 
 instance Show Opt where
   show (Opt names args desc) =
@@ -116,9 +120,22 @@ instance ToJSON Command where
   toEncoding (Command name desc usage opts subcommands version) =
     pairs ("name" .= name <> "description" .= desc <> "usage" .= usage <> "options" .= opts <> "subcommands" .= subcommands <> "version" .= version)
 
+instance ToJSON Subcommand where
+  toJSON (Subcommand name desc) =
+    object ["name" .= name, "desc" .= desc]
+
+  toEncoding (Subcommand name desc) =
+    pairs ("name" .= name <> "desc" .= desc)
+
+instance FromJSON Subcommand where
+  parseJSON = withObject "Subcommand" $ \v ->
+    Subcommand
+      <$> (v .: "name" <|> v .: "cmd")  -- Accept both for backward compatibility
+      <*> v .: "desc"
+
 toOptionNameType :: Text -> OptNameType
-toOptionNameType "-" = SingleDashAlone
-toOptionNameType "--" = DoubleDashAlone
+toOptionNameType "-" = SingleDashOnlyType
+toOptionNameType "--" = DoubleDashOnlyType
 toOptionNameType s
   | "--" `T.isPrefixOf` s = LongType
   | "-" `T.isPrefixOf` s && T.length s == 2 = ShortType

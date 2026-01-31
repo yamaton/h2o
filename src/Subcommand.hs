@@ -71,13 +71,13 @@ subcommandWord = do
 subcommand :: ReadP Subcommand
 subcommand = do
   skipSpaces
-  cmd <- subcommandWord
+  name <- subcommandWord
   _ <- subcommandSep
   ss <- sepBy1 word singleSpace
   _ <- munch (== ' ')
   skip newline <++ eof
   let desc = unwords ss
-  return (Subcommand cmd desc)
+  return (Subcommand name desc)
 
 subcommandSep :: ReadP String
 subcommandSep = colonBased <++ spaceBased

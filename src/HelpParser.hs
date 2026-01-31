@@ -180,7 +180,7 @@ isLongOptBracketed = (True <$ longOptNameBracketed) <++ pure False
 doubleDash :: ReadP OptName
 doubleDash = do
   _ <- count 2 dash
-  let res = OptName "--" DoubleDashAlone
+  let res = OptName "--" DoubleDashOnlyType
   s <- look
   if null s || head s `elem` " "
     then return res
@@ -189,7 +189,7 @@ doubleDash = do
 singleDash :: ReadP OptName
 singleDash = do
   _ <- char '-'
-  let res = OptName "-" SingleDashAlone
+  let res = OptName "-" SingleDashOnlyType
   s <- look
   if null s || head s `elem` " "
     then return res
