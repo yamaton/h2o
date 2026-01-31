@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE MonadComprehensions #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -103,11 +104,13 @@ traceIf check run x
   | check x = trace (run x) x
   | otherwise = x
 
--- | hyphen-aware unwords
--- Here supporting hypen as in unicode \8208 (decimal) = \2010 (hex)
+-- | hyphen-aware `unwords` meant for hyphenated `lines`
+--
+-- Supports hypens as in unicode \8208 (decimal) = \2010 (hex)
 -- https://unicode-table.com/en/2010/
 --
--- [FIXME] `smartUnwords ["git-", "status"]` should be "git-status" instead of "gitstatus".
+-- [NOTE] `smartUnwords ["git-", "status"]` produces "gitstatus":
+-- as it handles soft hyphen logic, NOT hard hyphen logic
 smartUnwords :: [String] -> String
 smartUnwords [] = ""
 smartUnwords xs =
@@ -236,8 +239,8 @@ hasErrorMessageAtTop name text =
     (l : _) ->
       let loweredFirstLine = T.toLower . T.take 100 $ l
           validKeywords = filter (not . (`T.isInfixOf` name)) Const.errKeywords
-      in not (Utils.isUsageBlock loweredFirstLine)
-         && any (`T.isInfixOf` loweredFirstLine) validKeywords
+       in not (Utils.isUsageBlock loweredFirstLine)
+            && any (`T.isInfixOf` loweredFirstLine) validKeywords
 
 mayContainUseful :: Text -> Text -> Bool
 mayContainUseful name text
@@ -282,33 +285,35 @@ topTenPercentile xs = sortedXs !! idx
     idx = fromInteger $ floor (fromIntegral (n - 1) * 0.9 :: Rational) :: Int
     sortedXs = List.sort xs
 
-isBracketed :: Text -> Bool
-isBracketed text
-  | T.length text <= 1 = False
-  | otherwise = (T.head text, T.last text) `elem` bracketPairs
+-- | Checks if the text is wrapped in matching brackets defined in 'bracketPairs'.
+-- Complexity: O(1)
+isWrappedInBrackets :: Text -> Bool
+isWrappedInBrackets txt = case T.uncons txt of
+  Just (h, rest) -> case T.unsnoc rest of
+    Just (_, l) -> (h, l) `elem` bracketPairs
+    Nothing -> False -- Text has only 1 character
+  Nothing -> False -- Text is empty
 
-hasClosedBrackets :: Char -> Char -> Text -> Bool
-hasClosedBrackets bra ket = helper 0
+-- | Checks if the given 'Text' contains balanced brackets.
+-- Complexity: O(n) time, O(1) space.
+hasBalancedBrackets :: Char -> Char -> Text -> Bool
+hasBalancedBrackets bra ket = go 0
   where
-    helper :: Int -> Text -> Bool
-    helper acc txt
-      | T.null txt = acc == 0
-      | acc < 0 = False
-      | otherwise = helper (acc + diff) rest
-      where
-        c = T.head txt
-        rest = T.tail txt
-        diff
-          | c == bra = 1
-          | c == ket = -1
-          | otherwise = 0
+    go :: Int -> Text -> Bool
+    go !acc txt = case T.uncons txt of
+      Nothing -> acc == 0
+      Just (c, rest)
+        | acc < 0 -> False -- Short-circuit early
+        | c == bra -> go (acc + 1) rest
+        | c == ket -> go (acc - 1) rest
+        | otherwise -> go acc rest
 
 hasMatchingBrackets :: Text -> Bool
 hasMatchingBrackets text = hasBra && allCleared
   where
     (bras, _) = unzip bracketPairs
     hasBra = any (\b -> T.singleton b `T.isInfixOf` text) bras
-    allCleared = and [hasClosedBrackets bra ket text | (bra, ket) <- bracketPairs]
+    allCleared = and [hasBalancedBrackets bra ket text | (bra, ket) <- bracketPairs]
 
 bracketPairs :: [(Char, Char)]
 bracketPairs =

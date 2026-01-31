@@ -107,8 +107,8 @@ score (Opt names arg desc) =
     argScore :: Text -> Int
     argScore text
       | T.null text = 0
-      | Utils.isBracketed text && Utils.hasMatchingBrackets text = 2
-      | Utils.isBracketed text || Utils.hasMatchingBrackets text = 1
+      | Utils.isWrappedInBrackets text && Utils.hasMatchingBrackets text = 2
+      | Utils.isWrappedInBrackets text || Utils.hasMatchingBrackets text = 1
       | length (T.words text) == 1 && T.all Char.isUpper text = 2
       | length (T.words text) == 1 = 1
       | otherwise = -1
