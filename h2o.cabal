@@ -35,6 +35,8 @@ library
       Io
       IoHelper
       Layout
+      Layout.ColumnAnalysis
+      Layout.Usage
       Postprocess
       Subcommand
       Type
