@@ -52,16 +52,6 @@ h2o -f ls.txt --format fish
 h2o -f samples/grep.txt --format zsh
 ```
 
-### Subcommands
-
-```bash
-# Parse a specific subcommand
-h2o -c git -s clone --format fish
-
-# Scan subcommands recursively (depth=2)
-h2o -c docker --depth 2 --format fish
-```
-
 ### Load from JSON
 
 ```bash
