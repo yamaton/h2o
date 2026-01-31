@@ -98,7 +98,7 @@ toSubcommandOptionsText nameSeq (Command subname _ _ opts _ _) =
     prefix = T.pack . printf "(%s) " . T.unwords . map T.pack $ nameSeq ++ [subname]
 
 normalizeInputText :: Text -> Text
-normalizeInputText = Utils.removeBullets . Utils.unicodeSpacesToAscii . Utils.convertTabsToSpaces 8
+normalizeInputText = Utils.maskListBullets . Utils.unicodeSpacesToAscii . Utils.convertTabsToSpaces 8
 
 getInputContent :: Input -> IO String
 getInputContent (SubcommandInput name subname skipMan) =

@@ -17,6 +17,7 @@ import Data.List.Extra (nubSort, trimStart)
 import qualified Data.Map as Map
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Char as Char
 import qualified Debug.Trace as Debug
 
 getMostFrequent :: (Ord a) => [a] -> Maybe a
@@ -358,17 +359,19 @@ infoShowQuartets s offset quartets = infoShow s modified quartets
   where
     modified = [(a + offset, b + offset, c + offset, d + offset) | (a, b, c, d) <- quartets]
 
-removeBullets :: Text -> Text
-removeBullets text = T.unlines ys
+-- | Replaces list bullets (e.g., '-', '*') with a space if they are
+-- at the beginning of the line (ignoring indentation) and followed by a space.
+-- Preserves indentation.
+maskListBullets :: T.Text -> T.Text
+maskListBullets = T.unlines . map replaceBullet . T.lines
   where
-    xs = T.lines text
-    pairs = map (T.break (`elem` Const.bullets)) xs
-    ys =
-      [ if T.null b
-          then a
-          else
-            if (T.null . T.stripStart) a && T.length b > 1 && (T.head . T.tail) b == ' '
-              then T.unwords [a, T.tail b]
-              else a `T.append` b
-        | (a, b) <- pairs
-      ]
+    replaceBullet line =
+      let (indent, content) = T.span Char.isSpace line
+      in case T.uncons content of
+           Just (c, rest)
+             | c `elem` Const.bullets
+             , not (T.null rest)
+             , T.head rest == ' ' ->
+                 -- Replace the bullet char 'c' with a space to maintain alignment
+                 indent <> " " <> rest
+           _ -> line
