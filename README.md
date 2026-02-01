@@ -1,10 +1,10 @@
 # H2O: Help to Options
 
-H2O extracts command-line options from help text and man pages, then generates shell completion scripts (bash, zsh, fish) or JSON output.
+H2O extracts command-line options from man pages or help text, then generates shell completion scripts (bash, zsh, fish) or JSON output. It first attempts to parse the man page; if unavailable, it falls back to `--help` output. Use `--skip-man` to skip man page lookup.
 
 ## Features
 
-- Parses `--help` output and man pages to extract flags, options, arguments, and subcommands
+- Parses man pages (preferred) or `--help` output to extract flags, options, arguments, and subcommands
 - Generates shell completion scripts for **fish**, **zsh**, and **bash**
 - Exports structured CLI information as JSON for tooling integration
 - Handles nested subcommands (e.g., `git remote add`)
@@ -62,25 +62,20 @@ h2o --loadjson curl.json --format fish
 ### All Options
 
 ```
-h2o - Extract CLI options from help text
-
-Usage: h2o ((-c|--command COMMAND) | (-f|--file FILE) | --loadjson FILE)
-           [(-s|--subcommand SUBCOMMAND)] [--format FORMAT] [--depth N]
-           [--skip-man] [--list-subcommands] [--preprocess] [-v|--verbose]
-
 Options:
-  -c, --command COMMAND    Command name to parse
-  -f, --file FILE          Parse help text from file
-  --loadjson FILE          Load Command from JSON file
-  -s, --subcommand CMD     Parse a specific subcommand
-  --format FORMAT          Output format: fish|zsh|bash|json|native (default: fish)
-  --depth N                Subcommand recursion depth (default: 0)
-  --skip-man               Skip man pages, use --help only
-  --list-subcommands       List detected subcommands
-  --preprocess             Show parsed option-description pairs (debug)
-  -v, --verbose            Enable verbose output
+  -c, --command <name>     Parse man page, or --help output if unavailable
+  -f, --file <path>        Parse options from a file containing help output
+  -s, --subcommand <cmd-sub>  Parse a specific subcommand, e.g., git-log
+  --loadjson <path>        Load command data from a JSON file
+  --skip-man               Skip man page lookup, parse --help output directly
+  --format <format>        Output format: bash|zsh|fish|json|native (default: native)
+  --json                   Output in JSON (same as --format=json)
+  --depth <n>              Maximum subcommand nesting depth to scan (default: 4)
+  --list-subcommands       List detected subcommands (for debugging)
+  --debug                  Show preprocessed text without parsing (for debugging)
+  -v, --verbose            Show parser diagnostics
   --version                Show version
-  --help                   Show help
+  -h, --help               Show help
 ```
 
 ## Output Formats

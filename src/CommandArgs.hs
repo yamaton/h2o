@@ -71,8 +71,8 @@ subcommandSource =
     <$> option parseSubcommandPair
       ( long "subcommand"
           <> short 's'
-          <> metavar "<command-subcommand>"
-          <> help "Extract CLI options from the subcommand-specific help text or man page. Enter a command-subcommand pair, like git-log, as the argument."
+          <> metavar "<cmd-sub>"
+          <> help "Parse a specific subcommand, e.g., git-log."
       )
 
 commandSource :: Parser InputSource
@@ -81,8 +81,8 @@ commandSource =
     <$> strOption
       ( long "command"
           <> short 'c'
-          <> metavar "<string>"
-          <> help "Extract CLI options from the help texts or man pages associated with the command. Subcommand pages are also scanned automatically."
+          <> metavar "<name>"
+          <> help "Parse man page, or --help output if unavailable."
       )
 
 fileSource :: Parser InputSource
@@ -91,8 +91,8 @@ fileSource =
     <$> strOption
       ( long "file"
           <> short 'f'
-          <> metavar "<file>"
-          <> help "Extract CLI options from the text file."
+          <> metavar "<path>"
+          <> help "Parse options from a file containing help output."
       )
 
 jsonSource :: Parser InputSource
@@ -100,8 +100,8 @@ jsonSource =
   JsonSource
     <$> strOption
       ( long "loadjson"
-          <> metavar "<file>"
-          <> help "Load JSON file in Command schema."
+          <> metavar "<path>"
+          <> help "Load command data from a JSON file."
       )
 
 inputSourceP :: Parser InputSource
@@ -111,7 +111,7 @@ skipManSwitch :: Parser Bool
 skipManSwitch =
   switch
     ( long "skip-man"
-        <> help "Skip scanning manpage and focus on help text. Does not apply if input source is a file."
+        <> help "Skip man page lookup, parse --help output directly."
     )
 
 inputP :: Parser Input
@@ -128,33 +128,33 @@ config =
                           <> metavar "{bash|zsh|fish|json|native}"
                           <> showDefault
                           <> value "native"
-                          <> help "Select output format of the completion script (bash|zsh|fish|json|native)"
+                          <> help "Output format for the completion script."
                       )
                 )
             <*> switch
               ( long "json"
-                  <> help "Output in JSON. Same as --format=json"
+                  <> help "Output in JSON (same as --format=json)."
               )
             <*> switch
               ( long "list-subcommands"
-                  <> help "[Debug] List subcommands"
+                  <> help "List detected subcommands (for debugging)."
               )
             <*> switch
               ( long "debug"
-                  <> help "[Debug] Run preprocessing only"
+                  <> help "Show preprocessed text without parsing (for debugging)."
               )
             <*> option
               auto
               ( long "depth"
-                  <> metavar "<int>"
+                  <> metavar "<n>"
                   <> showDefault
                   <> value 4
-                  <> help "Set upper bound of the depth of subcommand level"
+                  <> help "Maximum subcommand nesting depth to scan."
               )
             <*> switch
               ( long "verbose"
                   <> short 'v'
-                  <> help "Enable verbose output showing parser diagnostics"
+                  <> help "Show parser diagnostics."
               )
         )
 
