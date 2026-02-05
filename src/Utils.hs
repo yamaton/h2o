@@ -316,6 +316,36 @@ hasMatchingBrackets text = hasBra && allCleared
     hasBra = any (\b -> T.singleton b `T.isInfixOf` text) bras
     allCleared = and [hasBalancedBrackets bra ket text | (bra, ket) <- bracketPairs]
 
+-- | Remove backspace overstrikes used for bold/underline in terminals and man pages.
+-- Handles the char + backspace pattern: when \x08 is encountered, drop it and the preceding character.
+removeBackspaceOverstrikes :: Text -> Text
+removeBackspaceOverstrikes = T.pack . go [] . T.unpack
+  where
+    go acc [] = reverse acc
+    go [] ('\x08' : cs) = go [] cs
+    go (_ : acc) ('\x08' : cs) = go acc cs
+    go acc (c : cs) = go (c : acc) cs
+
+-- | Strip ANSI CSI escape sequences per ECMA-48.
+-- Matches ESC [ + parameter bytes (0x30-0x3F) + intermediate bytes (0x20-0x2F) + final byte (0x40-0x7E).
+stripAnsiEscapes :: Text -> Text
+stripAnsiEscapes = T.pack . go . T.unpack
+  where
+    go [] = []
+    go ('\x1B' : '[' : cs) = go (dropCsi cs)
+    go ('\x1B' : cs) = go cs
+    go (c : cs) = c : go cs
+    dropCsi [] = []
+    dropCsi (c : cs)
+      | '\x30' <= c && c <= '\x3F' = dropCsi cs   -- parameter bytes
+      | '\x20' <= c && c <= '\x2F' = dropCsi cs   -- intermediate bytes
+      | '\x40' <= c && c <= '\x7E' = cs            -- final byte: consume and stop
+      | otherwise = c : cs                          -- malformed: stop
+
+-- | Clean terminal output by removing backspace overstrikes and ANSI escape sequences.
+cleanTerminalOutput :: Text -> Text
+cleanTerminalOutput = stripAnsiEscapes . removeBackspaceOverstrikes
+
 bracketPairs :: [(Char, Char)]
 bracketPairs =
   [ ('{', '}'),

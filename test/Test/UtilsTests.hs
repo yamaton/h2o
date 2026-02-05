@@ -8,7 +8,7 @@ import Subcommand (firstTwoWordsLoc)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 import Type (Opt (..), OptName (..), OptNameType (..))
-import Utils (getMostFrequent, isUsageBlock, splitsAt, groupConsecutive, toRanges)
+import Utils (getMostFrequent, isUsageBlock, splitsAt, groupConsecutive, toRanges, removeBackspaceOverstrikes, stripAnsiEscapes)
 
 tests :: TestTree
 tests =
@@ -61,5 +61,29 @@ tests =
       testCase "isUsageBlock" $
         Utils.isUsageBlock "Usage: rsem-bam2readdepth sorted_bam_input readdepth_output" @?= True,
       testCase "isUsageBlock" $
-        Utils.isUsageBlock "SYNOPSIS\n      rsem-bam2readdepth sorted_bam_input readdepth_output" @?= True
+        Utils.isUsageBlock "SYNOPSIS\n      rsem-bam2readdepth sorted_bam_input readdepth_output" @?= True,
+      -- removeBackspaceOverstrikes
+      testCase "removeBackspaceOverstrikes: bold via overstrike" $
+        removeBackspaceOverstrikes ("H\x08" <> "He\x08" <> "el\x08" <> "lp\x08" <> "p") @?= "Help",
+      testCase "removeBackspaceOverstrikes: no backspaces" $
+        removeBackspaceOverstrikes "Hello" @?= "Hello",
+      testCase "removeBackspaceOverstrikes: empty" $
+        removeBackspaceOverstrikes "" @?= "",
+      testCase "removeBackspaceOverstrikes: backspace at start" $
+        removeBackspaceOverstrikes ("\x08" <> "abc") @?= "abc",
+      testCase "removeBackspaceOverstrikes: consecutive backspaces" $
+        removeBackspaceOverstrikes ("ab\x08\x08" <> "cd") @?= "cd",
+      -- stripAnsiEscapes
+      testCase "stripAnsiEscapes: color code" $
+        stripAnsiEscapes "\x1B[31mred\x1B[0m" @?= "red",
+      testCase "stripAnsiEscapes: bold + color" $
+        stripAnsiEscapes "\x1B[1;32mbold green\x1B[0m" @?= "bold green",
+      testCase "stripAnsiEscapes: no escapes" $
+        stripAnsiEscapes "plain text" @?= "plain text",
+      testCase "stripAnsiEscapes: erase line" $
+        stripAnsiEscapes "text\x1B[2Kmore" @?= "textmore",
+      testCase "stripAnsiEscapes: empty" $
+        stripAnsiEscapes "" @?= "",
+      testCase "stripAnsiEscapes: bare ESC" $
+        stripAnsiEscapes "\x1Btext" @?= "text"
     ]

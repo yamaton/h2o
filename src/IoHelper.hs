@@ -23,7 +23,6 @@ import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TLE
 import System.Exit (ExitCode (..), die)
 import qualified System.Process.Typed as Process
-import Text.Printf (printf)
 import qualified Utils
 
 getManSub :: [String] -> IO Text
@@ -57,8 +56,8 @@ getHelpTemplate cmd = getHelpTemplateMeta (Utils.mayContainUseful (T.pack cmd)) 
 fetchHelpInfo :: (Text -> Bool) -> String -> [String] -> IO (Maybe Text)
 fetchHelpInfo isGood name args = do
   (exitCode, stdout, stderr) <- Process.readProcess pc
-  let stdoutText = TL.toStrict . TLE.decodeUtf8 $ stdout
-  let stderrText = TL.toStrict . TLE.decodeUtf8 $ stderr
+  let stdoutText = Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stdout
+  let stderrText = Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stderr
   let res
         | isCommandNotFound exitCode = Utils.warnTrace "Command not found" Nothing
         | any (Utils.hasErrorMessageAtTop (T.pack name)) [stdoutText, stderrText] =
@@ -69,8 +68,8 @@ fetchHelpInfo isGood name args = do
   return res
   where
     cmdSeq = name : args
-    pc = Process.shell $ unwords cmdSeq ++ removeColorPostfix
-    removeColorPostfix = " | sed -r 's/.\x08//g' | sed -r 's/\x1B\\[(([0-9]{1,2})?(;)?([0-9]{1,2})?)?[m,K,H,f,J]//g'"
+    cmdWords = words name ++ filter (not . all (== ' ')) args
+    pc = Process.proc (head cmdWords) (tail cmdWords)
 
 isCommandNotFound :: ExitCode -> Bool
 isCommandNotFound exitCode = exitCode == ExitFailure 127
@@ -91,12 +90,11 @@ getHelpSub names
 getMan :: String -> IO Text
 getMan name = do
   (exitCode, stdout, _) <- Process.readProcess pc
-  -- The exit code is actually thrown when piped to others...
-  if exitCode == ExitFailure 16
+  if exitCode /= ExitSuccess
     then return ""
-    else return . TL.toStrict . TLE.decodeUtf8 $ stdout
+    else return . Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stdout
   where
-    pc = Process.shell $ printf "man %s | col -bx" name
+    pc = Process.proc "man" [name]
 
 getManAndHelp :: String -> IO Text
 getManAndHelp name = do
@@ -113,10 +111,9 @@ getManAndHelp name = do
 isManAvailableIO :: String -> IO Bool
 isManAvailableIO name = do
   (exitCode, _, _) <- Process.readProcess pc
-  -- The exit code is actually thrown when piped to others...
   return $ exitCode == ExitSuccess
   where
-    pc = Process.shell $ printf "man -w %s" name
+    pc = Process.proc "man" ["-w", name]
 
 getVersion :: String -> IO Text
 getVersion name = getHelpTemplateMeta isGood name Config.versionOptions
