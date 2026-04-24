@@ -12,6 +12,7 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@?=))
 import qualified Type
 import Type (Opt (..), OptName (..), OptNameType (..))
+import qualified Utils
 import Utils (getMostFrequent, isUsageBlock, splitsAt, groupConsecutive, toRanges, removeBackspaceOverstrikes, stripAnsiEscapes)
 
 tests :: TestTree
@@ -171,5 +172,16 @@ tests =
         let good = BSL.pack "{\"names\":[\"--help\"],\"argument\":\"\",\"description\":\"d\"}"
          in case Aeson.eitherDecode good :: Either String Opt of
               Left err -> assertFailure ("expected parse to succeed: " ++ err)
-              Right (Opt names _ _) -> map _raw names @?= ["--help"]
+              Right (Opt names _ _) -> map _raw names @?= ["--help"],
+      testCase "FromJSON Opt rejects empty names array" $
+        let bad = BSL.pack "{\"names\":[],\"argument\":\"\",\"description\":\"d\"}"
+         in case Aeson.eitherDecode bad :: Either String Opt of
+              Right _ -> assertFailure "expected parse failure for empty names"
+              Left err ->
+                assertBool ("error mentions non-empty requirement: " ++ err)
+                  ("non-empty" `List.isInfixOf` err),
+      testCase "topTenPercentile returns Nothing for empty list" $
+        Utils.topTenPercentile ([] :: [Int]) @?= Nothing,
+      testCase "topTenPercentile returns Just for non-empty list" $
+        Utils.topTenPercentile [1 .. 10 :: Int] @?= Just 9
     ]

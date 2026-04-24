@@ -130,7 +130,11 @@ score (Opt names arg desc) =
 
     nameScore :: [OptName] -> Int
     nameScore optnames
-      | null optnames = error "nameScore: empty option names list (this is a bug in h2o)"
+      -- An empty 'names' list cannot occur from the parsers (they require
+      -- at least one name) and is now rejected at JSON load time. Falling
+      -- through to 0 instead of @error@ keeps this function total in case
+      -- a future caller forgets that invariant.
+      | null optnames = 0
       | length optnames == 1 && topElem `elem` [ShortType, LongType, OldType] = 1
       | Set.fromList [LongType, ShortType] == types = 2
       | otherwise = 0

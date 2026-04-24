@@ -438,7 +438,9 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         lineIdxBase
         [idx | (idx, x) <- zip [0 ..] xs, isWordStartingWithIndentation descOffset x, idx `Set.notMember` optLinesSet]
     linewidths = map (length . (xs !!)) descLinesWithoutOptions
-    descLineWidthTop10Percentile = infoMsg "Description line width (90th percentile):" $ if null linewidths then 80 else Utils.topTenPercentile linewidths
+    descLineWidthTop10Percentile =
+      infoMsg "Description line width (90th percentile):" $
+        Maybe.fromMaybe 80 (Utils.topTenPercentile linewidths)
     descLinesWithoutOptionsSet = Set.fromList descLinesWithoutOptions
 
     -- The line must be long when description starts at the same line

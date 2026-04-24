@@ -278,9 +278,12 @@ splitsAt xs ns = reverse $ filter (not . null) $ List.unfoldr f (xs, reverse ns'
       where
         (former, latter) = List.splitAt k ys
 
-topTenPercentile :: (Ord a) => [a] -> a
-topTenPercentile [] = error "topTenPercentile: empty list (this is a bug in h2o)"
-topTenPercentile xs = sortedXs !! idx
+-- | 90th percentile of the given values, or 'Nothing' if the list is empty.
+-- The previous implementation crashed on empty input; callers are expected
+-- to fall back to a sensible default via 'Data.Maybe.fromMaybe'.
+topTenPercentile :: (Ord a) => [a] -> Maybe a
+topTenPercentile [] = Nothing
+topTenPercentile xs = Just (sortedXs !! idx)
   where
     n = length xs
     idx = fromInteger $ floor (fromIntegral (n - 1) * 0.9 :: Rational) :: Int

@@ -4,6 +4,7 @@
 module Type where
 
 import Control.Applicative ((<|>))
+import Control.Monad (when)
 import Data.Aeson
   ( FromJSON (parseJSON),
     KeyValue ((.=)),
@@ -77,6 +78,8 @@ instance ToJSON OptName where
 instance FromJSON Opt where
   parseJSON = withObject "Opt" $ \v -> do
     rawNames <- v .: "names"
+    when (null rawNames) $
+      fail "'names' must be a non-empty array; at least one option name is required."
     names <- traverse parseOptName rawNames
     arg <- T.unpack <$> v .: "argument"
     desc <- T.unpack <$> v .: "description"
