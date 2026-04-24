@@ -23,7 +23,13 @@ import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TLE
 import System.Exit (ExitCode (..), die)
 import qualified System.Process.Typed as Process
+import System.Timeout (timeout)
 import qualified Utils
+
+-- | Timeout (in microseconds) for any single external help/man invocation.
+-- Prevents h2o from hanging on commands that wait on stdin or never return.
+processTimeoutMicros :: Int
+processTimeoutMicros = 10 * 1000 * 1000  -- 10 seconds
 
 getManSub :: [String] -> IO Text
 getManSub names = getMan $ List.intercalate "-" names
@@ -55,17 +61,20 @@ getHelpTemplate cmd = getHelpTemplateMeta (Utils.mayContainUseful (T.pack cmd)) 
 
 fetchHelpInfo :: (Text -> Bool) -> String -> [String] -> IO (Maybe Text)
 fetchHelpInfo isGood name args = do
-  (exitCode, stdout, stderr) <- Process.readProcess pc
-  let stdoutText = Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stdout
-  let stderrText = Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stderr
-  let res
-        | isCommandNotFound exitCode = Utils.warnTrace "Command not found" Nothing
-        | any (Utils.hasErrorMessageAtTop (T.pack name)) [stdoutText, stderrText] =
-            Utils.warnTrace ("Command appears invalid: " ++ unwords cmdSeq) Nothing
-        | isGood stdoutText = Utils.debugTrace ("Using stdout from: " ++ unwords cmdSeq) $ Just stdoutText
-        | isGood stderrText = Utils.debugTrace ("Using stderr from: " ++ unwords cmdSeq) $ Just stderrText
-        | otherwise = Nothing
-  return res
+  result <- timeout processTimeoutMicros (Process.readProcess pc)
+  case result of
+    Nothing -> return $ Utils.warnTrace ("Timeout running: " ++ unwords cmdSeq) Nothing
+    Just (exitCode, stdout, stderr) -> do
+      let stdoutText = Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stdout
+      let stderrText = Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stderr
+      let res
+            | isCommandNotFound exitCode = Utils.warnTrace "Command not found" Nothing
+            | any (Utils.hasErrorMessageAtTop (T.pack name)) [stdoutText, stderrText] =
+                Utils.warnTrace ("Command appears invalid: " ++ unwords cmdSeq) Nothing
+            | isGood stdoutText = Utils.debugTrace ("Using stdout from: " ++ unwords cmdSeq) $ Just stdoutText
+            | isGood stderrText = Utils.debugTrace ("Using stderr from: " ++ unwords cmdSeq) $ Just stderrText
+            | otherwise = Nothing
+      return res
   where
     cmdSeq = name : args
     cmdWords = words name ++ filter (not . all (== ' ')) args
@@ -89,10 +98,12 @@ getHelpSub names
 
 getMan :: String -> IO Text
 getMan name = do
-  (exitCode, stdout, _) <- Process.readProcess pc
-  if exitCode /= ExitSuccess
-    then return ""
-    else return . Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stdout
+  result <- timeout processTimeoutMicros (Process.readProcess pc)
+  case result of
+    Nothing -> return $ Utils.warnTrace ("Timeout running: man " ++ name) ""
+    Just (exitCode, stdout, _)
+      | exitCode /= ExitSuccess -> return ""
+      | otherwise -> return . Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stdout
   where
     pc = Process.proc "man" [name]
 
@@ -110,8 +121,10 @@ getManAndHelp name = do
 -- | Checks if man page is available
 isManAvailableIO :: String -> IO Bool
 isManAvailableIO name = do
-  (exitCode, _, _) <- Process.readProcess pc
-  return $ exitCode == ExitSuccess
+  result <- timeout processTimeoutMicros (Process.readProcess pc)
+  return $ case result of
+    Nothing -> False
+    Just (exitCode, _, _) -> exitCode == ExitSuccess
   where
     pc = Process.proc "man" ["-w", name]
 
