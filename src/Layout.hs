@@ -92,9 +92,11 @@ getHeadingIndices xs
 -- | Split text by top-level headers.
 -- Headers are recognized by the least indentations.
 --
--- NOTE: the top-level headers are **included** in the output.
--- This does not exclude headings starting with "- Hey this is heading!"
+-- Returns @(content_start_line, content)@ pairs where @content@ has the
+-- header line already removed. When the heading lines themselves are option
+-- lines, the whole text is returned as a single block with no header to skip.
 splitByHeaders :: [String] -> [(Int, String)]
+splitByHeaders [] = []
 splitByHeaders xs
   | any Utils.startsWithLongOption headings = [(0, unlines xs)]
   | any Utils.startsWithShortOrOldOption headings = [(0, unlines xs)]
@@ -107,10 +109,11 @@ splitByHeaders xs
         else sepIndices
     headings = map (xs !!) blockIndicesRaw
     chunks =
-      map (Bifunctor.second unlines) $
-        filter (\(_, lines_) -> length lines_ > 1 && any Utils.startsWithDash lines_) $
-          zip blockIndicesRaw $
-            Utils.splitsAt xs blockIndicesRaw
+      [ (idx + 1, unlines (drop 1 chunkLines))
+      | (idx, chunkLines) <- zip blockIndicesRaw (Utils.splitsAt xs blockIndicesRaw)
+      , length chunkLines > 1
+      , any Utils.startsWithDash chunkLines
+      ]
 
 --------------------------------------------------------------------------------
 -- Main Parsing Functions
@@ -119,14 +122,10 @@ splitByHeaders xs
 -- | Parse (option-and-argument, description) pairs from text by applying
 -- preprocessAll to each header-based block.
 preprocessBlockwise :: String -> [(String, String)]
-preprocessBlockwise content = Utils.infoTrace decoratedMsg $ concatMap (uncurry preprocessAll) indexBlockWoHeaderPairs
+preprocessBlockwise content = Utils.infoTrace decoratedMsg $ concatMap (uncurry preprocessAll) indexBlockPairs
   where
     xs = lines content
-    -- TODO: Unsure of indexBlockPairs or improve indexBlockPairsWoUsage
     indexBlockPairs = splitByHeaders xs
-    -- indexBlockPairsWoUsage = filter (not . Utils.isUsageBlock . T.pack . snd) indexBlockPairs
-    -- fix indices to compensate header-less content
-    indexBlockWoHeaderPairs = map (\(i, s) -> (i + 1, tail s)) indexBlockPairs
     msg = printf "Found %d header-based blocks" (length indexBlockPairs)
     decoratedMsg = "-------- " ++ msg ++ " --------"
 

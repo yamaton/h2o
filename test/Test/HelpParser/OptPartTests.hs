@@ -450,7 +450,30 @@ optPartTests =
       ---- bun
        test_optPart
         "--inspect <STR>?"
-        (["--inspect"], "<STR>?")
+        (["--inspect"], "<STR>?"),
+      ---- hmmalign ----
+      test_parseBlockwise
+        "  --mapali <f>    : include alignment in file <f> (same ali that HMM came from)\n\
+        \  --trim          : trim terminal tails of nonaligned residues from alignment\n\
+        \  --amino         : assert <seqfile>, <hmmfile> both protein: no autodetection\n\
+        \  --dna           : assert <seqfile>, <hmmfile> both DNA: no autodetection"
+        [ Opt
+            [OptName "--mapali" LongType]
+            "<f>"
+            "include alignment in file <f> (same ali that HMM came from)",
+          Opt
+            [OptName "--trim" LongType]
+            ""
+            "trim terminal tails of nonaligned residues from alignment",
+          Opt
+            [OptName "--amino" LongType]
+            ""
+            "assert <seqfile>, <hmmfile> both protein: no autodetection",
+          Opt
+            [OptName "--dna" LongType]
+            ""
+            "assert <seqfile>, <hmmfile> both DNA: no autodetection"
+        ]
     ]
 
 unsupportedCases :: TestTree
@@ -497,29 +520,6 @@ unsupportedCases =
           \                    form name[tab]sequence.  Lines prefixed with a hash will\n\
           \                    be ignored."
           (["-c", "--contaminants"], "", "Specifies a non-default file which contains the list of contaminants to screen overrepresented sequences against."),
-        ---- hmmalign ----
-        test_parseBlockwise
-          "  --mapali <f>    : include alignment in file <f> (same ali that HMM came from)\n\
-          \  --trim          : trim terminal tails of nonaligned residues from alignment\n\
-          \  --amino         : assert <seqfile>, <hmmfile> both protein: no autodetection\n\
-          \  --dna           : assert <seqfile>, <hmmfile> both DNA: no autodetection"
-          [ Opt
-              [OptName "--mapali" LongType]
-              "<f>"
-              "include alignment in file <f> (same ali that HMM came from)",
-            Opt
-              [OptName "--trim" LongType]
-              ""
-              "trim terminal tails of nonaligned residues from alignment",
-            Opt
-              [OptName "--amino" LongType]
-              ""
-              "assert <seqfile>, <hmmfile> both protein: no autodetection",
-            Opt
-              [OptName "--dna" LongType]
-              ""
-              "assert <seqfile>, <hmmfile> both DNA: no autodetection"
-          ],
         ---- gem ----
         test_optPart
           "-p, --[no-]http-proxy [URL]"

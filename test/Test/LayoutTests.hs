@@ -2,6 +2,7 @@
 
 module Test.LayoutTests (tests) where
 
+import qualified Layout
 import Test.Helpers (test_parseUsage)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
@@ -12,6 +13,7 @@ tests =
   testGroup
     "Layout Tests"
     [ layoutTests
+    , emptyInputTests
     , parseUsageTests
     ]
 
@@ -24,6 +26,16 @@ layoutTests =
         convertTabsToSpaces 4 "aa\tb\tccddddddddd\t" @?= "aa  b   ccddddddddd \n",
       testCase "convertTabsToSpaces 2" $
         convertTabsToSpaces 3 "\t\t\ta\tab\tabc\tkk" @?= "         a  ab abc   kk\n"
+    ]
+
+emptyInputTests :: TestTree
+emptyInputTests =
+  testGroup
+    "Empty input handling"
+    [ testCase "preprocessBlockwise on empty string" $
+        Layout.preprocessBlockwise "" @?= [],
+      testCase "parseBlockwise on empty string" $
+        Layout.parseBlockwise "" @?= []
     ]
 
 parseUsageTests :: TestTree
