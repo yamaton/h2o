@@ -6,6 +6,7 @@ module Io where
 
 import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat (..))
 import qualified Data.Aeson as Aeson
+import Data.IORef (IORef, modifyIORef', newIORef, readIORef)
 import qualified Data.Map.Ordered as OMap
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -136,6 +137,21 @@ toNativeTextRec path cmd@(Command name desc usage _ subCmds _) =
     subcommandsText = toSubcommandsText currentPath subCmds
     rest = concatMap (toNativeTextRec currentPath) subCmds
 
+-- | Maximum total help/man invocations during a single recursive scan.
+-- Bounds the depth × branching-factor fan-out so a deeply nested or noisy
+-- CLI cannot spawn thousands of subprocesses. Realistic CLIs (docker,
+-- kubectl, even most gcloud roots) fit comfortably; pathological cases
+-- get truncated with a warning rather than locking h2o for hours.
+subprocessBudget :: Int
+subprocessBudget = 500
+
+-- | Maximum subcommand candidates considered at any single recursion level.
+-- Acts as a noise filter: when the parser overestimates how many
+-- subcommands a help text contains, we cap the explosion at one level
+-- before it cascades through the rest of the tree.
+maxSubcandidatesPerLevel :: Int
+maxSubcandidatesPerLevel = 100
+
 -- | Scans over command and subcommands
 --
 -- `name` is the name of the command.
@@ -145,7 +161,8 @@ pageToCommandIO :: String -> Bool -> Int -> String -> IO Command
 pageToCommandIO name skipMan depth content = do
   isManAvailable <- isManAvailableIO name
   let useMan = not skipMan && isManAvailable
-  (cmd, status) <- getCommandRec depth useMan [name] name "placeholder" content
+  budget <- newIORef subprocessBudget
+  (cmd, status) <- getCommandRec budget depth useMan [name] name "placeholder" content
   let isSuccess =
         (not . null . _options) cmd
           || (not . null . _subcommands) cmd
@@ -157,6 +174,9 @@ pageToCommandIO name skipMan depth content = do
 -- | Scan subcommand recursively for its options and sub-sub commands
 --
 -- Arguments:
+--   budget is a shared IORef counting remaining subprocess invocations.
+--     When it reaches zero, further fetches are skipped (the affected
+--     subcommands return as empty Commands and are filtered out).
 --   extraDepth is the number of extra depths to scan sub-sub..commands. Set 0 to avoid scanning sub-sub commands.
 --   useMan carries information whether man page should be tried first.
 --     When True, each subcommand fetch tries the man page and falls back
@@ -166,19 +186,29 @@ pageToCommandIO name skipMan depth content = do
 --   desc is description of the subcommand obtained from the upper-level source.
 --   upperContent is the text scanned in the upper level. This information is needed because
 --     "foo bar --help" sometimes returns the identical result as "foo --help".
-getCommandRec :: Int -> Bool -> [String] -> String -> Text -> String -> IO (Command, Bool)
-getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
+getCommandRec :: IORef Int -> Int -> Bool -> [String] -> String -> Text -> String -> IO (Command, Bool)
+getCommandRec budget extraDepth useMan cmdSeq desc upperContent givenPage = do
   page <-
     if null givenPage
-      then normalizeInputText <$> readFunc cmdSeq
+      then do
+        remaining <- readIORef budget
+        if remaining <= 0
+          then return $
+            Utils.warnTrace ("Subprocess budget exhausted; skipping " ++ unwords cmdSeq) T.empty
+          else do
+            modifyIORef' budget (subtract 1)
+            normalizeInputText <$> readFunc cmdSeq
       else return (T.pack givenPage)
   let content = T.unpack page
   let isSuccess = not (T.null page) && page /= upperContent
-  let subCandidates = if extraDepth <= 0 then [] else getSubcmdCandidates content
+  let subCandidates =
+        if extraDepth <= 0
+          then []
+          else take maxSubcandidatesPerLevel (getSubcmdCandidates content)
   let subCommandCandidsM =
         mapM
           ( \(Subcommand name subDesc) ->
-              getCommandRec (extraDepth - 1) useMan (cmdSeq ++ [name]) subDesc page ""
+              getCommandRec budget (extraDepth - 1) useMan (cmdSeq ++ [name]) subDesc page ""
           )
           ( filter
               (\(Subcommand name _) -> null cmdSeq || (last cmdSeq /= name))
