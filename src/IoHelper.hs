@@ -37,12 +37,17 @@ processTimeoutMicros = 10 * 1000 * 1000  -- 10 seconds
 -- 'Nothing' if the process binary cannot be started (e.g. @man@ is not
 -- installed) or the process does not finish within 'processTimeoutMicros'.
 -- The label is only used to annotate warning trace messages.
+--
+-- The child's stdin is closed before exec, so a help/man invocation that
+-- (mis)reads from stdin sees EOF immediately instead of blocking on our
+-- inherited terminal until the timeout fires.
 runProcessSafe ::
   String ->
   Process.ProcessConfig stdin stdout stderr ->
   IO (Maybe (ExitCode, BSL.ByteString, BSL.ByteString))
 runProcessSafe label pc = do
-  result <- try (timeout processTimeoutMicros (Process.readProcess pc))
+  let pc' = Process.setStdin Process.closed pc
+  result <- try (timeout processTimeoutMicros (Process.readProcess pc'))
   case result of
     Left (e :: SomeException) ->
       return $ Utils.warnTrace ("Cannot run " ++ label ++ ": " ++ show e) Nothing
