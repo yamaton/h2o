@@ -30,8 +30,17 @@ zshExecutor = sformat ("_" % string % " \"$@\"\n\n")
 zshHeaderOld :: String -> Text
 zshHeaderOld = sformat ("#compdef " % string % "\n\n")
 
+-- | Escape a description string for inclusion inside the @[...]@ portion of
+-- a single-quoted @_arguments@ spec. Backslash must be escaped first because
+-- subsequent replacements insert their own backslashes; @'@ is closed via
+-- the standard close-escape-reopen idiom; @[@/@]@ would otherwise be parsed
+-- by @_arguments@ as nested or terminating brackets.
 quote :: Text -> Text
-quote = T.replace "]" "\\]" . T.replace "[" "\\[" . T.replace "'" "'\\''"
+quote =
+    T.replace "]" "\\]"
+  . T.replace "[" "\\["
+  . T.replace "'" "'\\''"
+  . T.replace "\\" "\\\\"
 
 quoteShort :: String -> String
 quoteShort ('-':c:_) = case c of

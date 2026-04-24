@@ -51,10 +51,24 @@ quoteShortType :: OptName -> OptName
 quoteShortType (OptName n ShortType) = OptName (quoteShort n) ShortType
 quoteShortType optName               = optName
 
+-- | Escape characters bash interprets inside a double-quoted string:
+-- backslash, command substitution (@`@), parameter expansion (@$@), and
+-- the closing quote (@\"@). Backslash must be escaped first so the
+-- backslashes we insert for the other characters are not themselves
+-- doubled. Currently the generated bash script does not embed
+-- descriptions, but keeping this helper correct prevents future
+-- regressions if descriptions are added to the output.
+escapeBashDouble :: Text -> Text
+escapeBashDouble =
+    T.replace "\"" "\\\""
+  . T.replace "`"  "\\`"
+  . T.replace "$"  "\\$"
+  . T.replace "\\" "\\\\"
+
 quote :: Opt -> Opt
 quote (Opt names args desc) = Opt (map quoteShortType names) args quotedDesc
   where
-    quotedDesc = T.unpack . T.replace "\"" "\\\"" . T.pack $ desc
+    quotedDesc = T.unpack . escapeBashDouble . T.pack $ desc
 
 bashHeader :: Text
 bashHeader = "# Auto-generated with h2o\n\n"

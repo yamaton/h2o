@@ -29,7 +29,21 @@ tests =
       testCase "fish no child condition (empty)" $
         GenFish.makeNoChildCondition [] @?= T.pack "",
       testCase "fish no child condition (with children)" $
-        GenFish.makeNoChildCondition [dummyCmd "child1", dummyCmd "child2"] @?= T.pack "not __fish_seen_subcommand_from child1 child2"
+        GenFish.makeNoChildCondition [dummyCmd "child1", dummyCmd "child2"] @?= T.pack "not __fish_seen_subcommand_from child1 child2",
+      -- Description quoting: zsh _arguments treats `\`, `[`, `]`, `'`
+      -- specially inside the bracketed description segment.
+      testCase "zsh: backslash in description is escaped" $
+        let result = GenZsh.genZshScript "cmd" [Opt [OptName "-x" ShortType] "" "regex \\d+"]
+         in T.isInfixOf "regex \\\\d+" result @?= True,
+      testCase "zsh: brackets in description are escaped" $
+        let result = GenZsh.genZshScript "cmd" [Opt [OptName "-x" ShortType] "" "list[items]"]
+         in T.isInfixOf "list\\[items\\]" result @?= True,
+      testCase "zsh: backslash before bracket in description is escape-ordered correctly" $
+        -- Input "match \[end" must escape backslash first (-> "match \\[end")
+        -- and then bracket (-> "match \\\[end"); reverse order would
+        -- double-escape the inserted backslash.
+        let result = GenZsh.genZshScript "cmd" [Opt [OptName "-x" ShortType] "" "match \\[end"]
+         in T.isInfixOf "match \\\\\\[end" result @?= True
     ]
   where
     cmd = "nanachi"

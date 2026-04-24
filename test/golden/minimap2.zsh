@@ -62,7 +62,7 @@ function _minimap2 {
         '-o[Output alignments to FILE \[stdout\].]':file:_files \
         '-Q[Ignore base quality in the input file.]' \
         '-L[Write CIGAR with >65535 operators at the CG tag. Older tools are unable to convert alignments with >65535 CIGAR ops to BAM. This option makes minimap2 SAM compatible with older tools. Newer tools recognizes this tag and reconstruct the real CIGAR in memory.]' \
-        '-R[SAM read group line in a format like @RG\tID:foo\tSM:bar \[\].]' \
+        '-R[SAM read group line in a format like @RG\\tID:foo\\tSM:bar \[\].]' \
         '-y[Copy input FASTA/Q comments to output.]' \
         '-c[Generate CIGAR. In PAF, the CIGAR is written to the `cg'\'' custom tag.]' \
         '--cs[Output the cs tag. STR can be either short or long. If no STR is given, short is assumed. \[none\]]' \
