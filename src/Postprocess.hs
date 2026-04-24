@@ -3,6 +3,7 @@
 
 module Postprocess
   ( fixCommand,
+    fixOpts,
     fixDuplicateOpts,
     fixShortOptWithArgWithoutSpace,
   )

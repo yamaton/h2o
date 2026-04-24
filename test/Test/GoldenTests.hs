@@ -43,7 +43,7 @@ shellCompGoldenTests =
   where
     action shell x =
       toLazyByteString . toScript shell
-        <$> (pageToCommandSimple (takeBaseName x) =<< getInputContent (FileInput x True))
+        <$> (pageToCommandSimple (takeBaseName x) False =<< getInputContent (FileInput x True))
     actionFish = action Fish
     actionZsh = action Zsh
     actionBash = action Bash

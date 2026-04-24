@@ -55,20 +55,20 @@ run (C_ (Config input _ isExportingJSON isListingSubcommands isPreprocessOnly de
 
 -- Or, process the input file in text
 run (C_ (Config input@(FileInput f skipMan) format _ _ _ depth _)) =
-  toScript format <$> (pageToCommandIO name skipMan depth =<< contentIO)
+  toScript format <$> (pageToCommandIO name skipMan depth False =<< contentIO)
   where
     name = takeBaseName f
     contentIO = getInputContent input
 
 -- Or, process with command name
 run (C_ (Config input@(CommandInput name skipMan) format _ _ _ depth _)) =
-  toScript format <$> (pageToCommandIO name skipMan depth =<< contentIO)
+  toScript format <$> (pageToCommandIO name skipMan depth True =<< contentIO)
   where
     contentIO = getInputContent input
 
 -- Or, process with command name AND subcommand name
 run (C_ (Config input@(SubcommandInput name subname _) format _ _ _ _ _)) =
-  toScript format <$> (pageToCommandSimple nameSubname =<< getInputContent input)
+  toScript format <$> (pageToCommandSimple nameSubname True =<< getInputContent input)
   where
     nameSubname = name ++ "-" ++ subname
 
@@ -155,10 +155,15 @@ maxSubcandidatesPerLevel = 100
 -- | Scans over command and subcommands
 --
 -- `name` is the name of the command.
--- `skipMan` sets weather to read man pages in subsequent scans.
+-- `skipMan` sets whether to read man pages in subsequent scans.
+-- `fetchVersion` controls whether to shell out to @\<name\> --version@ to
+--     populate the 'Command._version' field. Set 'False' for inputs where
+--     the command is not installed (file / JSON input); the lookup would
+--     fail anyway and each failed invocation costs one slot of
+--     'subprocessBudget' and up to 'processTimeoutMicros' of wall time.
 -- `content` is the top-level text to be scanned.
-pageToCommandIO :: String -> Bool -> Int -> String -> IO Command
-pageToCommandIO name skipMan depth content = do
+pageToCommandIO :: String -> Bool -> Int -> Bool -> String -> IO Command
+pageToCommandIO name skipMan depth fetchVersion content = do
   isManAvailable <- isManAvailableIO name
   let useMan = not skipMan && isManAvailable
   budget <- newIORef subprocessBudget
@@ -168,8 +173,12 @@ pageToCommandIO name skipMan depth content = do
           || (not . null . _subcommands) cmd
           || (not . null . _usage) cmd
   if status && isSuccess
-    then Postprocess.fixCommand cmd
+    then postProcess cmd
     else throwIO (NoExtractableOptions name)
+  where
+    postProcess
+      | fetchVersion = Postprocess.fixCommand
+      | otherwise    = return . Postprocess.fixOpts
 
 -- | Scan subcommand recursively for its options and sub-sub commands
 --
@@ -234,18 +243,22 @@ getSubcmdCandidates content =
     pair2sub = uncurry Subcommand
     uniqSubcommands = map pair2sub . OMap.assocs . OMap.fromList . map sub2pair
 
--- | Converts to Command given command name and text
-pageToCommandSimple :: String -> String -> IO Command
-pageToCommandSimple name content =
+-- | Converts to Command given command name and text. See 'pageToCommandIO'
+-- for the 'fetchVersion' semantics.
+pageToCommandSimple :: String -> Bool -> String -> IO Command
+pageToCommandSimple name fetchVersion content =
   if null rootOptions
     then throwIO (NoExtractableOptions name)
-    else Postprocess.fixCommand $ Command name name usage rootOptions [] ""
+    else postProcess $ Command name name usage rootOptions [] ""
   where
     rootOptions = parseBlockwise content
     usage = parseUsage content
+    postProcess
+      | fetchVersion = Postprocess.fixCommand
+      | otherwise    = return . Postprocess.fixOpts
 
 listSubcommandsIO :: Input -> IO [Text]
-listSubcommandsIO input = getSubnames <$> (pageToCommandIO name skipMan 1 =<< getInputContent input)
+listSubcommandsIO input = getSubnames <$> (pageToCommandIO name skipMan 1 False =<< getInputContent input)
   where
     name = getName input
     skipMan = getSkipMan input
