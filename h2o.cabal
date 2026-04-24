@@ -49,6 +49,7 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , containers
     , extra
     , filepath
@@ -69,6 +70,7 @@ executable h2o
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , containers
     , extra
     , filepath

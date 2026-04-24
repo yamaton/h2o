@@ -16,6 +16,7 @@ where
 
 import qualified Config
 import Control.Exception (SomeException, try)
+import qualified Data.ByteString.Lazy as BSL
 import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -30,6 +31,23 @@ import qualified Utils
 -- Prevents h2o from hanging on commands that wait on stdin or never return.
 processTimeoutMicros :: Int
 processTimeoutMicros = 10 * 1000 * 1000  -- 10 seconds
+
+-- | Run a process with both a timeout and exception protection. Returns
+-- 'Nothing' if the process binary cannot be started (e.g. @man@ is not
+-- installed) or the process does not finish within 'processTimeoutMicros'.
+-- The label is only used to annotate warning trace messages.
+runProcessSafe ::
+  String ->
+  Process.ProcessConfig stdin stdout stderr ->
+  IO (Maybe (ExitCode, BSL.ByteString, BSL.ByteString))
+runProcessSafe label pc = do
+  result <- try (timeout processTimeoutMicros (Process.readProcess pc))
+  case result of
+    Left (e :: SomeException) ->
+      return $ Utils.warnTrace ("Cannot run " ++ label ++ ": " ++ show e) Nothing
+    Right Nothing ->
+      return $ Utils.warnTrace ("Timeout running: " ++ label) Nothing
+    Right (Just r) -> return (Just r)
 
 getManSub :: [String] -> IO Text
 getManSub names = getMan $ List.intercalate "-" names
@@ -61,9 +79,9 @@ getHelpTemplate cmd = getHelpTemplateMeta (Utils.mayContainUseful (T.pack cmd)) 
 
 fetchHelpInfo :: (Text -> Bool) -> String -> [String] -> IO (Maybe Text)
 fetchHelpInfo isGood name args = do
-  result <- timeout processTimeoutMicros (Process.readProcess pc)
+  result <- runProcessSafe (unwords cmdSeq) pc
   case result of
-    Nothing -> return $ Utils.warnTrace ("Timeout running: " ++ unwords cmdSeq) Nothing
+    Nothing -> return Nothing
     Just (exitCode, stdout, stderr) -> do
       let stdoutText = Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stdout
       let stderrText = Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stderr
@@ -98,9 +116,9 @@ getHelpSub names
 
 getMan :: String -> IO Text
 getMan name = do
-  result <- timeout processTimeoutMicros (Process.readProcess pc)
+  result <- runProcessSafe ("man " ++ name) pc
   case result of
-    Nothing -> return $ Utils.warnTrace ("Timeout running: man " ++ name) ""
+    Nothing -> return ""
     Just (exitCode, stdout, _)
       | exitCode /= ExitSuccess -> return ""
       | otherwise -> return . Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stdout
@@ -118,10 +136,11 @@ getManAndHelp name = do
         else Utils.infoTrace "Using help text" $ return content2
     else Utils.infoTrace "Using man page" $ return content
 
--- | Checks if man page is available
+-- | Checks if man page is available. Returns 'False' if the @man@ binary
+-- is not installed, the lookup times out, or no man page exists for @name@.
 isManAvailableIO :: String -> IO Bool
 isManAvailableIO name = do
-  result <- timeout processTimeoutMicros (Process.readProcess pc)
+  result <- runProcessSafe ("man -w " ++ name) pc
   return $ case result of
     Nothing -> False
     Just (exitCode, _, _) -> exitCode == ExitSuccess
