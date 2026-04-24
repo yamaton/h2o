@@ -10,6 +10,7 @@ module Utils where
 
 import Config (isVerbose)
 import qualified Constants as Const
+import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Foldable as Foldable
 import Data.Function (on)
 import qualified Data.List as List
@@ -17,6 +18,9 @@ import Data.List.Extra (nubSort, trimStart)
 import qualified Data.Map as Map
 import Data.Text (Text)
 import qualified Data.Text as T
+import Data.Text.Encoding.Error (lenientDecode)
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TLE
 import qualified Data.Char as Char
 import qualified Debug.Trace as Debug
 
@@ -348,6 +352,16 @@ stripAnsiEscapes = T.pack . go . T.unpack
 -- | Clean terminal output by removing backspace overstrikes and ANSI escape sequences.
 cleanTerminalOutput :: Text -> Text
 cleanTerminalOutput = stripAnsiEscapes . removeBackspaceOverstrikes
+
+-- | Decode a lazy 'BSL.ByteString' as UTF-8, substituting U+FFFD for any
+-- invalid byte. Help and man output from real-world commands is not always
+-- valid UTF-8 - Latin-1 locales, embedded binary noise on stderr, and older
+-- groff man pages on macOS all produce byte sequences that strict decoding
+-- surfaces as 'Data.Text.Encoding.Error.UnicodeException'. Using lenient
+-- decoding here keeps the parser pipeline total without silently dropping
+-- the valid surrounding text.
+decodeUtf8Lenient :: BSL.ByteString -> Text
+decodeUtf8Lenient = TL.toStrict . TLE.decodeUtf8With lenientDecode
 
 bracketPairs :: [(Char, Char)]
 bracketPairs =

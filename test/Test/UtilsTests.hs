@@ -7,6 +7,7 @@ import Control.Exception (try)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BSL
 import qualified Data.List as List
+import qualified Data.Text as T
 import qualified GenFishCompletions as GenFish
 import qualified H2OError
 import H2OError (H2OError (..))
@@ -145,6 +146,24 @@ tests =
         stripAnsiEscapes "" @?= "",
       testCase "stripAnsiEscapes: bare ESC" $
         stripAnsiEscapes "\x1Btext" @?= "text",
+      -- decodeUtf8Lenient: the strict TLE.decodeUtf8 previously used in
+      -- IoHelper crashed h2o on any non-UTF-8 byte produced by a command
+      -- (Latin-1 locales, binary stderr, older macOS man pages). The
+      -- lenient variant must (1) not raise, and (2) preserve surrounding
+      -- valid bytes so the parser still sees real option text.
+      testCase "decodeUtf8Lenient: valid ASCII is unchanged" $
+        Utils.decodeUtf8Lenient (BSL.pack "hello") @?= "hello",
+      testCase "decodeUtf8Lenient: valid multibyte UTF-8 decodes correctly" $
+        -- 0xE3 0x81 0x82 is the UTF-8 encoding of U+3042 (HIRAGANA A).
+        Utils.decodeUtf8Lenient (BSL.pack "\xE3\x81\x82") @?= "\x3042",
+      testCase "decodeUtf8Lenient: invalid bytes do not raise; surroundings kept" $
+        let txt = Utils.decodeUtf8Lenient (BSL.pack "hello\xFFworld\xFE!")
+         in do
+              assertBool "prefix preserved" (T.isInfixOf "hello" txt)
+              assertBool "middle preserved" (T.isInfixOf "world" txt)
+              assertBool "suffix preserved" (T.isInfixOf "!" txt),
+      testCase "decodeUtf8Lenient: empty input is empty" $
+        Utils.decodeUtf8Lenient (BSL.pack "") @?= "",
       -- toOptionNameType: classification, with Nothing for non-dash input
       -- (replaces the previous `error` that crashed the whole program when
       -- invalid JSON was loaded via --loadjson).

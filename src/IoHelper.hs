@@ -21,8 +21,6 @@ import qualified Data.ByteString.Lazy as BSL
 import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Encoding as TLE
 import H2OError (H2OError (..))
 import System.Exit (ExitCode (..))
 import qualified System.Process.Typed as Process
@@ -101,8 +99,8 @@ fetchHelpInfo isGood name args = do
   case result of
     Nothing -> return Nothing
     Just (exitCode, stdout, stderr) -> do
-      let stdoutText = Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stdout
-      let stderrText = Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stderr
+      let stdoutText = Utils.cleanTerminalOutput . Utils.decodeUtf8Lenient $ stdout
+      let stderrText = Utils.cleanTerminalOutput . Utils.decodeUtf8Lenient $ stderr
       let res
             | isCommandNotFound exitCode = Utils.warnTrace "Command not found" Nothing
             | any (Utils.hasErrorMessageAtTop (T.pack name)) [stdoutText, stderrText] =
@@ -139,7 +137,7 @@ getMan name = do
     Nothing -> return ""
     Just (exitCode, stdout, _)
       | exitCode /= ExitSuccess -> return ""
-      | otherwise -> return . Utils.cleanTerminalOutput . TL.toStrict . TLE.decodeUtf8 $ stdout
+      | otherwise -> return . Utils.cleanTerminalOutput . Utils.decodeUtf8Lenient $ stdout
   where
     pc = Process.proc "man" [name]
 
