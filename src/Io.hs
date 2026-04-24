@@ -5,6 +5,7 @@
 module Io where
 
 import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat (..))
+import Control.Exception (throwIO)
 import qualified Data.Aeson as Aeson
 import Data.IORef (IORef, modifyIORef', newIORef, readIORef)
 import qualified Data.Map.Ordered as OMap
@@ -16,6 +17,7 @@ import GenBashCompletions (toBashScript)
 import GenFishCompletions (toFishScript)
 import GenJSON (toJSONText)
 import GenZshCompletions (toZshScript)
+import H2OError (H2OError (..))
 import IoHelper
   ( getHelp,
     getHelpSub,
@@ -27,7 +29,6 @@ import IoHelper
 import Layout (parseBlockwise, parseUsage, preprocessBlockwise)
 import qualified Postprocess
 import Subcommand (parseSubcommand)
-import System.Exit (die)
 import System.FilePath (takeBaseName)
 import Text.Printf (printf)
 import Type (Command (..), Opt, Subcommand (..), asSubcommand)
@@ -75,12 +76,7 @@ run (C_ (Config input@(SubcommandInput name subname _) format _ _ _ _ _)) =
 run (C_ (Config input@(JsonInput f) format _ _ _ _ _)) = do
   content <- TLE.encodeUtf8 . TL.pack <$> getInputContent input
   case Aeson.eitherDecode content :: Either String Command of
-    Left err ->
-      die $
-        "Error: Cannot decode JSON from '"
-          ++ f
-          ++ "'. Ensure the file contains a valid Command schema.\n  "
-          ++ err
+    Left err -> throwIO (JsonDecodeFailed f err)
     Right c -> toScript format <$> return c
 
 toOptsText :: [Opt] -> Text
@@ -173,7 +169,7 @@ pageToCommandIO name skipMan depth content = do
           || (not . null . _usage) cmd
   if status && isSuccess
     then Postprocess.fixCommand cmd
-    else die $ "Error: Could not extract options from '" ++ name ++ "'. The help text may have an unsupported format."
+    else throwIO (NoExtractableOptions name)
 
 -- | Scan subcommand recursively for its options and sub-sub commands
 --
@@ -242,7 +238,7 @@ getSubcmdCandidates content =
 pageToCommandSimple :: String -> String -> IO Command
 pageToCommandSimple name content =
   if null rootOptions
-    then die $ "Error: Could not extract options from '" ++ name ++ "'. The help text may have an unsupported format."
+    then throwIO (NoExtractableOptions name)
     else Postprocess.fixCommand $ Command name name usage rootOptions [] ""
   where
     rootOptions = parseBlockwise content

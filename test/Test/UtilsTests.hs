@@ -2,10 +2,14 @@
 
 module Test.UtilsTests (tests) where
 
+import qualified Control.Exception
+import Control.Exception (try)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BSL
 import qualified Data.List as List
 import qualified GenFishCompletions as GenFish
+import qualified H2OError
+import H2OError (H2OError (..))
 import qualified Postprocess
 import Subcommand (firstTwoWordsLoc)
 import Test.Tasty (TestTree, testGroup)
@@ -183,5 +187,23 @@ tests =
       testCase "topTenPercentile returns Nothing for empty list" $
         Utils.topTenPercentile ([] :: [Int]) @?= Nothing,
       testCase "topTenPercentile returns Just for non-empty list" $
-        Utils.topTenPercentile [1 .. 10 :: Int] @?= Just 9
+        Utils.topTenPercentile [1 .. 10 :: Int] @?= Just 9,
+      -- H2OError: error-reporting types replaced the previous `die` calls
+      -- so library callers can `try`/`catch` instead of having the whole
+      -- process exit. Verify rendering and that the exception is catchable.
+      testCase "renderH2OError produces user-friendly NoHelpOrMan message" $
+        H2OError.renderH2OError (NoHelpOrMan "foo")
+          @?= "Error: No help or man page found for 'foo'. Is the command installed?",
+      testCase "renderH2OError preserves aeson error in JsonDecodeFailed" $
+        H2OError.renderH2OError (JsonDecodeFailed "x.json" "Error in $: oops")
+          @?= "Error: Cannot decode JSON from 'x.json'. Ensure the file contains a valid Command schema.\n  Error in $: oops",
+      testCase "H2OError is catchable via Control.Exception.try" $ do
+        result <-
+          try (Control.Exception.throwIO (NoExtractableOptions "demo")) ::
+            IO (Either H2OError ())
+        case result of
+          Left (NoExtractableOptions name) -> name @?= "demo"
+          Left other ->
+            assertFailure ("unexpected H2OError variant: " ++ show other)
+          Right _ -> assertFailure "exception was not raised"
     ]

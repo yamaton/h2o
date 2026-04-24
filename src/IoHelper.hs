@@ -16,14 +16,15 @@ module IoHelper
 where
 
 import qualified Config
-import Control.Exception (SomeException, try)
+import Control.Exception (SomeException, throwIO, try)
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TLE
-import System.Exit (ExitCode (..), die)
+import H2OError (H2OError (..))
+import System.Exit (ExitCode (..))
 import qualified System.Process.Typed as Process
 import System.Timeout (timeout)
 import qualified Utils
@@ -65,7 +66,7 @@ getManAndHelpSub names = do
     then do
       content2 <- getHelpSub names
       if T.null content2
-        then die $ "Error: No help or man page found for '" ++ List.intercalate " " names ++ "'. Is the command installed?"
+        then throwIO (NoHelpOrMan (List.intercalate " " names))
         else Utils.infoTrace "Using help text for subcommand" $ return content2
     else Utils.infoTrace "Using man page for subcommand" $ return content
 
@@ -149,7 +150,7 @@ getManAndHelp name = do
     then do
       content2 <- getHelp name
       if T.null content2
-        then die $ "Error: No help or man page found for '" ++ name ++ "'. Is the command installed?"
+        then throwIO (NoHelpOrMan name)
         else Utils.infoTrace "Using help text" $ return content2
     else Utils.infoTrace "Using man page" $ return content
 
