@@ -21,4 +21,4 @@ jobs:
       - run: |
           gh --version
       - run: |
-          stack test 2> /dev/null
+          stack test
