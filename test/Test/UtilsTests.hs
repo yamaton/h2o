@@ -62,6 +62,56 @@ tests =
         Postprocess.fixShortOptWithArgWithoutSpace
           (Opt [OptName "-Ttagsfile" OldType, OptName "--tag-file" LongType] "tagsfile" "Specifies a tags file...")
           @?= Opt [OptName "-T" ShortType, OptName "--tag-file" LongType] "tagsfile" "Specifies a tags file...",
+      -- fixDuplicateOpts: drop strict losers regardless of absolute score.
+      -- The previous `score_ < 1` cap let any inferior alternative scoring at
+      -- least 1 stay, so users saw both the chosen winner and a near-duplicate
+      -- in their completion script.
+      testCase "fixDuplicateOpts: inferior duplicate is discarded even when its score >= 1" $
+        let -- "Output file path." -> descScore +1 (ends with '.'), argScore +2 ("FILE"
+            -- single uppercase word), nameScore +1 -> total 4.
+            better =
+              Opt
+                [OptName "--out" LongType]
+                "FILE"
+                "Output file path."
+            -- "output file" -> descScore -1 (lowercase first char),
+            -- argScore +2, nameScore +1 -> total 2 (>= 1, so old code kept it).
+            worse =
+              Opt
+                [OptName "--out" LongType]
+                "FILE"
+                "output file"
+            result = Postprocess.fixDuplicateOpts [worse, better]
+         in result @?= [better],
+      testCase "fixDuplicateOpts: tied-best duplicates are both kept" $
+        let a =
+              Opt
+                [OptName "--out" LongType]
+                "FILE"
+                "Output file path."
+            b =
+              Opt
+                [OptName "--out" LongType]
+                "DIR"
+                "Output directory path."
+         in -- Both score 4: both kept (no clear winner to discard).
+            length (Postprocess.fixDuplicateOpts [a, b]) @?= 2,
+      -- Two different options that share a single short name (rsync-style
+      -- `-h` belonging to both --help and --human-readable) must not be
+      -- collapsed even when one outscores the other; the dedup is gated on
+      -- the *full* name list matching, not on any individual name overlap.
+      testCase "fixDuplicateOpts: alternatives that share a short name are kept" $
+        let helpOpt =
+              Opt
+                [OptName "--help" LongType, OptName "-h" ShortType]
+                "(*)"
+                "Show help (* -h is help only on its own)."
+            humanOpt =
+              Opt
+                [OptName "--human-readable" LongType, OptName "-h" ShortType]
+                ""
+                "output sizes in human-readable format"
+         in length (Postprocess.fixDuplicateOpts [helpOpt, humanOpt]) @?= 2,
       testCase "isUsageBlock" $
         Utils.isUsageBlock "Usage: rsem-bam2readdepth sorted_bam_input readdepth_output" @?= True,
       testCase "isUsageBlock" $

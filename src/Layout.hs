@@ -53,7 +53,7 @@ where
 
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.List as List
-import Data.List.Extra (dropPrefix, dropSuffix, trim, trimStart)
+import Data.List.Extra (dropPrefix, dropSuffix, nubOrd, trim, trimStart)
 import qualified HelpParser
 import Layout.ColumnAnalysis
   ( Location,
@@ -129,10 +129,13 @@ preprocessBlockwise content = Utils.infoTrace decoratedMsg $ concatMap (uncurry 
     msg = printf "Found %d header-based blocks" (length indexBlockPairs)
     decoratedMsg = "-------- " ++ msg ++ " --------"
 
--- | Parse `Opt`s from multi-line text
+-- | Parse `Opt`s from multi-line text. Uses 'nubOrd' (O(n log n)) rather
+-- than 'List.nub' (O(n^2)) for exact-duplicate removal; near-duplicates that
+-- share a name but differ in arg/description are intentionally preserved
+-- here so 'Postprocess.fixDuplicateOpts' can pick the highest-scoring one.
 parseBlockwise :: String -> [Opt]
 parseBlockwise "" = []
-parseBlockwise s = List.nub . concat $ results
+parseBlockwise s = nubOrd . concat $ results
   where
     pairs = preprocessBlockwise s
     results =
@@ -186,7 +189,7 @@ preprocessSecondAttempt = preprocessMeta (\_ s -> HelpParser.preprocessAllFallba
 -- | [Deprecated] Parse options without header-based splitting of input text
 parseMany :: String -> [Opt]
 parseMany "" = []
-parseMany s = List.nub . concat $ results
+parseMany s = nubOrd . concat $ results
   where
     pairs = preprocessAll 0 s
     results =

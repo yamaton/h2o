@@ -386,9 +386,11 @@ optPart = do
   eof
   return (names, args)
 
--- | Parse Opt from single-line string
+-- | Parse Opt from single-line string. Uses 'nubOrd' (O(n log n)) rather
+-- than 'List.nub' (O(n^2)); 'Postprocess.fixDuplicateOpts' handles
+-- near-duplicate selection separately by score.
 parseLine :: String -> [Opt]
-parseLine s = List.nub . concat $ results
+parseLine s = nubOrd . concat $ results
   where
     -- thanks to lazy evaluation, desc is NOT evaluated when xs == []
     -- so don't worry about calling (head xs).

@@ -47,9 +47,6 @@ skip bases with baseQ/BAQ smaller than INT [13]
 (bcftools-mpileup-input) -r --regions  ::  REG
 comma separated list of regions in which pileup is generated
 
-(bcftools-mpileup-input) -r --regions  ::  REG,...
-comma separated list of regions in which pileup is generated
-
 (bcftools-mpileup-input) -R --regions-file  ::  FILE
 restrict to regions listed in a file
 
@@ -69,9 +66,6 @@ comma separated list of samples to include
 file of samples to include
 
 (bcftools-mpileup-input) -t --targets  ::  REG
-similar to -r but streams rather than index-jumps
-
-(bcftools-mpileup-input) -t --targets  ::  REG,...
 similar to -r but streams rather than index-jumps
 
 (bcftools-mpileup-input) -T --targets-file  ::  FILE

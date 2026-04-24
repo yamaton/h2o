@@ -3,6 +3,7 @@
 
 module Postprocess
   ( fixCommand,
+    fixDuplicateOpts,
     fixShortOptWithArgWithoutSpace,
   )
 where
@@ -68,7 +69,21 @@ fixDuplicateOpts opts
         delim s = replicate (4 + length s) '='
 
     (kept, discardedPairs) = concatUnzip (map keepOrDiscard relevantOptsScoreList)
-    discarded = [opt_ | (opt_, score_) <- discardedPairs, score_ < 1, opt_ `notElem` kept]
+    -- Only discard a loser when a winner with the *same full name list*
+    -- exists. Two opts can land in the same duplicate group merely because
+    -- they share one short name (e.g. rsync's `-h` belongs to both --help
+    -- and --human-readable); those are legitimate alternatives, not real
+    -- duplicates, and deserve to stay. The previous `score_ < 1` cap was
+    -- effectively this same conservative gate but expressed as an absolute
+    -- score floor, which let stylistically-different copies of the same
+    -- option (e.g. `--regions REG` vs `--regions REG,...`) leak through.
+    keptNamesSet = Set.fromList (map _names kept)
+    discarded =
+      [ opt_
+      | (opt_, _) <- discardedPairs
+      , Set.member (_names opt_) keptNamesSet
+      , opt_ `notElem` kept
+      ]
     optsFixed =
       Utils.warnShow "Discarded opts due to duplicates: " discarded $
         filter (`notElem` discarded) opts
