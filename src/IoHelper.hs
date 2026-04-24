@@ -9,6 +9,7 @@ module IoHelper
     getManSub,
     getManAndHelp,
     getManAndHelpSub,
+    getManThenHelpSub,
     isManAvailableIO,
     getVersion,
   )
@@ -62,6 +63,17 @@ getManAndHelpSub names = do
         then die $ "Error: No help or man page found for '" ++ List.intercalate " " names ++ "'. Is the command installed?"
         else Utils.infoTrace "Using help text for subcommand" $ return content2
     else Utils.infoTrace "Using man page for subcommand" $ return content
+
+-- | Like 'getManAndHelpSub' but returns empty 'Text' instead of dying when
+-- neither the man page nor @--help@ produces output. Intended for recursive
+-- subcommand discovery, where missing help should silently skip the
+-- subcommand rather than abort the whole run.
+getManThenHelpSub :: [String] -> IO Text
+getManThenHelpSub names = do
+  content <- getManSub names
+  if T.null content
+    then Utils.infoTrace "Falling back to help for subcommand" $ getHelpSub names
+    else return content
 
 getHelpTemplateMeta :: (Text -> Bool) -> String -> [[String]] -> IO Text
 getHelpTemplateMeta _ _ [] = return ""

@@ -20,7 +20,7 @@ import IoHelper
     getHelpSub,
     getManAndHelp,
     getManAndHelpSub,
-    getManSub,
+    getManThenHelpSub,
     isManAvailableIO,
   )
 import Layout (parseBlockwise, parseUsage, preprocessBlockwise)
@@ -158,7 +158,10 @@ pageToCommandIO name skipMan depth content = do
 --
 -- Arguments:
 --   extraDepth is the number of extra depths to scan sub-sub..commands. Set 0 to avoid scanning sub-sub commands.
---   useMan carries information weather man page is used as the information source.
+--   useMan carries information whether man page should be tried first.
+--     When True, each subcommand fetch tries the man page and falls back
+--     to --help if no man page exists for that particular subcommand.
+--     When False (--skip-man), help is used directly without trying man.
 --   cmdSeq is a list composed of command name, subcommand name, for example ["docker", "container", "run"].
 --   desc is description of the subcommand obtained from the upper-level source.
 --   upperContent is the text scanned in the upper level. This information is needed because
@@ -188,7 +191,7 @@ getCommandRec extraDepth useMan cmdSeq desc upperContent givenPage = do
   let result = Command (last cmdSeq) desc usage opts subCommands ""
   return (result, Utils.infoMsg ("Extraction succeeded for " ++ unwords cmdSeq ++ ":") isSuccess)
   where
-    readFunc = if useMan then getManSub else getHelpSub
+    readFunc = if useMan then getManThenHelpSub else getHelpSub
 
 -- | scan `content` for a list of possible subcommand
 getSubcmdCandidates :: String -> [Subcommand]
