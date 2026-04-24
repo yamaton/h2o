@@ -2,11 +2,15 @@
 
 module Test.UtilsTests (tests) where
 
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy.Char8 as BSL
+import qualified Data.List as List
 import qualified GenFishCompletions as GenFish
 import qualified Postprocess
 import Subcommand (firstTwoWordsLoc)
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (testCase, (@?=))
+import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@?=))
+import qualified Type
 import Type (Opt (..), OptName (..), OptNameType (..))
 import Utils (getMostFrequent, isUsageBlock, splitsAt, groupConsecutive, toRanges, removeBackspaceOverstrikes, stripAnsiEscapes)
 
@@ -85,5 +89,37 @@ tests =
       testCase "stripAnsiEscapes: empty" $
         stripAnsiEscapes "" @?= "",
       testCase "stripAnsiEscapes: bare ESC" $
-        stripAnsiEscapes "\x1Btext" @?= "text"
+        stripAnsiEscapes "\x1Btext" @?= "text",
+      -- toOptionNameType: classification, with Nothing for non-dash input
+      -- (replaces the previous `error` that crashed the whole program when
+      -- invalid JSON was loaded via --loadjson).
+      testCase "toOptionNameType: long" $
+        Type.toOptionNameType "--help" @?= Just LongType,
+      testCase "toOptionNameType: short" $
+        Type.toOptionNameType "-h" @?= Just ShortType,
+      testCase "toOptionNameType: old" $
+        Type.toOptionNameType "-help" @?= Just OldType,
+      testCase "toOptionNameType: single dash" $
+        Type.toOptionNameType "-" @?= Just SingleDashOnlyType,
+      testCase "toOptionNameType: double dash" $
+        Type.toOptionNameType "--" @?= Just DoubleDashOnlyType,
+      testCase "toOptionNameType: invalid -> Nothing" $
+        Type.toOptionNameType "foo" @?= Nothing,
+      -- FromJSON Opt: invalid option name should fail through aeson rather
+      -- than crash via `error`. The error message must point at what's wrong
+      -- so the user can fix the JSON.
+      testCase "FromJSON Opt rejects non-dash name with informative error" $
+        let bad = BSL.pack "{\"names\":[\"foo\"],\"argument\":\"\",\"description\":\"d\"}"
+         in case Aeson.eitherDecode bad :: Either String Opt of
+              Right _ -> assertFailure "expected JSON parse to fail for invalid optname"
+              Left err -> do
+                assertBool ("error mentions 'Invalid option name': " ++ err)
+                  ("Invalid option name" `List.isInfixOf` err)
+                assertBool ("error mentions the offending value: " ++ err)
+                  ("foo" `List.isInfixOf` err),
+      testCase "FromJSON Opt accepts a valid option" $
+        let good = BSL.pack "{\"names\":[\"--help\"],\"argument\":\"\",\"description\":\"d\"}"
+         in case Aeson.eitherDecode good :: Either String Opt of
+              Left err -> assertFailure ("expected parse to succeed: " ++ err)
+              Right (Opt names _ _) -> map _raw names @?= ["--help"]
     ]

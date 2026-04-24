@@ -74,10 +74,14 @@ run (C_ (Config input@(SubcommandInput name subname _) format _ _ _ _ _)) =
 -- Or, load Command from JSON
 run (C_ (Config input@(JsonInput f) format _ _ _ _ _)) = do
   content <- TLE.encodeUtf8 . TL.pack <$> getInputContent input
-  let cmdMay = Aeson.decode content :: Maybe Command
-  case cmdMay of
-    Nothing -> die $ "Error: Cannot decode JSON from '" ++ f ++ "'. Ensure the file contains valid Command schema."
-    Just c -> toScript format <$> return c
+  case Aeson.eitherDecode content :: Either String Command of
+    Left err ->
+      die $
+        "Error: Cannot decode JSON from '"
+          ++ f
+          ++ "'. Ensure the file contains a valid Command schema.\n  "
+          ++ err
+    Right c -> toScript format <$> return c
 
 toOptsText :: [Opt] -> Text
 toOptsText = T.unlines . map (T.pack . show)

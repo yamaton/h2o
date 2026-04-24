@@ -14,6 +14,7 @@ import Data.Aeson
     (.:),
     (.:?),
   )
+import qualified Data.Aeson.Types as Aeson
 import qualified Data.Maybe as Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -74,14 +75,21 @@ instance ToJSON OptName where
   toEncoding (OptName raw _) = toEncoding raw
 
 instance FromJSON Opt where
-  parseJSON = withObject "Opt" $ \v ->
-    Opt
-      <$> (map toOptName <$> v .: "names")
-      <*> (T.unpack <$> v .: "argument")
-      <*> (T.unpack <$> v .: "description")
+  parseJSON = withObject "Opt" $ \v -> do
+    rawNames <- v .: "names"
+    names <- traverse parseOptName rawNames
+    arg <- T.unpack <$> v .: "argument"
+    desc <- T.unpack <$> v .: "description"
+    return (Opt names arg desc)
     where
-      toOptName :: Text -> OptName
-      toOptName n = OptName (T.unpack n) (toOptionNameType n)
+      parseOptName :: Text -> Aeson.Parser OptName
+      parseOptName n = case toOptionNameType n of
+        Just t -> return (OptName (T.unpack n) t)
+        Nothing ->
+          fail $
+            "Invalid option name "
+              ++ show (T.unpack n)
+              ++ ". Each name must start with '-'."
 
 instance FromJSON Command where
   parseJSON = withObject "Command" $ \v ->
@@ -133,14 +141,17 @@ instance FromJSON Subcommand where
       <$> (v .: "name" <|> v .: "cmd")  -- Accept both for backward compatibility
       <*> v .: "desc"
 
-toOptionNameType :: Text -> OptNameType
-toOptionNameType "-" = SingleDashOnlyType
-toOptionNameType "--" = DoubleDashOnlyType
+-- | Classify an option name string. Returns 'Nothing' when the input does
+-- not start with a dash (it is then not a recognisable option name and the
+-- caller should treat it as a parse error rather than fabricate a type).
+toOptionNameType :: Text -> Maybe OptNameType
+toOptionNameType "-" = Just SingleDashOnlyType
+toOptionNameType "--" = Just DoubleDashOnlyType
 toOptionNameType s
-  | "--" `T.isPrefixOf` s = LongType
-  | "-" `T.isPrefixOf` s && T.length s == 2 = ShortType
-  | "-" `T.isPrefixOf` s = OldType
-  | otherwise = error $ "toOptionNameType: invalid option name '" ++ T.unpack s ++ "' (this is a bug in h2o)"
+  | "--" `T.isPrefixOf` s = Just LongType
+  | "-" `T.isPrefixOf` s && T.length s == 2 = Just ShortType
+  | "-" `T.isPrefixOf` s = Just OldType
+  | otherwise = Nothing
 
 asSubcommand :: Command -> Subcommand
 asSubcommand (Command n desc _ _ _ _) = Subcommand n desc
