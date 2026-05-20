@@ -7,12 +7,11 @@ module Io where
 import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat (..))
 import Control.Exception (throwIO)
 import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy as BSL
 import Data.IORef (IORef, modifyIORef', newIORef, readIORef)
 import qualified Data.Map.Ordered as OMap
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Encoding as TLE
 import GenBashCompletions (toBashScript)
 import GenFishCompletions (toFishScript)
 import GenJSON (toJSONText)
@@ -73,8 +72,8 @@ run (C_ (Config input@(SubcommandInput name subname _) format _ _ _ _ _)) =
     nameSubname = name ++ "-" ++ subname
 
 -- Or, load Command from JSON
-run (C_ (Config input@(JsonInput f) format _ _ _ _ _)) = do
-  content <- TLE.encodeUtf8 . TL.pack <$> getInputContent input
+run (C_ (Config (JsonInput f) format _ _ _ _ _)) = do
+  content <- BSL.readFile f
   case Aeson.eitherDecode content :: Either String Command of
     Left err -> throwIO (JsonDecodeFailed f err)
     Right c -> toScript format <$> return c
@@ -101,6 +100,9 @@ toSubcommandOptionsText nameSeq (Command subname _ _ opts _ _) =
 normalizeInputText :: Text -> Text
 normalizeInputText = Utils.maskListBullets . Utils.unicodeSpacesToAscii . Utils.convertTabsToSpaces 8
 
+readTextFileLenient :: FilePath -> IO Text
+readTextFileLenient f = Utils.decodeUtf8Lenient <$> BSL.readFile f
+
 getInputContent :: Input -> IO String
 getInputContent (SubcommandInput name subname skipMan) =
   T.unpack . normalizeInputText <$> reader [name, subname]
@@ -111,8 +113,8 @@ getInputContent (CommandInput name skipMan) =
   where
     reader = if skipMan then getHelp else getManAndHelp
 getInputContent (FileInput f _) =
-  T.unpack . normalizeInputText . T.pack <$> readFile f
-getInputContent (JsonInput f) = readFile f
+  T.unpack . normalizeInputText <$> readTextFileLenient f
+getInputContent (JsonInput f) = T.unpack <$> readTextFileLenient f
 
 toScript :: OutputFormat -> Command -> Text
 toScript Fish = toFishScript

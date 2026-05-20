@@ -1,11 +1,15 @@
 module Test.GoldenTests (tests) where
 
 import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat (..))
+import qualified Data.ByteString.Lazy.Char8 as BSL
+import qualified Data.Text as T
 import Io (getInputContent, pageToCommandSimple, run, toScript)
 import System.FilePath (takeBaseName)
+import System.IO (hClose, openBinaryTempFile)
 import Test.Helpers (toLazyByteString)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsString)
+import Test.Tasty.HUnit (assertBool, testCase)
 import Text.Printf (printf)
 
 tests :: TestTree
@@ -16,6 +20,21 @@ tests =
     , integratedGoldenTestsCommandInput
     , integratedGoldenTestsFileInput
     , integratedGoldenTestsJsonInput
+    , fileInputRobustnessTests
+    ]
+
+fileInputRobustnessTests :: TestTree
+fileInputRobustnessTests =
+  testGroup
+    "File input robustness"
+    [ testCase "FileInput decodes invalid UTF-8 leniently" $ do
+        (path, handle) <- openBinaryTempFile "/tmp" "h2o-invalid-utf8-test.txt"
+        hClose handle
+        BSL.writeFile path (BSL.pack "Options:\n  --help   Show \xff help\n")
+        content <- getInputContent (FileInput path True)
+        let text = T.pack content
+        assertBool "option text should survive invalid bytes" (T.pack "--help" `T.isInfixOf` text)
+        assertBool "invalid byte should be replaced, not dropped" (T.pack "\xfffd" `T.isInfixOf` text)
     ]
 
 shellCompGoldenTests :: TestTree
