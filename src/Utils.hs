@@ -235,17 +235,31 @@ dropUsage text = res
 isUsageBlock :: Text -> Bool
 isUsageBlock = (\s -> ("usage" `T.isPrefixOf` s) || ("synopsis" `T.isPrefixOf` s)) . T.toLower . T.stripStart
 
--- | A speculative criteria for non-critical purposes
--- [TODO] Scrutinize this as it's now used for critical purposes
+-- | Detect whether a command output starts with a diagnostic/error page rather
+-- than real help. The check intentionally uses anchored/specific patterns
+-- instead of broad words like "missing" so normal help summaries are not
+-- rejected.
 hasErrorMessageAtTop :: Text -> Text -> Bool
-hasErrorMessageAtTop name text =
+hasErrorMessageAtTop _name text =
   case T.lines (T.stripStart text) of
     [] -> False
-    (l : _) ->
-      let loweredFirstLine = T.toLower . T.take 100 $ l
-          validKeywords = filter (not . (`T.isInfixOf` name)) Const.errKeywords
-       in not (Utils.isUsageBlock loweredFirstLine)
-            && any (`T.isInfixOf` loweredFirstLine) validKeywords
+    (l : _) -> hasErrorMessageLine l
+  where
+    hasErrorMessageLine line =
+      not (Utils.isUsageBlock lowered)
+        && (hasErrorPrefix || hasErrorPhrase)
+      where
+        lowered = T.toLower . T.strip . T.take 100 $ line
+        candidates = lowered : maybe [] (: []) (dropCommandPrefix lowered)
+        hasErrorPrefix =
+          any (\prefix -> any (prefix `T.isPrefixOf`) candidates) Const.errPrefixes
+        hasErrorPhrase = any (`T.isInfixOf` lowered) Const.errPhrases
+
+    dropCommandPrefix line =
+      case T.breakOn ":" line of
+        (_, rest)
+          | T.null rest -> Nothing
+          | otherwise -> Just (T.strip (T.drop 1 rest))
 
 mayContainUseful :: Text -> Text -> Bool
 mayContainUseful name text
@@ -258,14 +272,12 @@ mayContainUseful name text
 
 -- | Check if a text is free from error-like words at the bottom of the page.
 isNotNullAndErrorMessageAbsent :: Text -> Text -> Bool
-isNotNullAndErrorMessageAbsent name text =
-  isNotNull && (isUsageBlock bottomLine || isBottomWithoutError)
+isNotNullAndErrorMessageAbsent _name text =
+  isNotNull && not (hasErrorMessageAtTop "" bottomLine)
   where
-    errKeywords = filter (\k -> not (k `T.isInfixOf` name)) Const.errKeywords
     lowered = (T.toLower . T.strip) text
     isNotNull = (not . T.null) lowered
     bottomLine = last (T.lines lowered)
-    isBottomWithoutError = not (any (`T.isInfixOf` bottomLine) errKeywords)
 
 -- | splitsAt ... like Data.List.splitAt but multiple indices
 --

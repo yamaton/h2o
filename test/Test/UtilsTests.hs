@@ -122,6 +122,16 @@ tests =
         Utils.isUsageBlock "Usage: rsem-bam2readdepth sorted_bam_input readdepth_output" @?= True,
       testCase "isUsageBlock" $
         Utils.isUsageBlock "SYNOPSIS\n      rsem-bam2readdepth sorted_bam_input readdepth_output" @?= True,
+      testCase "hasErrorMessageAtTop: ordinary missing text is not an error" $
+        Utils.hasErrorMessageAtTop "demo" "Show missing dependency information\n  --help   Show help" @?= False,
+      testCase "hasErrorMessageAtTop: missing argument is an error" $
+        Utils.hasErrorMessageAtTop "demo" "missing argument: FILE" @?= True,
+      testCase "hasErrorMessageAtTop: prefixed error is an error" $
+        Utils.hasErrorMessageAtTop "demo" "error: unknown option --foo" @?= True,
+      testCase "hasErrorMessageAtTop: usage is not an error" $
+        Utils.hasErrorMessageAtTop "demo" "Usage: demo [OPTIONS]" @?= False,
+      testCase "hasErrorMessageAtTop: command-prefixed option error is an error" $
+        Utils.hasErrorMessageAtTop "demo" "demo: unrecognized option '--bad'" @?= True,
       -- removeBackspaceOverstrikes
       testCase "removeBackspaceOverstrikes: bold via overstrike" $
         removeBackspaceOverstrikes ("H\x08" <> "He\x08" <> "el\x08" <> "lp\x08" <> "p") @?= "Help",
