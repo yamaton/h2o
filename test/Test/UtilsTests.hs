@@ -12,7 +12,7 @@ import qualified GenFishCompletions as GenFish
 import qualified H2OError
 import H2OError (H2OError (..))
 import qualified Postprocess
-import Subcommand (firstTwoWordsLoc)
+import Subcommand (firstTwoWordsLoc, parseSubcommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@?=))
 import qualified Type
@@ -44,6 +44,20 @@ tests =
         firstTwoWordsLoc
           "   hi               there   "
           @?= (3, 20),
+      testCase "parseSubcommand joins wrapped descriptions" $
+        parseSubcommand
+          "Commands:\n\
+          \  composition         Plugin for compositional data analysis.\n\
+          \  cutadapt            Plugin for removing adapter sequences, primers, and\n\
+          \                      other unwanted sequence from sequence data.\n\
+          \  sample-classifier   Plugin for machine learning prediction of sample\n\
+          \                      metadata.\n\
+          \  stats               Plugin for statistical analyses.\n"
+          @?= [ Type.Subcommand "composition" "Plugin for compositional data analysis.",
+                Type.Subcommand "cutadapt" "Plugin for removing adapter sequences, primers, and other unwanted sequence from sequence data.",
+                Type.Subcommand "sample-classifier" "Plugin for machine learning prediction of sample metadata.",
+                Type.Subcommand "stats" "Plugin for statistical analyses."
+              ],
       testCase "getMostFrequent [1, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] == Just (-4)" $
         getMostFrequent [1 :: Int, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] @?= Just (-4 :: Int),
       testCase "groupConsecutive [2, 3, 4, 8, 10, 11] == [[2, 3, 4], [8], [10, 11]]" $

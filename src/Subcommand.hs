@@ -1,6 +1,7 @@
 module Subcommand where
 
 import Control.Monad (liftM2)
+import Data.Char (toLower)
 import qualified Data.List as List
 import Data.List.Extra (trim)
 import qualified Data.Maybe as Maybe
@@ -10,7 +11,6 @@ import Text.ParserCombinators.ReadP
 import Type (Subcommand (..))
 import Utils (infoMsg)
 import qualified Utils
-import Data.Char (toLower)
 
 type Layout = (Int, Int)
 
@@ -40,7 +40,7 @@ getLayoutMaybe xs offset = liftM2 (,) first second
 getAlignedLines :: String -> [String]
 getAlignedLines s =
   case layoutMay of
-    Just lay -> filter (\line -> firstTwoWordsLoc line == lay) xs
+    Just lay -> foldWrappedDescriptions lay xs
     _ -> []
   where
     xs = filter removeJunkDashLine (lines s)
@@ -48,6 +48,45 @@ getAlignedLines s =
     offset = infoMsg "Description offset:" $ Maybe.fromMaybe 50 offsetMay
     ys = filter removeJunkLine (lines s)
     layoutMay = infoMsg "Detected layout:" $ getLayoutMaybe ys offset
+
+-- | Merge physical continuation lines into the preceding subcommand row.
+--
+-- Click-style help, including QIIME 2, wraps long descriptions by aligning the
+-- following line with the description column:
+--
+-- @
+--   cutadapt            Plugin for removing adapter sequences, primers, and
+--                       other unwanted sequence from sequence data.
+-- @
+--
+-- Only rows that already match the detected subcommand layout can start a
+-- logical line. Continuations must be immediately adjacent and begin at or
+-- beyond the description column, so this does not introduce new command
+-- candidates.
+foldWrappedDescriptions :: Layout -> [String] -> [String]
+foldWrappedDescriptions layout@(_, descOffset) = reverse . flush . foldl step (Nothing, [])
+  where
+    step (current, acc) line
+      | isSubcommandRow line = (Just line, maybe acc (: acc) current)
+      | isContinuation line = (appendContinuation line <$> current, acc)
+      | otherwise = (Nothing, maybe acc (: acc) current)
+
+    flush (current, acc) = maybe acc (: acc) current
+
+    isSubcommandRow line = firstTwoWordsLoc line == layout
+
+    isContinuation line =
+      case trim line of
+        "" -> False
+        _ ->
+          getIndentation line >= descOffset
+            && firstTwoWordsLoc line /= layout
+            && removeJunkLine line
+            && removeJunkDashLine line
+
+    appendContinuation line current = current ++ " " ++ trim line
+
+    getIndentation = length . takeWhile (== ' ')
 
 lowercase :: String
 lowercase = "abcdefghijklmnopqrstuvwxyz"
