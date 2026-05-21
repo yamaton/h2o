@@ -77,8 +77,9 @@ import qualified Data.List as List
 import Data.List.Extra (nubSort, trim, trimEnd)
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
+import qualified HelpLineParser
 import qualified HelpMetadata as Metadata
-import qualified HelpParser
+import qualified HelpOptParser
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
 import qualified Utils
@@ -409,7 +410,7 @@ isWordStartingAt offset x =
 isParseableOptPartWithArgument :: String -> Bool
 isParseableOptPartWithArgument s =
   any (not . null . trim . snd . fst) $
-    readP_to_S HelpParser.optPart (trim s)
+    readP_to_S HelpOptParser.optPart (trim s)
 
 getTypeMetadataRowsAfterOptions :: [String] -> [Location] -> [Int]
 getTypeMetadataRowsAfterOptions xs optLocs = concatMap rowsAfterOpt optLocs
@@ -604,7 +605,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         isOptionLine i = i `Set.member` optLinesSet
         isDescriptionOnly i = i `Set.member` descLinesWithoutOptionsSet
         (optSegment, descSegment) = splitAt descOffset x
-        isParsedAsOptDescLine = not . null . HelpParser.parseLine
+        isParsedAsOptDescLine = not . null . HelpLineParser.parseLine
         hasParseableOptPartBeforeDescription =
           isDescriptionOnly (idx + 1)
             && isNonDashWordStartingAt descOffset x
@@ -693,7 +694,7 @@ oneliners xs offset a b =
             | pair : _ <- pairs = pair
             | otherwise = splitAfter offset x
             where
-              pairs = map fst (readP_to_S HelpParser.preprocessor x)
+              pairs = map fst (readP_to_S HelpLineParser.preprocessor x)
   ]
 
 updateDescFrom :: [String] -> Int -> Int -> Int -> Int

@@ -7,8 +7,8 @@
 --
 --   1. **Header Splitting** - Divide text into sections by header lines
 --   2. **Layout Analysis** - Detect column structure (via "Layout.ColumnAnalysis")
---   3. **Fallback Parsing** - Use parser combinators when layout fails (via "HelpParser")
---   4. **Result Extraction** - Return parsed option-description pairs
+--   3. **Fallback Line Parsing** - Use "HelpLineParser" when layout fails
+--   4. **Option Spec Parsing** - Convert separated option/description pairs via "HelpParser"
 --
 -- == Processing Pipeline
 --
@@ -24,7 +24,7 @@
 --     +---> getOptionDescriptionPairsFromLayout (primary: column analysis)
 --     |         |
 --     |         v
---     |     on failure: HelpParser.preprocessAllFallback
+--     |     on failure: HelpLineParser.preprocessAllFallback
 --     |
 --     v
 -- parseBlockwise (convert to Opt records)
@@ -54,6 +54,7 @@ where
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.List as List
 import Data.List.Extra (dropPrefix, dropSuffix, nubOrd, trim, trimStart)
+import qualified HelpLineParser
 import qualified HelpParser
 import Layout.ColumnAnalysis
   ( Location,
@@ -178,13 +179,13 @@ preprocessMeta fallbackFunc lineIdxBase content = filter (/= ("", "")) $ map (Bi
           "\n===============================================\n\
           \[warn] ignore layout: processing with fallback \n\
           \===============================================\n"
-          $ HelpParser.preprocessAllFallback content
+          $ HelpLineParser.preprocessAllFallback content
     cleanOptsArgs = dropSuffix ":" . trim
     cleanDescription = trimStart . dropPrefix ":" . unwords . words . Utils.smartUnwords . lines
 
 -- | Second attempt fallback for preprocessing
 preprocessSecondAttempt :: Int -> String -> [(String, String)]
-preprocessSecondAttempt = preprocessMeta (\_ s -> HelpParser.preprocessAllFallback s)
+preprocessSecondAttempt = preprocessMeta (\_ s -> HelpLineParser.preprocessAllFallback s)
 
 -- | [Deprecated] Parse options without header-based splitting of input text
 parseMany :: String -> [Opt]
