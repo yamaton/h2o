@@ -1,0 +1,16 @@
+Authenticate gh and git with GitHub
+
+USAGE
+  gh auth <command> [flags]
+
+AVAILABLE COMMANDS
+  login:       Log in to a GitHub account
+  logout:      Log out of a GitHub account
+  refresh:     Refresh stored authentication credentials
+  setup-git:   Setup git with GitHub CLI
+  status:      Display active account and authentication state on each known GitHub host
+  switch:      Switch active GitHub account
+  token:       Print the authentication token gh uses for a hostname and account
+
+INHERITED FLAGS
+  --help   Show help for command

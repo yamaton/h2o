@@ -87,6 +87,7 @@ test-suite h2o-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Test.FrameworkFixtureTests
       Test.Helpers
       Test.HelpParser.OptNameTests
       Test.HelpParser.OptPartTests

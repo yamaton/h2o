@@ -3,6 +3,7 @@ module Main (main) where
 import System.Environment (setEnv)
 import Test.Tasty (defaultMain, testGroup)
 
+import qualified Test.FrameworkFixtureTests
 import qualified Test.GoldenTests
 import qualified Test.HelpParser.OptNameTests
 import qualified Test.HelpParser.OptPartTests
@@ -22,6 +23,7 @@ main = do
       , Test.LayoutTests.tests
       , Test.PropertyTests.tests
       , Test.ShellCompletionTests.tests
+      , Test.FrameworkFixtureTests.tests
       , Test.GoldenTests.tests
       , Test.UtilsTests.tests
       ]
