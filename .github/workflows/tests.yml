@@ -22,3 +22,6 @@ jobs:
           gh --version
       - run: |
           stack test
+      - name: Check generated Cabal file is up to date
+        run: |
+          git diff --exit-code -- h2o.cabal
