@@ -69,6 +69,31 @@ tests =
                 Type.Subcommand "remove" ["uninstall"] "Remove packages from active environment",
                 Type.Subcommand "search" [] "Find packages in active environment or channels This is equivalent to `repoquery search` command"
               ],
+      testCase "parseSubcommand accepts Cobra colon command sections" $
+        parseSubcommand
+          "AVAILABLE COMMANDS\n\
+          \  login:       Log in to a GitHub account\n\
+          \  setup-git:   Setup git with GitHub CLI\n"
+          @?= [ Type.Subcommand "login" [] "Log in to a GitHub account",
+                Type.Subcommand "setup-git" [] "Setup git with GitHub CLI"
+              ],
+      testCase "parseSubcommand ignores Cobra help topics" $
+        parseSubcommand
+          "CORE COMMANDS\n\
+          \  auth:        Authenticate gh and git with GitHub\n\
+          \  repo:        Manage repositories\n\
+          \HELP TOPICS\n\
+          \  actions:     Learn about working with GitHub Actions\n\
+          \  reference:   A comprehensive reference of all gh commands\n"
+          @?= [ Type.Subcommand "auth" [] "Authenticate gh and git with GitHub",
+                Type.Subcommand "repo" [] "Manage repositories"
+              ],
+      testCase "parseSubcommand ignores colon rows outside command sections" $
+        parseSubcommand
+          "Notes:\n\
+          \  Note:  This is not a command\n\
+          \  Type:  statistics\n"
+          @?= [],
       testCase "getMostFrequent [1, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] == Just (-4)" $
         getMostFrequent [1 :: Int, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] @?= Just (-4 :: Int),
       testCase "groupConsecutive [2, 3, 4, 8, 10, 11] == [[2, 3, 4], [8], [10, 11]]" $

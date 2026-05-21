@@ -1,7 +1,7 @@
 module Subcommand where
 
 import Control.Monad (liftM2)
-import Data.Char (toLower)
+import Data.Char (toLower, toUpper)
 import qualified Data.List as List
 import Data.List.Extra (trim)
 import qualified Data.Maybe as Maybe
@@ -64,19 +64,21 @@ getAlignedLines s =
 -- beyond the description column, so this does not introduce new command
 -- candidates.
 foldWrappedDescriptions :: Layout -> [String] -> [String]
-foldWrappedDescriptions layout@(nameOffset, descOffset) = reverse . flush . foldl step (Nothing, [])
+foldWrappedDescriptions layout@(nameOffset, descOffset) = reverse . flush . foldl step (Nothing, [], False)
   where
-    step (current, acc) line
-      | isSubcommandRow line = (Just line, maybe acc (: acc) current)
-      | isContinuation line = (appendContinuation line <$> current, acc)
-      | otherwise = (Nothing, maybe acc (: acc) current)
+    step (current, acc, inCommandSection) line
+      | isSubcommandRow inCommandSection' line = (Just line, maybe acc (: acc) current, inCommandSection')
+      | isContinuation line = (appendContinuation line <$> current, acc, inCommandSection')
+      | otherwise = (Nothing, maybe acc (: acc) current, inCommandSection')
+      where
+        inCommandSection' = updateCommandSection inCommandSection line
 
-    flush (current, acc) = maybe acc (: acc) current
+    flush (current, acc, _) = maybe acc (: acc) current
 
-    isSubcommandRow line =
+    isSubcommandRow inCommandSection line =
       getIndentation line == nameOffset
         && length line > descOffset
-        && validSubcommandNameCell (trim $ take descOffset line)
+        && validSubcommandHeaderCell inCommandSection (trim $ take descOffset line)
         && (not . null . trim $ drop descOffset line)
         && removeJunkLine line
         && removeJunkDashLine line
@@ -93,6 +95,31 @@ foldWrappedDescriptions layout@(nameOffset, descOffset) = reverse . flush . fold
     appendContinuation line current = current ++ " " ++ trim line
 
     getIndentation = length . takeWhile (== ' ')
+
+updateCommandSection :: Bool -> String -> Bool
+updateCommandSection inCommandSection line
+  | getIndentation line /= 0 = inCommandSection
+  | null trimmed = inCommandSection
+  | isCommandSectionHeading trimmed = True
+  | otherwise = False
+  where
+    trimmed = trim line
+    getIndentation = length . takeWhile (== ' ')
+
+isCommandSectionHeading :: String -> Bool
+isCommandSectionHeading heading =
+  normalized == "COMMANDS"
+    || normalized == "SUBCOMMANDS"
+    || " COMMANDS" `List.isSuffixOf` normalized
+    || (hasTrailingColon && "COMMANDS" `List.isInfixOf` normalized)
+  where
+    raw = trim heading
+    normalized = map toUpper . trim . stripTrailingColon $ raw
+    hasTrailingColon = ":" `List.isSuffixOf` raw
+    stripTrailingColon s =
+      case reverse s of
+        ':' : rest -> reverse rest
+        _ -> s
 
 lowercase :: String
 lowercase = "abcdefghijklmnopqrstuvwxyz"
@@ -129,6 +156,17 @@ validSubcommandNameCell :: String -> Bool
 validSubcommandNameCell s =
   any (const True) $
     readP_to_S (subcommandNames <* skipSpaces <* eof) s
+
+validSubcommandHeaderCell :: Bool -> String -> Bool
+validSubcommandHeaderCell inCommandSection s =
+  validSubcommandNameCell s
+    || (inCommandSection && validColonSubcommandNameCell s)
+
+validColonSubcommandNameCell :: String -> Bool
+validColonSubcommandNameCell s =
+  case reverse (trim s) of
+    ':' : rest -> validSubcommandNameCell . trim . reverse $ rest
+    _ -> False
 
 subcommand :: ReadP Subcommand
 subcommand = do
