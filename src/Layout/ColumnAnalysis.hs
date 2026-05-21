@@ -72,7 +72,7 @@ module Layout.ColumnAnalysis
 where
 
 import Control.Exception (assert)
-import Data.Char (isAlpha, isAlphaNum, isUpper)
+import Data.Char (isAlpha, isAlphaNum, isLower, isUpper)
 import Data.List (isInfixOf)
 import qualified Data.List as List
 import Data.List.Extra (nubSort, trim, trimEnd)
@@ -424,7 +424,7 @@ looksLikeTypeMetadata s =
   not (null trimmed)
     && not (Utils.startsWithDash trimmed)
     && last trimmed /= '.'
-    && (looksLikeShortTypeMetadata || looksLikeChoiceListStart trimmed || looksLikeChoiceListContinuation trimmed)
+    && (looksLikeShortTypeMetadata || looksLikeQiimeTypeExpression || looksLikeChoiceListStart trimmed || looksLikeChoiceListContinuation trimmed)
   where
     trimmed = trim s
     ws = words trimmed
@@ -432,20 +432,39 @@ looksLikeTypeMetadata s =
       not (null ws)
         && length ws <= 2
         && any (`elem` trimmed) ("[](){}'\",|" :: String)
+    looksLikeQiimeTypeExpression =
+      any (`elem` trimmed) ("[]|" :: String)
+        && any looksLikeTypeName ws
+        && all looksLikeTypeExpressionWord ws
+    looksLikeTypeName word' =
+      any isUpper word' || any (`elem` word') ("[]" :: String)
+    looksLikeTypeExpressionWord "|" = True
+    looksLikeTypeExpressionWord word' =
+      not (null word')
+        && any isAlpha word'
+        && any isUpper word'
+        && all isTypeExpressionChar word'
+    isTypeExpressionChar c =
+      isAlphaNum c || fromEnum c > 127 || c `elem` ("[]_|./+-" :: String)
 
 looksLikeBareTypeMetadata :: String -> Bool
 looksLikeBareTypeMetadata s =
   not (null ws)
     && length ws <= 2
-    && any isAllCapsWord ws
+    && all (\word' -> isAllCapsWord word' || isCamelCaseTypeName word') ws
     && all looksLikeBareTypeWord ws
   where
     ws = words (trim s)
     isAllCapsWord word' =
       any isAlpha word'
         && all (\c -> not (isAlpha c) || isUpper c) word'
+    isCamelCaseTypeName word' =
+      any isLower word'
+        && any isUpper word'
+        && any isUpper (drop 1 word')
     looksLikeBareTypeWord word' =
       any isAlpha word'
+        && last word' /= '.'
         && all (\c -> isAlphaNum c || c `elem` ("[]_." :: String)) word'
 
 looksLikeChoiceListStart :: String -> Bool
@@ -483,9 +502,26 @@ metadataDescriptionOffset line =
     | (start, end) <- spaceRuns line
     , end < length line
     , let prefix = trim (take start line)
-    , looksLikeTypeMetadata prefix
-    , not (null (trim (drop end line)))
+    , let suffix = trim (drop end line)
+    , looksLikeTypeMetadata prefix || looksLikeBareTypeMetadata prefix
+    , not (null suffix)
+    , not (isStatusAnnotationLine suffix)
     ]
+
+metadataStatusAnnotation :: String -> Maybe String
+metadataStatusAnnotation line =
+  Maybe.listToMaybe
+    [ suffix
+    | (start, end) <- spaceRuns line
+    , end < length line
+    , let prefix = trim (take start line)
+    , let suffix = trim (drop end line)
+    , looksLikeTypeMetadata prefix || looksLikeBareTypeMetadata prefix
+    , isStatusAnnotationLine suffix
+    ]
+
+isMetadataStatusAnnotationLine :: String -> Bool
+isMetadataStatusAnnotationLine = Maybe.isJust . metadataStatusAnnotation
 
 spaceRuns :: String -> [(Int, Int)]
 spaceRuns x =
@@ -508,7 +544,7 @@ isMetadataOnlyLine line =
 
 isTypeMetadataLine :: String -> Bool
 isTypeMetadataLine line =
-  isMetadataOnlyLine line || Maybe.isJust (metadataDescriptionOffset line)
+  isMetadataOnlyLine line || isMetadataStatusAnnotationLine line || Maybe.isJust (metadataDescriptionOffset line)
 
 getTypeMetadataRowsAfterOptions :: [String] -> [Location] -> [Int]
 getTypeMetadataRowsAfterOptions xs optLocs = concatMap rowsAfterOpt optLocs
@@ -541,6 +577,7 @@ getTypeAwareDescriptionLocations xs optLocs = concatMap descLocsAfterOpt optLocs
           | null (trim line) = []
           | indentation <= optIndent = []
           | isStatusAnnotationLine line = []
+          | isMetadataStatusAnnotationLine line = go True (idx + 1)
           | Just offset <- metadataDescriptionOffset line = (idx, offset) : go True (idx + 1)
           | isMetadataOnlyLine line = go True (idx + 1)
           | seenMetadata && indentation >= optIndent + 6 = (idx, indentation) : go True (idx + 1)
@@ -637,6 +674,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
     isDescriptionLineWithoutOption idx line =
       isWordStartingWithIndentation descOffset line
         || isMetadataDescriptionLine descOffset line
+        || isMetadataStatusContinuationLine idx line
         || isMetadataContinuationLine idx line
         || isStatusContinuationLine idx line
 
@@ -645,6 +683,11 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         && idx > 0
         && ((idx - 1) `Set.member` optLinesSet || isTypeMetadataLine (xs !! (idx - 1)))
 
+    isMetadataStatusContinuationLine idx line =
+      isMetadataStatusAnnotationLine line
+        && idx > 0
+        && canContinueStatus (xs !! (idx - 1))
+
     isStatusContinuationLine idx line =
       isStatusAnnotationLine line
         && idx > 0
@@ -652,6 +695,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
 
     canContinueStatus line =
         isStatusAnnotationLine line
+          || isMetadataStatusAnnotationLine line
           || Utils.startsWithDash line
           || isWordStartingWithIndentation descOffset line
           || isMetadataDescriptionLine descOffset line
@@ -763,6 +807,7 @@ squashOptionsAndDescriptionsOverlap xs offset a b c = (opt, desc)
 descriptionSegment :: Int -> String -> String
 descriptionSegment offset line
   | isStatusAnnotationLine line = trim line
+  | Just status <- metadataStatusAnnotation line = status
   | isWordStartingWithIndentation offset line = snd (splitAt offset line)
   | isMetadataDescriptionLine offset line = snd (splitAt offset line)
   | isMetadataOnlyLine line = ""

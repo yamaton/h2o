@@ -34,6 +34,26 @@ layoutTests =
                 Opt [OptName "--p-maxiterate" LongType] "INTEGER" "Specifies how many iterative refinement cycles are performed after the initial progressive alignment. By default, no iterative refinement is performed. [optional]",
                 Opt [OptName "--o-alignment" LongType] "ARTIFACT" "The aligned sequences. [required]"
               ],
+      testCase "parseBlockwise skips multi-token QIIME type continuations" $
+        Layout.parseBlockwise qiimeUnionTypeOptions
+          @?= [ Opt [OptName "--i-demux" LongType] "ARTIFACT" "The demultiplexed data from which samples should be filtered. [required]",
+                Opt [OptName "--o-filtered-demux" LongType] "ARTIFACT" "Filtered demultiplexed data. [required]"
+              ],
+      testCase "parseBlockwise skips bare QIIME type metadata before description" $
+        let parsed = Layout.parseBlockwise qiimeBareTypeMetadata
+         in findOpt "--i-distance-matrix" parsed
+              @?= Just (Opt [OptName "--i-distance-matrix" LongType] "ARTIFACT" "The distance matrix on which PCoA should be computed. [required]"),
+      testCase "parseBlockwise strips QIIME Choices metadata from argument" $
+        let parsed = Layout.parseBlockwise qiimeMantelChoices
+         in findOpt "--p-method" parsed
+              @?= Just (Opt [OptName "--p-method" LongType] "TEXT" "The correlation test to be applied in the Mantel test. [default: 'spearman']"),
+      testCase "parseBlockwise keeps QIIME status after type metadata continuation" $
+        let parsed = Layout.parseBlockwise qiimeMetadataStatus
+         in map (`findOpt` parsed) ["--i-dm1", "--p-intersect-ids", "--o-tsne"]
+              @?= [ Just (Opt [OptName "--i-dm1" LongType] "ARTIFACT" "Matrix of distances between pairs of samples. [required]"),
+                    Just (Opt [OptName "--p-intersect-ids" LongType, OptName "--p-no-intersect-ids" LongType] "" "Default behavior is to error on any mismatched IDs. [default: False]"),
+                    Just (Opt [OptName "--o-tsne" LongType] "ARTIFACT" "The resulting t-SNE matrix. [required]")
+                  ],
       testCase "parseBlockwise keeps QIIME right-aligned status annotations" $
         Layout.parseBlockwise qiimeStatusAnnotations
           @?= [ Opt [OptName "--input-path" LongType] "PATH" "Path to file or directory that should be imported. [required]",
@@ -83,6 +103,51 @@ layoutTests =
           "  --o-alignment ARTIFACT FeatureData[AlignedSequence]\185 |",
           "    FeatureData[AlignedProteinSequence]\178",
           "                          The aligned sequences.                    [required]"
+        ]
+    qiimeUnionTypeOptions =
+      unlines
+        [ "Inputs:",
+          "  --i-demux ARTIFACT SampleData[SequencesWithQuality\185 |",
+          "    PairedEndSequencesWithQuality\178 | JoinedSequencesWithQuality\179]",
+          "                         The demultiplexed data from which samples should be",
+          "                         filtered.                                  [required]",
+          "Outputs:",
+          "  --o-filtered-demux ARTIFACT SampleData[SequencesWithQuality\185 |",
+          "    PairedEndSequencesWithQuality\178 | JoinedSequencesWithQuality\179]",
+          "                         Filtered demultiplexed data.               [required]"
+        ]
+    qiimeBareTypeMetadata =
+      unlines
+        [ "Inputs:",
+          "  --i-distance-matrix ARTIFACT",
+          "    DistanceMatrix       The distance matrix on which PCoA should be",
+          "                         computed.                                  [required]",
+          "Parameters:",
+          "  --p-number-of-dimensions INTEGER",
+          "    Range(1, None)       Dimensions to reduce the distance matrix to.",
+          "                         [optional]"
+        ]
+    qiimeMantelChoices =
+      unlines
+        [ "Parameters:",
+          "  --p-method TEXT Choices('spearman', 'pearson')",
+          "                         The correlation test to be applied in the Mantel",
+          "                         test.                           [default: 'spearman']",
+          "  --p-label1 TEXT        Label for `dm1` in the output visualization.",
+          "                                                [default: 'Distance Matrix 1']"
+        ]
+    qiimeMetadataStatus =
+      unlines
+        [ "Inputs:",
+          "  --i-dm1 ARTIFACT       Matrix of distances between pairs of samples.",
+          "    DistanceMatrix                                                  [required]",
+          "Parameters:",
+          "  --p-intersect-ids / --p-no-intersect-ids",
+          "                         Default behavior is to error on any mismatched",
+          "                         IDs.                                 [default: False]",
+          "Outputs:",
+          "  --o-tsne ARTIFACT      The resulting t-SNE matrix.",
+          "    PCoAResults                                                     [required]"
         ]
     qiimeStatusAnnotations =
       unlines

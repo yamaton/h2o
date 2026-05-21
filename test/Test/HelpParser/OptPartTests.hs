@@ -3,7 +3,9 @@ module Test.HelpParser.OptPartTests (tests) where
 import Test.Helpers (test_optPart, test_optPartMany, test_parseBlockwise, test_parseMany, test_parser)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.ExpectedFailure (expectFail)
+import Test.Tasty.HUnit (testCase, (@?=))
 import Type (Opt (..), OptName (..), OptNameType (..))
+import qualified HelpParser
 
 tests :: TestTree
 tests =
@@ -340,6 +342,16 @@ optPartTests =
       test_optPart
         " --tmux (Long beta testing) "
         (["--tmux"], "(Long beta testing)"),
+      testCase "parseWithOptPart strips QIIME Choices metadata from argument" $
+        HelpParser.parseWithOptPart
+          "--p-method TEXT Choices('spearman', 'pearson')"
+          "The correlation test to be applied."
+          @?= [Opt [OptName "--p-method" LongType] "TEXT" "The correlation test to be applied."],
+      testCase "parseWithOptPart keeps non-metadata pipe arguments" $
+        HelpParser.parseWithOptPart
+          "--out baba | keke | koko"
+          "destination choices"
+          @?= [Opt [OptName "--out" LongType] "baba | keke | koko" "destination choices"],
       ---- blast ----
       test_optPart
         " -window_size <Integer, >=0>\n "
