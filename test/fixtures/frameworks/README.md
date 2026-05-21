@@ -16,4 +16,11 @@ present in parsed output for each snapshot. They intentionally check extraction
 coverage without making descriptions golden-sensitive.
 
 The `full/` files are versioned snapshots of locally available CLI help output
-used to catch broad extraction gaps for representative Cobra and clap tools.
+captured with `COLUMNS=1000`, matching the width that `h2o --command` sets
+before invoking external commands. They catch broad extraction gaps for
+representative Cobra and clap tools without making CI depend on those tools.
+
+The `wrapped/` files are deliberately narrow snapshots that preserve line
+wrapping. They are parser robustness fixtures for `--file`-style input, where
+help text may have been captured outside h2o's controlled `COLUMNS=1000`
+environment.

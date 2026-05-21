@@ -48,6 +48,7 @@ looksLikeTypeMetadata s =
   not (null trimmed)
     && not (Utils.startsWithDash trimmed)
     && last trimmed /= '.'
+    && not (looksLikeWrappedEnvAnnotation trimmed)
     && (looksLikeShortTypeMetadata || looksLikeQiimeTypeExpression || looksLikeChoiceListStart trimmed || looksLikeChoiceListContinuation trimmed)
   where
     trimmed = trim s
@@ -68,6 +69,19 @@ looksLikeTypeMetadata s =
         && any isAlpha word'
         && any isUpper word'
         && all isTypeExpressionChar word'
+
+looksLikeWrappedEnvAnnotation :: String -> Bool
+looksLikeWrappedEnvAnnotation s =
+  "]" `List.isSuffixOf` s
+    && "=" `isInfixOf` s
+    && '[' `notElem` s
+    && not (null varName)
+    && any isUpper varName
+    && all isEnvNameChar varName
+  where
+    cleaned = dropWhile (`elem` ("'\"" :: String)) s
+    varName = takeWhile (/= '=') cleaned
+    isEnvNameChar c = isUpper c || isNumber c || c == '_'
 
 looksLikeBareTypeMetadata :: String -> Bool
 looksLikeBareTypeMetadata s =

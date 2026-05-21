@@ -15,8 +15,7 @@ Options:
       --offline                  Run without accessing the network
       --frozen                   Equivalent to specifying both --locked and --offline
       --config <KEY=VALUE|PATH>  Override a configuration value
-  -Z <FLAG>                      Unstable (nightly-only) flags to Cargo, see 'cargo -Z help' for
-                                 details
+  -Z <FLAG>                      Unstable (nightly-only) flags to Cargo, see 'cargo -Z help' for details
   -h, --help                     Print help
 
 Commands:

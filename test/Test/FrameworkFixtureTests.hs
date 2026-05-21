@@ -1,11 +1,13 @@
 module Test.FrameworkFixtureTests (tests) where
 
 import qualified Data.List as List
-import Layout (parseBlockwise)
+import qualified Data.Text as T
+import GenJSON (toJSONText)
+import Layout (parseBlockwise, parseUsage)
 import Subcommand (parseSubcommand)
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (assertFailure, testCase, (@?=))
-import Type (Opt (..), OptName (..), Subcommand (..))
+import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@?=))
+import Type (Command (..), Opt (..), OptName (..), Subcommand (..))
 
 tests :: TestTree
 tests =
@@ -16,6 +18,7 @@ tests =
     , clapFixtures
     , expectedNameCoverage
     , fullSnapshotCoverage
+    , jsonSmokeTests
     ]
 
 cobraFixtures :: TestTree
@@ -116,6 +119,20 @@ clapFixtures =
           ["-v", "--verbose"]
           ""
           "Use verbose output"
+    , testCase "uv wrapped env annotation keeps continuation text" $ do
+        opts <- parseBlockwise <$> readFile "test/fixtures/frameworks/wrapped/uv-0.11.15-help-columns-80.txt"
+        assertOpt
+          opts
+          "--no-python-downloads"
+          ["--no-python-downloads"]
+          ""
+          "Disable automatic downloads of Python. [env: \"UV_PYTHON_DOWNLOADS=never\"]"
+        assertOpt
+          opts
+          "--system-certs"
+          ["--system-certs"]
+          ""
+          "Whether to load TLS certificates from the platform's native certificate store [env: UV_SYSTEM_CERTS=]"
     , testCase "cargo help parses comma-separated command aliases" $ do
         content <- readFile "test/fixtures/frameworks/clap-cargo-help.txt"
         parseSubcommand content
@@ -301,3 +318,49 @@ fullSnapshotCoverage =
         "test/fixtures/frameworks/full/fd-10.4.2-help.txt"
         "test/fixtures/frameworks/expected/full-fd-options.txt"
     ]
+
+jsonSmokeTests :: TestTree
+jsonSmokeTests =
+  testGroup
+    "JSON smoke"
+    [ testCase "gh full snapshot emits subcommands" $ do
+        json <- snapshotJSON "gh" <$> readFile "test/fixtures/frameworks/full/gh-2.63.1-help.txt"
+        assertJsonContains "gh subcommands field" "\"subcommands\"" json
+        assertJsonContains "gh auth subcommand" "\"name\":\"auth\"" json
+        assertJsonContains "gh api subcommand" "\"name\":\"api\"" json
+    , testCase "uv full snapshot emits options and subcommands" $ do
+        json <- snapshotJSON "uv" <$> readFile "test/fixtures/frameworks/full/uv-0.11.15-help.txt"
+        assertJsonContains "uv subcommands field" "\"subcommands\"" json
+        assertJsonContains "uv tool subcommand" "\"name\":\"tool\"" json
+        assertJsonContains "uv no-python-downloads option" "\"--no-python-downloads\"" json
+        assertJsonContains "uv env annotation" "UV_PYTHON_DOWNLOADS=never" json
+    , testCase "cargo full snapshot emits subcommand aliases" $ do
+        json <- snapshotJSON "cargo" <$> readFile "test/fixtures/frameworks/full/cargo-1.95.0-help.txt"
+        assertJsonContains "cargo subcommands field" "\"subcommands\"" json
+        assertJsonContains "cargo build alias" "\"aliases\":[\"b\"]" json
+        assertJsonContains "cargo run alias" "\"aliases\":[\"r\"]" json
+        assertJsonContains "cargo test alias" "\"aliases\":[\"t\"]" json
+    , testCase "fd full snapshot emits repeated command arguments" $ do
+        json <- snapshotJSON "fd" <$> readFile "test/fixtures/frameworks/full/fd-10.4.2-help.txt"
+        assertJsonContains "fd exec option" "\"--exec\"" json
+        assertJsonContains "fd repeated command arg" "\"argument\":\"<cmd>...\"" json
+        assertJsonContains "fd strip cwd optional arg" "\"argument\":\"[=<when>]\"" json
+    ]
+
+snapshotJSON :: String -> String -> String
+snapshotJSON name content =
+  T.unpack . toJSONText $ snapshotCommand name content
+
+snapshotCommand :: String -> String -> Command
+snapshotCommand name content =
+  Command name [] name (parseUsage content) opts subcommands ""
+  where
+    opts = parseBlockwise content
+    subcommands =
+      [ Command subName aliases desc "" [] [] ""
+      | Subcommand subName aliases desc <- parseSubcommand content
+      ]
+
+assertJsonContains :: String -> String -> String -> IO ()
+assertJsonContains label needle haystack =
+  assertBool (label ++ ": " ++ needle) (needle `List.isInfixOf` haystack)
