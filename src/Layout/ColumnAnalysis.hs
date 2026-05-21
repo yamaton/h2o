@@ -90,6 +90,14 @@ type Location = (Int, Int)
 -- | Range is also defined by [startIndex, lastIndex) where half-close, half-open
 type Range = (Int, Int)
 
+data MetadataLineKind
+  = NotMetadataLine
+  | StatusAnnotationLine String
+  | MetadataOnlyLine
+  | MetadataDescriptionLine Int
+  | MetadataStatusLine String
+  deriving (Eq, Show)
+
 -- [TODO] memoise the calls
 -- https://stackoverflow.com/questions/3208258/memoization-in-haskell
 
@@ -494,40 +502,71 @@ isOptionLineWithOnlyMetadata :: Int -> String -> Bool
 isOptionLineWithOnlyMetadata offset line =
   looksLikeTypeMetadata (drop offset line)
 
-isStatusAnnotationLine :: String -> Bool
-isStatusAnnotationLine line =
+statusAnnotation :: String -> Maybe String
+statusAnnotation line =
   case trim line of
-    "[required]" -> True
-    "[optional]" -> True
-    s -> "[default:" `List.isPrefixOf` s && "]" `List.isSuffixOf` s
+    "[required]" -> Just "[required]"
+    "[optional]" -> Just "[optional]"
+    s
+      | "[default:" `List.isPrefixOf` s && "]" `List.isSuffixOf` s -> Just s
+      | otherwise -> Nothing
+
+isStatusAnnotationLine :: String -> Bool
+isStatusAnnotationLine = Maybe.isJust . statusAnnotation
+
+metadataLineKind :: String -> MetadataLineKind
+metadataLineKind line
+  | Just status <- statusAnnotation line = StatusAnnotationLine status
+  | Just status <- metadataStatus = MetadataStatusLine status
+  | Just offset <- metadataDescription = MetadataDescriptionLine offset
+  | looksLikeMetadataOnly = MetadataOnlyLine
+  | otherwise = NotMetadataLine
+  where
+    metadataStatus =
+      Maybe.listToMaybe
+        [ status
+        | (_, _, suffix) <- metadataSplitCandidates line
+        , Just status <- [statusAnnotation suffix]
+        ]
+    metadataDescription =
+      Maybe.listToMaybe
+        [ offset
+        | (offset, _, suffix) <- metadataSplitCandidates line
+        , Maybe.isNothing (statusAnnotation suffix)
+        ]
+    looksLikeMetadataOnly =
+      not (null (trim line))
+        && looksLikeTypeMetadata line
+        && Maybe.isNothing metadataDescription
+
+metadataSplitCandidates :: String -> [(Int, String, String)]
+metadataSplitCandidates line =
+  [ (end, prefix, suffix)
+  | (start, end) <- spaceRuns line
+  , end < length line
+  , let prefix = trim (take start line)
+  , let suffix = trim (drop end line)
+  , looksLikeTypeMetadata prefix || looksLikeBareTypeMetadata prefix
+  , not (null suffix)
+  ]
 
 metadataDescriptionOffset :: String -> Maybe Int
 metadataDescriptionOffset line =
-  Maybe.listToMaybe
-    [ end
-    | (start, end) <- spaceRuns line
-    , end < length line
-    , let prefix = trim (take start line)
-    , let suffix = trim (drop end line)
-    , looksLikeTypeMetadata prefix || looksLikeBareTypeMetadata prefix
-    , not (null suffix)
-    , not (isStatusAnnotationLine suffix)
-    ]
+  case metadataLineKind line of
+    MetadataDescriptionLine offset -> Just offset
+    _ -> Nothing
 
 metadataStatusAnnotation :: String -> Maybe String
 metadataStatusAnnotation line =
-  Maybe.listToMaybe
-    [ suffix
-    | (start, end) <- spaceRuns line
-    , end < length line
-    , let prefix = trim (take start line)
-    , let suffix = trim (drop end line)
-    , looksLikeTypeMetadata prefix || looksLikeBareTypeMetadata prefix
-    , isStatusAnnotationLine suffix
-    ]
+  case metadataLineKind line of
+    MetadataStatusLine status -> Just status
+    _ -> Nothing
 
 isMetadataStatusAnnotationLine :: String -> Bool
-isMetadataStatusAnnotationLine = Maybe.isJust . metadataStatusAnnotation
+isMetadataStatusAnnotationLine line =
+  case metadataLineKind line of
+    MetadataStatusLine _ -> True
+    _ -> False
 
 spaceRuns :: String -> [(Int, Int)]
 spaceRuns x =
@@ -540,17 +579,24 @@ spaceRuns x =
   ]
 
 isMetadataDescriptionLine :: Int -> String -> Bool
-isMetadataDescriptionLine offset line = metadataDescriptionOffset line == Just offset
+isMetadataDescriptionLine offset line =
+  case metadataLineKind line of
+    MetadataDescriptionLine offset' -> offset == offset'
+    _ -> False
 
 isMetadataOnlyLine :: String -> Bool
 isMetadataOnlyLine line =
-  not (isStatusAnnotationLine line)
-    && looksLikeTypeMetadata line
-    && Maybe.isNothing (metadataDescriptionOffset line)
+  case metadataLineKind line of
+    MetadataOnlyLine -> True
+    _ -> False
 
 isTypeMetadataLine :: String -> Bool
 isTypeMetadataLine line =
-  isMetadataOnlyLine line || isMetadataStatusAnnotationLine line || Maybe.isJust (metadataDescriptionOffset line)
+  case metadataLineKind line of
+    MetadataOnlyLine -> True
+    MetadataDescriptionLine _ -> True
+    MetadataStatusLine _ -> True
+    _ -> False
 
 getTypeMetadataRowsAfterOptions :: [String] -> [Location] -> [Int]
 getTypeMetadataRowsAfterOptions xs optLocs = concatMap rowsAfterOpt optLocs
@@ -582,14 +628,15 @@ getTypeAwareDescriptionLocations xs optLocs = concatMap descLocsAfterOpt optLocs
           | idx `Set.member` optLinesSet = []
           | null (trim line) = []
           | indentation <= optIndent = []
-          | isStatusAnnotationLine line = []
-          | isMetadataStatusAnnotationLine line = go True (idx + 1)
-          | Just offset <- metadataDescriptionOffset line = (idx, offset) : go True (idx + 1)
-          | isMetadataOnlyLine line = go True (idx + 1)
+          | StatusAnnotationLine _ <- kind = []
+          | MetadataStatusLine _ <- kind = go True (idx + 1)
+          | MetadataDescriptionLine offset <- kind = (idx, offset) : go True (idx + 1)
+          | MetadataOnlyLine <- kind = go True (idx + 1)
           | seenMetadata && indentation >= optIndent + 6 = (idx, indentation) : go True (idx + 1)
           | otherwise = []
           where
             line = xs !! idx
+            kind = metadataLineKind line
             indentation = length (takeWhile (== ' ') line)
 
 splitAfter :: Int -> String -> (String, String)
@@ -700,12 +747,14 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         && canContinueStatus (xs !! (idx - 1))
 
     canContinueStatus line =
-        isStatusAnnotationLine line
-          || isMetadataStatusAnnotationLine line
-          || Utils.startsWithDash line
-          || isWordStartingWithIndentation descOffset line
-          || isMetadataDescriptionLine descOffset line
-          || isMetadataOnlyLine line
+      case metadataLineKind line of
+        StatusAnnotationLine _ -> True
+        MetadataStatusLine _ -> True
+        MetadataDescriptionLine offset -> offset == descOffset
+        MetadataOnlyLine -> True
+        NotMetadataLine ->
+          Utils.startsWithDash line
+            || isWordStartingWithIndentation descOffset line
 
     -- The line must be long when description starts at the same line
     -- the option and continues to the next line.
@@ -812,12 +861,14 @@ squashOptionsAndDescriptionsOverlap xs offset a b c = (opt, desc)
 
 descriptionSegment :: Int -> String -> String
 descriptionSegment offset line
-  | isStatusAnnotationLine line = trim line
-  | Just status <- metadataStatusAnnotation line = status
+  | StatusAnnotationLine status <- kind = status
+  | MetadataStatusLine status <- kind = status
   | isWordStartingWithIndentation offset line = snd (splitAt offset line)
-  | isMetadataDescriptionLine offset line = snd (splitAt offset line)
-  | isMetadataOnlyLine line = ""
+  | MetadataDescriptionLine offset' <- kind, offset' == offset = snd (splitAt offset line)
+  | MetadataOnlyLine <- kind = ""
   | otherwise = snd (splitAfter offset line)
+  where
+    kind = metadataLineKind line
 
 oneliners :: [String] -> Int -> Int -> Int -> [(String, String)]
 oneliners xs offset a b =
