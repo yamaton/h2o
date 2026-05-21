@@ -66,6 +66,12 @@ layoutTests =
           @?= [ Opt [OptName "--p-p-adj-method" LongType] "TEXT" "Method to adjust p-values. [default: 'holm']",
                 Opt [OptName "--p-prv-cut" LongType] "NUMBER" "A numerical fraction between 0-1. [default: 0.1]"
               ],
+      testCase "parseBlockwise skips long QIIME Choices metadata before description" $
+        let parsed = Layout.parseBlockwise qiimeLongChoicesBeforeDescription
+         in map (`findOpt` parsed) ["--p-metric", "--p-other"]
+              @?= [ Just (Opt [OptName "--p-metric" LongType] "TEXT" "The alpha diversity metric to be computed. Information about specific metrics is available at https://scikit.bio/docs/latest/generated/skbio.diver sity.alpha.html. [required]"),
+                    Just (Opt [OptName "--p-other" LongType] "TEXT" "Another option. [optional]")
+                  ],
       testCase "parseBlockwise skips multi-line QIIME Choices metadata before default" $
         let parsed = Layout.parseBlockwise qiimeMultiLineChoices
          in map (`findOpt` parsed) ["--p-alpha-metrics", "--p-beta-metrics", "--p-random-seed"]
@@ -168,6 +174,21 @@ layoutTests =
           "    'BH', 'BY', 'fdr', 'none')",
           "                         Method to adjust p-values.          [default: 'holm']",
           "  --p-prv-cut NUMBER     A numerical fraction between 0-1.  [default: 0.1]"
+        ]
+    qiimeLongChoicesBeforeDescription =
+      unlines
+        [ "Parameters:",
+          "  --p-metric TEXT Choices('ace', 'berger_parker_d', 'brillouin_d', 'chao1',",
+          "    'chao1_ci', 'dominance', 'doubles', 'enspie', 'esty_ci', 'fisher_alpha',",
+          "    'gini_index', 'goods_coverage', 'heip_e', 'kempton_taylor_q',",
+          "    'lladser_pe', 'margalef', 'mcintosh_d', 'mcintosh_e', 'menhinick',",
+          "    'michaelis_menten_fit', 'observed_features', 'osd', 'pielou_e', 'robbins',",
+          "    'shannon', 'simpson', 'simpson_e', 'singles', 'strong')",
+          "                          The alpha diversity metric to be computed.",
+          "                          Information about specific metrics is available at",
+          "                          https://scikit.bio/docs/latest/generated/skbio.diver",
+          "                          sity.alpha.html.                          [required]",
+          "  --p-other TEXT          Another option.                        [optional]"
         ]
     qiimeMultiLineChoices =
       unlines

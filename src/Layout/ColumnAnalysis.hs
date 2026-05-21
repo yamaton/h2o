@@ -226,15 +226,18 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
   where
     xs = lines s
     typeMetadataRows = Set.fromList $ getTypeMetadataRowsAfterOptions xs optLocs
+    typeAwareDescLocs = getTypeAwareDescriptionLocations xs optLocs
+    typeAwareDescLocsSet = Set.fromList typeAwareDescLocs
+    hangingDescLocs =
+      takeHangingDesc lineIdxBase optLocs
+        ( filter
+            (\(row, _) -> row `Set.notMember` typeMetadataRows && not (isStatusAnnotationLine (xs !! row)))
+            (getNonoptLocations s)
+        )
     descLocs =
       Utils.infoShowCoords "Description locations:" lineIdxBase $
         nubSort $
-          getTypeAwareDescriptionLocations xs optLocs
-            ++ takeHangingDesc lineIdxBase optLocs
-              ( filter
-                  (\(row, _) -> row `Set.notMember` typeMetadataRows && not (isStatusAnnotationLine (xs !! row)))
-                  (getNonoptLocations s)
-              )
+          typeAwareDescLocs ++ hangingDescLocs
     (_, descOffsets) = unzip descLocs
     (optLines, optOffsets) = unzip optLocs
     offsetOverlaps = Set.toList $ Set.intersection (Set.fromList optOffsets) (Set.fromList descOffsets)
@@ -245,11 +248,14 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
     indentations =
       infoMsg "Description indentations:" $
         [ x
-          | (r, x) <- descLocs,
+          | loc@(r, x) <- descLocs,
             -- description's offset is equal (rare case!) or greater than option's
             null optOffsets' || (List.maximum optOffsets' <= x),
-            -- description can exist only around option lines
-            isAroundOptionLines r
+            -- Generic hanging descriptions must stay close to option lines.
+            -- Type-aware locations are already traced from a concrete option
+            -- through its metadata block, so long QIIME Choices lists can
+            -- still reach the real description.
+            loc `Set.member` typeAwareDescLocsSet || isAroundOptionLines r
             -- previous line cannot be blank
         ]
     res = infoMsg "Description offset (from non-option lines):" $ getMostFrequentWithCount indentations
