@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage:
+  scripts/bump-version VERSION "CHANGELOG ENTRY"...
+
+Example:
+  scripts/bump-version 0.5.6 "Improve QIIME option parsing."
+
+This script updates package.yaml, prepends a CHANGELOG.md section, regenerates
+h2o.cabal through Stack/hpack, and verifies the resulting binary version.
+EOF
+}
+
+die() {
+    echo "error: $*" >&2
+    exit 1
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    usage
+    exit 0
+fi
+
+[[ $# -ge 2 ]] || {
+    usage >&2
+    exit 2
+}
+
+new_version="$1"
+shift
+
+[[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ||
+    die "VERSION must be MAJOR.MINOR.PATCH, got '$new_version'"
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+[[ -f package.yaml ]] || die "package.yaml not found"
+[[ -f h2o.cabal ]] || die "h2o.cabal not found"
+[[ -f CHANGELOG.md ]] || die "CHANGELOG.md not found"
+
+git diff --quiet || die "tracked working tree changes exist; commit or stash them first"
+git diff --cached --quiet || die "staged changes exist; commit or unstage them first"
+
+current_version="$(
+    sed -nE 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)[[:space:]]*$/\1/p' package.yaml |
+        head -n 1
+)"
+
+[[ -n "$current_version" ]] || die "could not read current version from package.yaml"
+[[ "$current_version" != "$new_version" ]] ||
+    die "package.yaml is already at version $new_version"
+
+if grep -qE "^## ${new_version//./\\.} " CHANGELOG.md; then
+    die "CHANGELOG.md already contains an entry for $new_version"
+fi
+
+export H2O_BUMP_VERSION="$new_version"
+perl -0pi -e 's/^version:\s*\K[0-9]+\.[0-9]+\.[0-9]+/$ENV{H2O_BUMP_VERSION}/m' package.yaml
+
+today="$(date +%F)"
+tmp_changelog="$(mktemp)"
+{
+    printf '## %s (%s)\n' "$new_version" "$today"
+    for entry in "$@"; do
+        printf -- '- %s\n' "$entry"
+    done
+    printf '\n'
+    cat CHANGELOG.md
+} > "$tmp_changelog"
+mv "$tmp_changelog" CHANGELOG.md
+
+stack build
+
+cabal_version="$(
+    sed -nE 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)[[:space:]]*$/\1/p' h2o.cabal |
+        head -n 1
+)"
+[[ "$cabal_version" == "$new_version" ]] ||
+    die "h2o.cabal version is '$cabal_version', expected '$new_version'"
+
+reported_version="$(stack exec h2o -- --version)"
+[[ "$reported_version" == "h2o $new_version" ]] ||
+    die "h2o reports '$reported_version', expected 'h2o $new_version'"
+
+git diff --check
+
+cat <<EOF
+Bumped h2o from $current_version to $new_version.
+
+Updated:
+  package.yaml
+  h2o.cabal
+  CHANGELOG.md
+
+Next:
+  git add package.yaml h2o.cabal CHANGELOG.md
+  git commit -m "Bump version to $new_version"
+EOF
