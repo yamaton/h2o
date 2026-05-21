@@ -1,3 +1,9 @@
+## 0.5.1 (2026-05-21)
+- Improve QIIME/Click-style subcommand parsing by joining wrapped descriptions.
+- Improve QIIME action option parsing for typed metadata continuations such as `FeatureData[...]`, `Choices(...)`, and `Range(...)`.
+- Decode file inputs leniently so non-UTF-8 bytes do not crash parsing.
+- Narrow help error-page detection to avoid rejecting normal help text that starts with words like "missing".
+
 ## 0.4.9 (2023-10-02)
  - Bump to GHC 9.4 (lts-21.14)
  - Fix errors in zsh/bash outputs by quoting special symbols properly
