@@ -31,8 +31,15 @@ layoutTests =
         Layout.parseBlockwise qiimeTypedOptions
           @?= [ Opt [OptName "--i-sequences" LongType] "ARTIFACT" "The sequences to be aligned. [required]",
                 Opt [OptName "--p-strategy" LongType] "TEXT" "Specifies the multiple alignment strategy to use. Exactly one strategy may be specified.",
-                Opt [OptName "--p-maxiterate" LongType] "INTEGER" "Specifies how many iterative refinement cycles are performed after the initial progressive alignment. By default, no iterative refinement is performed.",
+                Opt [OptName "--p-maxiterate" LongType] "INTEGER" "Specifies how many iterative refinement cycles are performed after the initial progressive alignment. By default, no iterative refinement is performed. [optional]",
                 Opt [OptName "--o-alignment" LongType] "ARTIFACT" "The aligned sequences. [required]"
+              ],
+      testCase "parseBlockwise keeps QIIME right-aligned status annotations" $
+        Layout.parseBlockwise qiimeStatusAnnotations
+          @?= [ Opt [OptName "--input-path" LongType] "PATH" "Path to file or directory that should be imported. [required]",
+                Opt [OptName "--output-path" LongType] "ARTIFACT" "Path where output artifact should be written. [required]",
+                Opt [OptName "--threads" LongType] "INTEGER" "Number of worker threads. [default: 1]",
+                Opt [OptName "--dry-run" LongType] "" "Show plan. [optional]"
               ]
     ]
   where
@@ -49,10 +56,23 @@ layoutTests =
           "  --p-maxiterate INTEGER  Specifies how many iterative refinement cycles are",
           "    Range(0, None)        performed after the initial progressive alignment.",
           "                          By default, no iterative refinement is performed.",
+          "                                                                    [optional]",
           "Outputs:",
           "  --o-alignment ARTIFACT FeatureData[AlignedSequence]\185 |",
           "    FeatureData[AlignedProteinSequence]\178",
           "                          The aligned sequences.                    [required]"
+        ]
+    qiimeStatusAnnotations =
+      unlines
+        [ "Options:",
+          "  --input-path PATH       Path to file or directory that should be imported.",
+          "                                                                    [required]",
+          "  --output-path ARTIFACT  Path where output artifact should be written.",
+          "                                                                    [required]",
+          "  --threads INTEGER       Number of worker threads.",
+          "                                                                    [default: 1]",
+          "  --dry-run               Show plan.",
+          "                                                                    [optional]"
         ]
 
 emptyInputTests :: TestTree

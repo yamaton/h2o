@@ -230,7 +230,10 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
         nubSort $
           getTypeAwareDescriptionLocations xs optLocs
             ++ takeHangingDesc lineIdxBase optLocs
-              (filter (\(row, _) -> row `Set.notMember` typeMetadataRows) (getNonoptLocations s))
+              ( filter
+                  (\(row, _) -> row `Set.notMember` typeMetadataRows && not (isStatusAnnotationLine (xs !! row)))
+                  (getNonoptLocations s)
+              )
     (_, descOffsets) = unzip descLocs
     (optLines, optOffsets) = unzip optLocs
     offsetOverlaps = Set.toList $ Set.intersection (Set.fromList optOffsets) (Set.fromList descOffsets)
@@ -394,6 +397,13 @@ looksLikeTypeMetadata s =
     trimmed = trim s
     ws = words trimmed
 
+isStatusAnnotationLine :: String -> Bool
+isStatusAnnotationLine line =
+  case trim line of
+    "[required]" -> True
+    "[optional]" -> True
+    s -> "[default:" `List.isPrefixOf` s && "]" `List.isSuffixOf` s
+
 metadataDescriptionOffset :: String -> Maybe Int
 metadataDescriptionOffset line =
   Maybe.listToMaybe
@@ -418,7 +428,10 @@ isMetadataDescriptionLine :: Int -> String -> Bool
 isMetadataDescriptionLine offset line = metadataDescriptionOffset line == Just offset
 
 isMetadataOnlyLine :: String -> Bool
-isMetadataOnlyLine line = looksLikeTypeMetadata line && Maybe.isNothing (metadataDescriptionOffset line)
+isMetadataOnlyLine line =
+  not (isStatusAnnotationLine line)
+    && looksLikeTypeMetadata line
+    && Maybe.isNothing (metadataDescriptionOffset line)
 
 isTypeMetadataLine :: String -> Bool
 isTypeMetadataLine line =
@@ -454,6 +467,7 @@ getTypeAwareDescriptionLocations xs optLocs = concatMap descLocsAfterOpt optLocs
           | idx `Set.member` optLinesSet = []
           | null (trim line) = []
           | indentation <= optIndent = []
+          | isStatusAnnotationLine line = []
           | Just offset <- metadataDescriptionOffset line = (idx, offset) : go True (idx + 1)
           | isMetadataOnlyLine line = go True (idx + 1)
           | seenMetadata && indentation >= optIndent + 6 = (idx, indentation) : go True (idx + 1)
@@ -547,10 +561,22 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
     isDescriptionLineWithoutOption idx line =
       isWordStartingWithIndentation descOffset line
         || isMetadataDescriptionLine descOffset line
+        || isStatusContinuationLine idx line
         || ( idx > 0
                && (idx - 1) `Set.member` optLinesSet
                && isMetadataOnlyLine line
            )
+
+    isStatusContinuationLine idx line =
+      isStatusAnnotationLine line
+        && idx > 0
+        && canContinueStatus (xs !! (idx - 1))
+
+    canContinueStatus line =
+      isStatusAnnotationLine line
+        || Utils.startsWithDash line
+        || isWordStartingWithIndentation descOffset line
+        || isMetadataDescriptionLine descOffset line
 
     -- The line must be long when description starts at the same line
     -- the option and continues to the next line.
@@ -648,6 +674,7 @@ squashOptionsAndDescriptionsOverlap xs offset a b c = (opt, desc)
 
 descriptionSegment :: Int -> String -> String
 descriptionSegment offset line
+  | isStatusAnnotationLine line = trim line
   | isWordStartingWithIndentation offset line = snd (splitAt offset line)
   | isMetadataDescriptionLine offset line = snd (splitAt offset line)
   | isMetadataOnlyLine line = ""
