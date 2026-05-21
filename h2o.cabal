@@ -32,6 +32,7 @@ library
       GenJSON
       GenZshCompletions
       H2OError
+      HelpMetadata
       HelpParser
       Io
       IoHelper

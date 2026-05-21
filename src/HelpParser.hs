@@ -2,9 +2,10 @@
 
 module HelpParser where
 
-import Data.Char (isAlpha, isAlphaNum, isNumber, isUpper, toLower, isSpace)
+import Data.Char (isNumber, isSpace, toLower)
 import qualified Data.List as List
 import Data.List.Extra (dropPrefix, nubOrd, trim)
+import qualified HelpMetadata as Metadata
 import Utils (trace)
 import Text.ParserCombinators.ReadP
 import Type
@@ -422,69 +423,12 @@ parseWithOptPart optStr descStr
   | otherwise = trace "🛑🛑🛑🛑🛑 optPart parser failed, using fallback 🛑🛑🛑🛑🛑" $ parseLine (optStr ++ "   " ++ descStr) -- fallback
   where
     res = readP_to_S optPart optStr
-    strippedOptStr = dropTrailingTypeMetadata optStr
+    strippedOptStr = Metadata.dropTrailingTypeMetadata optStr
     resWithoutMetadata =
       if strippedOptStr == optStr
         then []
         else readP_to_S optPart strippedOptStr
-    toOpts = map ((\(a, b) -> Opt a (stripTrailingArgMetadata b) descStr) . fst)
-
-dropTrailingTypeMetadata :: String -> String
-dropTrailingTypeMetadata optStr =
-  case words optStr of
-    optWithArg : rest
-      | Utils.startsWithDash optWithArg
-          && "=" `List.isInfixOf` optWithArg
-          && isTrailingArgMetadata (unwords rest) ->
-          optWithArg
-    optName' : arg : rest
-      | Utils.startsWithDash optName'
-          && not (Utils.startsWithDash arg)
-          && isTrailingArgMetadata (unwords rest) ->
-          unwords [optName', arg]
-    _ -> optStr
-
-stripTrailingArgMetadata :: String -> String
-stripTrailingArgMetadata arg =
-  case words arg of
-    placeholder : rest
-      | looksLikeArgPlaceholder placeholder
-          && isTrailingArgMetadata (unwords rest) ->
-          placeholder
-    _ -> arg
-
-looksLikeArgPlaceholder :: String -> Bool
-looksLikeArgPlaceholder arg =
-  not (null base)
-    && any isAlpha base
-    && all (\c -> isUpper c || isNumber c || c `elem` ("_-" :: String)) base
-  where
-    base = reverse $ dropWhile (== '.') $ reverse arg
-
-isTrailingArgMetadata :: String -> Bool
-isTrailingArgMetadata s =
-  not (null trimmed)
-    && ( isChoicesMetadata
-           || isRangeMetadata
-           || looksLikeTypeExpressionMetadata
-       )
-  where
-    trimmed = trim s
-    ws = words trimmed
-    isChoicesMetadata = "Choices(" `List.isPrefixOf` trimmed
-    isRangeMetadata = "Range(" `List.isPrefixOf` trimmed || "Range(" `List.isInfixOf` trimmed
-    looksLikeTypeExpressionMetadata =
-      any (`elem` trimmed) ("[]|" :: String)
-        && any looksLikeTypeExpressionWord ws
-        && all looksLikeTypeExpressionWord ws
-    looksLikeTypeExpressionWord "|" = True
-    looksLikeTypeExpressionWord word' =
-      not (null word')
-        && any isAlpha word'
-        && any isUpper word'
-        && all isTypeExpressionChar word'
-    isTypeExpressionChar c =
-      isAlphaNum c || fromEnum c > 127 || c `elem` ("[]_|./+-" :: String)
+    toOpts = map ((\(a, b) -> Opt a (Metadata.stripTrailingArgMetadata b) descStr) . fst)
 
 preprocessAllFallback :: String -> [(String, String)]
 preprocessAllFallback "" = []

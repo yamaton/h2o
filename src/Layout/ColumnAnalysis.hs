@@ -72,12 +72,12 @@ module Layout.ColumnAnalysis
 where
 
 import Control.Exception (assert)
-import Data.Char (isAlpha, isAlphaNum, isLower, isUpper)
 import Data.List (isInfixOf)
 import qualified Data.List as List
 import Data.List.Extra (nubSort, trim, trimEnd)
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
+import qualified HelpMetadata as Metadata
 import qualified HelpParser
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
@@ -89,14 +89,6 @@ type Location = (Int, Int)
 
 -- | Range is also defined by [startIndex, lastIndex) where half-close, half-open
 type Range = (Int, Int)
-
-data MetadataLineKind
-  = NotMetadataLine
-  | StatusAnnotationLine String
-  | MetadataOnlyLine
-  | MetadataDescriptionLine Int
-  | MetadataStatusLine String
-  deriving (Eq, Show)
 
 -- [TODO] memoise the calls
 -- https://stackoverflow.com/questions/3208258/memoization-in-haskell
@@ -239,7 +231,7 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
     hangingDescLocs =
       takeHangingDesc lineIdxBase optLocs
         ( filter
-            (\(row, _) -> row `Set.notMember` typeMetadataRows && not (isStatusAnnotationLine (xs !! row)))
+            (\(row, _) -> row `Set.notMember` typeMetadataRows && not (Metadata.isStatusAnnotationLine (xs !! row)))
             (getNonoptLocations s)
         )
     descLocs =
@@ -352,12 +344,12 @@ optionLineDescriptionPrefix line =
   Maybe.listToMaybe $
     reverse
       [ take end trimmedLine
-      | (start, end) <- spaceRuns trimmedLine
+      | (start, end) <- Metadata.spaceRuns trimmedLine
       , end < length trimmedLine
       , not (null (trim (take start trimmedLine)))
       , let suffix = trim (drop end trimmedLine)
       , not (null suffix)
-      , not (isStatusAnnotationLine suffix)
+      , not (Metadata.isStatusAnnotationLine suffix)
       ]
   where
     trimmedLine = trimEnd line
@@ -419,185 +411,6 @@ isParseableOptPartWithArgument s =
   any (not . null . trim . snd . fst) $
     readP_to_S HelpParser.optPart (trim s)
 
--- | QIIME/Click can wrap rich type information between the option name and
--- the real description:
---
--- @
---   --i-sequences ARTIFACT FeatureData[Sequence]¹ |
---     FeatureData[ProteinSequence]²
---                           The sequences to be aligned.
---   --p-maxiterate INTEGER  Specifies how many iterative refinement cycles are
---     Range(0, None)        performed after the initial progressive alignment.
--- @
---
--- The completion only needs the placeholder argument (ARTIFACT, INTEGER,
--- TEXT, ...), while the bracketed/ranged metadata should neither become the
--- description offset nor be emitted as description text.
-looksLikeTypeMetadata :: String -> Bool
-looksLikeTypeMetadata s =
-  not (null trimmed)
-    && not (Utils.startsWithDash trimmed)
-    && last trimmed /= '.'
-    && (looksLikeShortTypeMetadata || looksLikeQiimeTypeExpression || looksLikeChoiceListStart trimmed || looksLikeChoiceListContinuation trimmed)
-  where
-    trimmed = trim s
-    ws = words trimmed
-    looksLikeShortTypeMetadata =
-      not (null ws)
-        && length ws <= 2
-        && any (`elem` trimmed) ("[](){}'\",|" :: String)
-    looksLikeQiimeTypeExpression =
-      any (`elem` trimmed) ("[]|" :: String)
-        && any looksLikeTypeName ws
-        && all looksLikeTypeExpressionWord ws
-    looksLikeTypeName word' =
-      any isUpper word' || any (`elem` word') ("[]" :: String)
-    looksLikeTypeExpressionWord "|" = True
-    looksLikeTypeExpressionWord word' =
-      not (null word')
-        && any isAlpha word'
-        && any isUpper word'
-        && all isTypeExpressionChar word'
-    isTypeExpressionChar c =
-      isAlphaNum c || fromEnum c > 127 || c `elem` ("[]_|./+-" :: String)
-
-looksLikeBareTypeMetadata :: String -> Bool
-looksLikeBareTypeMetadata s =
-  not (null ws)
-    && length ws <= 2
-    && all (\word' -> isAllCapsWord word' || isCamelCaseTypeName word') ws
-    && all looksLikeBareTypeWord ws
-  where
-    ws = words (trim s)
-    isAllCapsWord word' =
-      any isAlpha word'
-        && all (\c -> not (isAlpha c) || isUpper c) word'
-    isCamelCaseTypeName word' =
-      any isLower word'
-        && any isUpper word'
-        && any isUpper (drop 1 word')
-    looksLikeBareTypeWord word' =
-      any isAlpha word'
-        && last word' /= '.'
-        && all (\c -> isAlphaNum c || c `elem` ("[]_." :: String)) word'
-
-looksLikeChoiceListStart :: String -> Bool
-looksLikeChoiceListStart s =
-  "Choices(" `List.isPrefixOf` s
-    && ("," `isInfixOf` s || ")" `List.isSuffixOf` s)
-    && all isChoiceListChar s
-
-looksLikeChoiceListContinuation :: String -> Bool
-looksLikeChoiceListContinuation "" = False
-looksLikeChoiceListContinuation s@(first : _) =
-  first `elem` ("'\"" :: String)
-    && ("," `isInfixOf` s || ")" `List.isSuffixOf` s)
-    && all isChoiceListChar s
-
-isChoiceListChar :: Char -> Bool
-isChoiceListChar c =
-  isAlphaNum c || c `elem` (" '\"`,()_-./" :: String)
-
-isOptionLineWithOnlyMetadata :: Int -> String -> Bool
-isOptionLineWithOnlyMetadata offset line =
-  looksLikeTypeMetadata (drop offset line)
-
-statusAnnotation :: String -> Maybe String
-statusAnnotation line =
-  case trim line of
-    "[required]" -> Just "[required]"
-    "[optional]" -> Just "[optional]"
-    s
-      | "[default:" `List.isPrefixOf` s && "]" `List.isSuffixOf` s -> Just s
-      | otherwise -> Nothing
-
-isStatusAnnotationLine :: String -> Bool
-isStatusAnnotationLine = Maybe.isJust . statusAnnotation
-
-metadataLineKind :: String -> MetadataLineKind
-metadataLineKind line
-  | Just status <- statusAnnotation line = StatusAnnotationLine status
-  | Just status <- metadataStatus = MetadataStatusLine status
-  | Just offset <- metadataDescription = MetadataDescriptionLine offset
-  | looksLikeMetadataOnly = MetadataOnlyLine
-  | otherwise = NotMetadataLine
-  where
-    metadataStatus =
-      Maybe.listToMaybe
-        [ status
-        | (_, _, suffix) <- metadataSplitCandidates line
-        , Just status <- [statusAnnotation suffix]
-        ]
-    metadataDescription =
-      Maybe.listToMaybe
-        [ offset
-        | (offset, _, suffix) <- metadataSplitCandidates line
-        , Maybe.isNothing (statusAnnotation suffix)
-        ]
-    looksLikeMetadataOnly =
-      not (null (trim line))
-        && looksLikeTypeMetadata line
-        && Maybe.isNothing metadataDescription
-
-metadataSplitCandidates :: String -> [(Int, String, String)]
-metadataSplitCandidates line =
-  [ (end, prefix, suffix)
-  | (start, end) <- spaceRuns line
-  , end < length line
-  , let prefix = trim (take start line)
-  , let suffix = trim (drop end line)
-  , looksLikeTypeMetadata prefix || looksLikeBareTypeMetadata prefix
-  , not (null suffix)
-  ]
-
-metadataDescriptionOffset :: String -> Maybe Int
-metadataDescriptionOffset line =
-  case metadataLineKind line of
-    MetadataDescriptionLine offset -> Just offset
-    _ -> Nothing
-
-metadataStatusAnnotation :: String -> Maybe String
-metadataStatusAnnotation line =
-  case metadataLineKind line of
-    MetadataStatusLine status -> Just status
-    _ -> Nothing
-
-isMetadataStatusAnnotationLine :: String -> Bool
-isMetadataStatusAnnotationLine line =
-  case metadataLineKind line of
-    MetadataStatusLine _ -> True
-    _ -> False
-
-spaceRuns :: String -> [(Int, Int)]
-spaceRuns x =
-  [ (start, end)
-  | start <- [0 .. length x - 1]
-  , x !! start == ' '
-  , start == 0 || x !! (start - 1) /= ' '
-  , let end = start + length (takeWhile (== ' ') (drop start x))
-  , end - start >= 3
-  ]
-
-isMetadataDescriptionLine :: Int -> String -> Bool
-isMetadataDescriptionLine offset line =
-  case metadataLineKind line of
-    MetadataDescriptionLine offset' -> offset == offset'
-    _ -> False
-
-isMetadataOnlyLine :: String -> Bool
-isMetadataOnlyLine line =
-  case metadataLineKind line of
-    MetadataOnlyLine -> True
-    _ -> False
-
-isTypeMetadataLine :: String -> Bool
-isTypeMetadataLine line =
-  case metadataLineKind line of
-    MetadataOnlyLine -> True
-    MetadataDescriptionLine _ -> True
-    MetadataStatusLine _ -> True
-    _ -> False
-
 getTypeMetadataRowsAfterOptions :: [String] -> [Location] -> [Int]
 getTypeMetadataRowsAfterOptions xs optLocs = concatMap rowsAfterOpt optLocs
   where
@@ -610,7 +423,7 @@ getTypeMetadataRowsAfterOptions xs optLocs = concatMap rowsAfterOpt optLocs
           | idx `Set.member` optLinesSet = []
           | null (trim line) = []
           | indentation <= optIndent = []
-          | isTypeMetadataLine line = idx : go (idx + 1)
+          | Metadata.isTypeMetadataLine line = idx : go (idx + 1)
           | otherwise = []
           where
             line = xs !! idx
@@ -628,15 +441,15 @@ getTypeAwareDescriptionLocations xs optLocs = concatMap descLocsAfterOpt optLocs
           | idx `Set.member` optLinesSet = []
           | null (trim line) = []
           | indentation <= optIndent = []
-          | StatusAnnotationLine _ <- kind = []
-          | MetadataStatusLine _ <- kind = go True (idx + 1)
-          | MetadataDescriptionLine offset <- kind = (idx, offset) : go True (idx + 1)
-          | MetadataOnlyLine <- kind = go True (idx + 1)
+          | Metadata.StatusAnnotationLine _ <- kind = []
+          | Metadata.MetadataStatusLine _ <- kind = go True (idx + 1)
+          | Metadata.MetadataDescriptionLine offset <- kind = (idx, offset) : go True (idx + 1)
+          | Metadata.MetadataOnlyLine <- kind = go True (idx + 1)
           | seenMetadata && indentation >= optIndent + 6 = (idx, indentation) : go True (idx + 1)
           | otherwise = []
           where
             line = xs !! idx
-            kind = metadataLineKind line
+            kind = Metadata.metadataLineKind line
             indentation = length (takeWhile (== ' ') line)
 
 splitAfter :: Int -> String -> (String, String)
@@ -726,33 +539,33 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
 
     isDescriptionLineWithoutOption idx line =
       isWordStartingWithIndentation descOffset line
-        || isMetadataDescriptionLine descOffset line
+        || Metadata.isMetadataDescriptionLine descOffset line
         || isMetadataStatusContinuationLine idx line
         || isMetadataContinuationLine idx line
         || isStatusContinuationLine idx line
 
     isMetadataContinuationLine idx line =
-      isMetadataOnlyLine line
+      Metadata.isMetadataOnlyLine line
         && idx > 0
-        && ((idx - 1) `Set.member` optLinesSet || isTypeMetadataLine (xs !! (idx - 1)))
+        && ((idx - 1) `Set.member` optLinesSet || Metadata.isTypeMetadataLine (xs !! (idx - 1)))
 
     isMetadataStatusContinuationLine idx line =
-      isMetadataStatusAnnotationLine line
+      Metadata.isMetadataStatusAnnotationLine line
         && idx > 0
         && canContinueStatus (xs !! (idx - 1))
 
     isStatusContinuationLine idx line =
-      isStatusAnnotationLine line
+      Metadata.isStatusAnnotationLine line
         && idx > 0
         && canContinueStatus (xs !! (idx - 1))
 
     canContinueStatus line =
-      case metadataLineKind line of
-        StatusAnnotationLine _ -> True
-        MetadataStatusLine _ -> True
-        MetadataDescriptionLine offset -> offset == descOffset
-        MetadataOnlyLine -> True
-        NotMetadataLine ->
+      case Metadata.metadataLineKind line of
+        Metadata.StatusAnnotationLine _ -> True
+        Metadata.MetadataStatusLine _ -> True
+        Metadata.MetadataDescriptionLine offset -> offset == descOffset
+        Metadata.MetadataOnlyLine -> True
+        Metadata.NotMetadataLine ->
           Utils.startsWithDash line
             || isWordStartingWithIndentation descOffset line
 
@@ -761,8 +574,8 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
     -- [FIXME] too heuristic
     isOptionAndDescriptionLine idx
       | not (isOptionLine idx) = False
-      | isOptionLineWithOnlyMetadata descOffset x = False
-      | isWordStartingAt descOffset x && looksLikeBareTypeMetadata descSegment = False
+      | Metadata.isOptionLineWithOnlyMetadata descOffset x = False
+      | isWordStartingAt descOffset x && Metadata.looksLikeBareTypeMetadata descSegment = False
       | length xs == idx + 1 = True
       | isOptionLine (idx + 1) =
           -- When both current and the next lines have options
@@ -861,14 +674,14 @@ squashOptionsAndDescriptionsOverlap xs offset a b c = (opt, desc)
 
 descriptionSegment :: Int -> String -> String
 descriptionSegment offset line
-  | StatusAnnotationLine status <- kind = status
-  | MetadataStatusLine status <- kind = status
+  | Metadata.StatusAnnotationLine status <- kind = status
+  | Metadata.MetadataStatusLine status <- kind = status
   | isWordStartingWithIndentation offset line = snd (splitAt offset line)
-  | MetadataDescriptionLine offset' <- kind, offset' == offset = snd (splitAt offset line)
-  | MetadataOnlyLine <- kind = ""
+  | Metadata.MetadataDescriptionLine offset' <- kind, offset' == offset = snd (splitAt offset line)
+  | Metadata.MetadataOnlyLine <- kind = ""
   | otherwise = snd (splitAfter offset line)
   where
-    kind = metadataLineKind line
+    kind = Metadata.metadataLineKind line
 
 oneliners :: [String] -> Int -> Int -> Int -> [(String, String)]
 oneliners xs offset a b =
