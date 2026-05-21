@@ -268,10 +268,12 @@ optNameArgPair = do
   extra <- twoOrMoreDots <++ pure ""
   let s' = (trim . dropPrefix "=") s --- Exclude ':' as the last letter of an argument
   let cleanArg = s' ++ extra
-  if (length args == 1 && trim (head args) == "or") || length args >= 5 || cleanArg == "."
+  if argsAreJustOr args || length args >= 5 || cleanArg == "."
     then pfail
     else return (name, cleanArg)
   where
+    argsAreJustOr [arg] = trim arg == "or"
+    argsAreJustOr _ = False
     twoOrMoreDots = do
       c <- char '.'
       rest <- munch1 (== '.')
@@ -443,13 +445,16 @@ preprocessAllFallback s = filter (\pair -> pair /= ("", "")) result
 parseUsageHeader :: [String] -> String -> Maybe String
 parseUsageHeader _ "" = Nothing
 parseUsageHeader [] _ = Nothing
-parseUsageHeader keywords block
-  | null pairs = Nothing
-  | otherwise = (Just . fst . head) pairs
-  where
-    kwds = map (map toLower) keywords
-    headerLine = map toLower (head (lines block))
-    pairs = readP_to_S (headerWithOffset kwds) headerLine
+parseUsageHeader keywords block =
+  case lines block of
+    [] -> Nothing
+    headerLineRaw : _ ->
+      case readP_to_S (headerWithOffset kwds) headerLine of
+        [] -> Nothing
+        (pair, _) : _ -> Just pair
+      where
+        kwds = map (map toLower) keywords
+        headerLine = map toLower headerLineRaw
 
 headerWithOffset :: [String] -> ReadP String
 headerWithOffset [] = pfail

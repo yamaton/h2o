@@ -161,15 +161,6 @@ makeFishLineSubcommand name (Command subname _ desc _ _ _ _) = line
     quotedDesc = show desc
     line = T.pack $ printf template name subname quotedDesc
 
--- | make a fish-completion line for an option under a subcommand
-makeFishLineSubcommandOption :: String -> String -> Opt -> Text
-makeFishLineSubcommandOption cmd subcmd opt@(Opt names _ desc) = line
-  where
-    parts = T.unwords $ map optNameToFishArg names
-    quotedDesc = (show . truncateAfterPeriod . T.pack) desc
-    subcmdCondition = T.pack $ printf "-n \"__fish_seen_subcommand_from %s\"" subcmd
-    line = T.strip . T.pack $ printf "complete -c %s %s %s -d %s %s" cmd subcmdCondition parts quotedDesc (optArgToFlag opt)
-
 unlineFishCommands :: [Text] -> Text
 unlineFishCommands = T.unlines . nubOrd . filter (not . T.null)
 
@@ -190,17 +181,11 @@ genFishScriptSubcommands :: String -> [Command] -> Text
 genFishScriptSubcommands name subcmds =
   unlineFishCommands [makeFishLineSubcommand name sub | sub <- List.reverse subcmds]
 
--- | Generate fish completion script for options under a subcommand
-genFishScriptSubcommandOptions :: String -> Command -> Text
-genFishScriptSubcommandOptions name (Command subname _ _ _ opts _ _) =
-  unlineFishCommands [makeFishLineSubcommandOption name subname opt | opt <- opts]
-
 -- | Recursive helper for multi-level subcommand support
 -- rootName: the root command name (e.g., "stack")
 -- cmdSeqPrev: ancestor command names up to but not including current (e.g., ["stack", "ls"])
--- siblings: sibling subcommands at the current level (for generating subcommand completions)
-toFishScriptHelper :: String -> [String] -> [Command] -> Command -> Text
-toFishScriptHelper rootName cmdSeqPrev siblings (Command name _ _ _ opts subcmds _) =
+toFishScriptHelper :: String -> [String] -> Command -> Text
+toFishScriptHelper rootName cmdSeqPrev (Command name _ _ _ opts subcmds _) =
   T.intercalate "\n" (filter (not . T.null) parts) <> rest
   where
     cmdSeq = cmdSeqPrev ++ [name]
@@ -222,10 +207,10 @@ toFishScriptHelper rootName cmdSeqPrev siblings (Command name _ _ _ opts subcmds
     parts = [scriptOptions, scriptSubcommands]
 
     -- Recursively process child subcommands
-    rest = T.concat ["\n" <> toFishScriptHelper rootName cmdSeq subcmds sub | sub <- subcmds]
+    rest = T.concat ["\n" <> toFishScriptHelper rootName cmdSeq sub | sub <- subcmds]
 
 toFishScript :: Command -> Text
-toFishScript cmd = escapeDollars . addMeta $ toFishScriptHelper (_name cmd) [] [] cmd
+toFishScript cmd = escapeDollars . addMeta $ toFishScriptHelper (_name cmd) [] cmd
   where
     addMeta txt = "# Auto-generated with h2o\n\n" `T.append` txt
 

@@ -216,9 +216,7 @@ takeHangingDescForFallback lineIdxBase optLocs content = descLocSelected
         [ (descLineNum, descIndentation)
           | (i, (descLineNum, descIndentation)) <- zip [0 ..] descLocs,
             (descLineNum - 1) `elem` optLines,
-            let xs = [c | (r, c) <- optLocs, r == (descLineNum - 1)],
-            (not . null) xs,
-            let optIndentation = head xs,
+            optIndentation <- take 1 [c | (r, c) <- optLocs, r == (descLineNum - 1)],
             descIndentation >= optIndentation,
             descIndentation > optIndentation
               || (descLineNum - 2) `notElem` descLines
@@ -227,9 +225,11 @@ takeHangingDescForFallback lineIdxBase optLocs content = descLocSelected
         ]
     (cueLines, _) = unzip cueDescLocs
     descLocChunks = Utils.groupConsecutiveByFst descLocs
-    descLocChunks' = filter (\chunk -> (not . null) chunk && fst (head chunk) `elem` cueLines) descLocChunks
-    descLocSelected =
-      concatMap
-        (\chunk -> takeWhile (\(_, c) -> (not . null) chunk && c == snd (head chunk)) chunk)
-        descLocChunks'
+    descLocChunks' = filter startsWithCueLine descLocChunks
+    descLocSelected = concatMap takeSameIndent descLocChunks'
 
+    startsWithCueLine [] = False
+    startsWithCueLine ((row, _) : _) = row `elem` cueLines
+
+    takeSameIndent [] = []
+    takeSameIndent chunk@((_, indentation) : _) = takeWhile ((== indentation) . snd) chunk

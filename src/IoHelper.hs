@@ -94,25 +94,27 @@ getHelpTemplate :: String -> [[String]] -> IO Text
 getHelpTemplate cmd = getHelpTemplateMeta (Utils.mayContainUseful (T.pack cmd)) cmd
 
 fetchHelpInfo :: (Text -> Bool) -> String -> [String] -> IO (Maybe Text)
-fetchHelpInfo isGood name args = do
-  result <- runProcessSafe (unwords cmdSeq) pc
-  case result of
-    Nothing -> return Nothing
-    Just (exitCode, stdout, stderr) -> do
-      let stdoutText = Utils.cleanTerminalOutput . Utils.decodeUtf8Lenient $ stdout
-      let stderrText = Utils.cleanTerminalOutput . Utils.decodeUtf8Lenient $ stderr
-      let res
-            | isCommandNotFound exitCode = Utils.warnTrace "Command not found" Nothing
-            | any (Utils.hasErrorMessageAtTop (T.pack name)) [stdoutText, stderrText] =
-                Utils.warnTrace ("Command appears invalid: " ++ unwords cmdSeq) Nothing
-            | isGood stdoutText = Utils.debugTrace ("Using stdout from: " ++ unwords cmdSeq) $ Just stdoutText
-            | isGood stderrText = Utils.debugTrace ("Using stderr from: " ++ unwords cmdSeq) $ Just stderrText
-            | otherwise = Nothing
-      return res
+fetchHelpInfo isGood name args =
+  case cmdWords of
+    [] -> return Nothing
+    command : commandArgs -> do
+      result <- runProcessSafe (unwords cmdSeq) (Process.proc command commandArgs)
+      case result of
+        Nothing -> return Nothing
+        Just (exitCode, stdout, stderr) -> do
+          let stdoutText = Utils.cleanTerminalOutput . Utils.decodeUtf8Lenient $ stdout
+          let stderrText = Utils.cleanTerminalOutput . Utils.decodeUtf8Lenient $ stderr
+          let res
+                | isCommandNotFound exitCode = Utils.warnTrace "Command not found" Nothing
+                | any (Utils.hasErrorMessageAtTop (T.pack name)) [stdoutText, stderrText] =
+                    Utils.warnTrace ("Command appears invalid: " ++ unwords cmdSeq) Nothing
+                | isGood stdoutText = Utils.debugTrace ("Using stdout from: " ++ unwords cmdSeq) $ Just stdoutText
+                | isGood stderrText = Utils.debugTrace ("Using stderr from: " ++ unwords cmdSeq) $ Just stderrText
+                | otherwise = Nothing
+          return res
   where
     cmdSeq = name : args
     cmdWords = words name ++ filter (not . all (== ' ')) args
-    pc = Process.proc (head cmdWords) (tail cmdWords)
 
 isCommandNotFound :: ExitCode -> Bool
 isCommandNotFound exitCode = exitCode == ExitFailure 127
@@ -121,14 +123,16 @@ getHelp :: String -> IO Text
 getHelp name = getHelpTemplate name Config.helpOptions
 
 getHelpSub :: [String] -> IO Text
-getHelpSub names
-  | null names = return T.empty
-  | length names == 1 = getHelp (head names)
-  | name == "bazel" = getHelpTemplate name [["help", subname, "--long"]]
-  | otherwise = getHelpTemplate name (Config.helpOptionsSub subname)
-  where
-    name = unwords (init names)
-    subname = last names
+getHelpSub [] = return T.empty
+getHelpSub [name] = getHelp name
+getHelpSub names =
+  case reverse names of
+    [] -> return T.empty
+    subname : parentNamesReversed
+      | name == "bazel" -> getHelpTemplate name [["help", subname, "--long"]]
+      | otherwise -> getHelpTemplate name (Config.helpOptionsSub subname)
+      where
+        name = unwords (reverse parentNamesReversed)
 
 getMan :: String -> IO Text
 getMan name = do

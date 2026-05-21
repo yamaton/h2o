@@ -82,7 +82,7 @@ import qualified HelpParser
 import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
 import qualified Utils
-import Utils (debugMsg, getMostFrequent, getMostFrequentWithCount, infoMsg, warnShow)
+import Utils (debugMsg, getMostFrequent, getMostFrequentWithCount, infoMsg)
 
 -- | Location is defined by (row, col) order
 type Location = (Int, Int)
@@ -249,12 +249,17 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
             -- description's offset is equal (rare case!) or greater than option's
             null optOffsets' || (List.maximum optOffsets' <= x),
             -- description can exist only around option lines
-            (not . null) optLines,
-            head optLines < r,
-            r < last optLines + 5
+            isAroundOptionLines r
             -- previous line cannot be blank
         ]
     res = infoMsg "Description offset (from non-option lines):" $ getMostFrequentWithCount indentations
+
+    isAroundOptionLines r =
+      case optLines of
+        [] -> False
+        firstOptLine : restOptLines ->
+          let lastOptLine = foldl max firstOptLine restOptLines
+           in firstOptLine < r && r < lastOptLine + 5
 
 -- | Take description locations that hang from an option line.
 --
@@ -293,9 +298,7 @@ takeHangingDesc lineIdxBase optLocs descLocs = descLocSelected
         [ (descLineNum, descIndentation)
           | (i, (descLineNum, descIndentation)) <- zip [0 ..] descLocs,
             (descLineNum - 1) `elem` optLines,
-            let xs = [c | (r, c) <- optLocs, r == (descLineNum - 1)],
-            (not . null) xs,
-            let optIndentation = head xs,
+            optIndentation <- take 1 [c | (r, c) <- optLocs, r == (descLineNum - 1)],
             descIndentation >= optIndentation,
             descIndentation > optIndentation
               || (descLineNum - 2) `notElem` descLines
@@ -304,11 +307,14 @@ takeHangingDesc lineIdxBase optLocs descLocs = descLocSelected
         ]
     (cueLines, _) = unzip cueDescLocs
     descLocChunks = Utils.groupConsecutiveByFst descLocs
-    descLocChunks' = filter (\chunk -> (not . null) chunk && fst (head chunk) `elem` cueLines) descLocChunks
-    descLocSelected =
-      concatMap
-        (\chunk -> takeWhile (\(_, c) -> (not . null) chunk && c == snd (head chunk)) chunk)
-        descLocChunks'
+    descLocChunks' = filter startsWithCueLine descLocChunks
+    descLocSelected = concatMap takeSameIndent descLocChunks'
+
+    startsWithCueLine [] = False
+    startsWithCueLine ((row, _) : _) = row `elem` cueLines
+
+    takeSameIndent [] = []
+    takeSameIndent chunk@((_, indentation) : _) = takeWhile ((== indentation) . snd) chunk
 
 -- | Estimate offset of description part from the lines with options.
 -- Returns Just (offset size, match count) if matches.
@@ -346,7 +352,10 @@ isWordStartingWithIndentation n x =
     isSpacesOnly s = (not . null) s && (null . trim) s
     (before, after) = splitAt n x
     condBefore = isSpacesOnly before
-    condAfter = (not . null) after && head after /= ' '
+    condAfter =
+      case after of
+        [] -> False
+        c : _ -> c /= ' '
 
 -- | Check if a word starting around the horizontal position.
 -- Ambiguity is set by margin value.
@@ -369,9 +378,13 @@ isNonDashWordStartingAround margin offset x =
 
 isWordStartingAt :: Int -> String -> Bool
 isWordStartingAt offset x =
-  (not . null . trim) before && (not . null . trim) after && last before == ' ' && head after /= ' '
+  (not . null . trim) before && (not . null . trim) after && hasWordBoundary
   where
     (before, after) = splitAt offset x
+    hasWordBoundary =
+      case (reverse before, after) of
+        (' ' : _, c : _) -> c /= ' '
+        _ -> False
 
 -- | QIIME/Click can wrap rich type information between the option name and
 -- the real description:
@@ -504,7 +517,10 @@ getTypeAwareDescriptionLocations xs optLocs = concatMap descLocsAfterOpt optLocs
 splitAfter :: Int -> String -> (String, String)
 splitAfter offset x
   | null found = (x, "")
-  | otherwise = head found
+  | otherwise =
+      case found of
+        pair : _ -> pair
+        [] -> (x, "")
   where
     indices = [offset .. length x - 1]
     found =
@@ -716,7 +732,7 @@ oneliners xs offset a b =
       let x = xs !! i,
       let (former, latter)
             | isWordStartingAt offset x = splitAt offset x
-            | (not . null) pairs = head pairs
+            | pair : _ <- pairs = pair
             | otherwise = splitAfter offset x
             where
               pairs = map fst (readP_to_S HelpParser.preprocessor x)

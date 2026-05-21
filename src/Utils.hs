@@ -264,7 +264,7 @@ hasErrorMessageAtTop _name text =
 mayContainUseful :: Text -> Text -> Bool
 mayContainUseful name text
   | null xs = False
-  | length xs == 1 = "usage" `T.isPrefixOf` (T.toLower . T.stripStart . head) xs
+  | [line] <- xs = "usage" `T.isPrefixOf` (T.toLower . T.stripStart) line
   | name == "gatk" = length xs >= 4 -- special handling for GATK
   | otherwise = True
   where
@@ -388,6 +388,7 @@ groupConsecutiveOn :: (a -> Int) -> [a] -> [[a]]
 groupConsecutiveOn f = foldr step []
   where
     step x [] = [[x]]
+    step x ([] : gs) = [x] : gs
     step x (g@(y : _) : gs)
       | f y == f x + 1 = (x : g) : gs
       | otherwise = [x] : g : gs

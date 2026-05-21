@@ -25,7 +25,6 @@ module Layout.Usage
 where
 
 import qualified Data.Char as Char
-import qualified Data.Maybe as Maybe
 import Data.List.Extra (trim, trimEnd)
 import qualified HelpParser
 import qualified Utils
@@ -35,11 +34,13 @@ import qualified Utils
 -- Finds sections starting with "Usage" or "SYNOPSIS" and extracts the
 -- command pattern information.
 parseUsage :: String -> String
-parseUsage content
-  | null blockFiltered = Utils.debugShow "[parseUsage] NOT FOUND" blocks ""
-  | foundSynopsis = Utils.debugMsg "[parseUsage] SYNOPSIS: " result
-  | foundUsage = Utils.debugMsg "[parseUsage] Usage: " result
-  | otherwise = Utils.debugTrace "[parseUsage] Unexpected state: no matching condition" ""
+parseUsage content =
+  case blockFiltered of
+    [] -> Utils.debugShow "[parseUsage] NOT FOUND" blocks ""
+    theBlock : _
+      | headerSynopsis `isPrefixOf` theBlock -> Utils.debugMsg "[parseUsage] SYNOPSIS: " (result theBlock)
+      | headerUsage `isPrefixOf` theBlock -> Utils.debugMsg "[parseUsage] Usage: " (result theBlock)
+      | otherwise -> Utils.debugTrace "[parseUsage] Unexpected state: no matching condition" ""
   where
     headerSynopsis = "SYNOPSIS"
     headerUsage = "Usage"
@@ -49,23 +50,28 @@ parseUsage content
     foundPrefix s = any (`isPrefixOf` s) keywords
     blocks = (splitByHeadersForUsage . lines) content
     blockFiltered = filter foundPrefix blocks
-    theBlock = Utils.debugMsg "[parseUsage] Selected block:" $ head blockFiltered
-    foundSynopsis = headerSynopsis `isPrefixOf` theBlock
-    foundUsage = headerUsage `isPrefixOf` theBlock
-    getBody = trimEnd . unlines . trimFixedIndents . tail . lines
+    getBody block =
+      case lines block of
+        [] -> ""
+        _ : bodyLines -> trimEnd . unlines . trimFixedIndents $ bodyLines
 
-    xs = lines theBlock
-    firstLine = head xs
-    result
-      | Maybe.isNothing offsetMaybe = Utils.debugShow "[parseUsage] Something is wrong" firstLine ""
-      | (null . trim) firstLineRest = Utils.debugMsg "[parseUsage] Header-only first line:" $ getBody theBlock
-      | otherwise = trimEnd (unlines ys)
-      where
-        offsetMaybe = length <$> HelpParser.parseUsageHeader keywords theBlock
-        offset = Utils.debugMsg "[parseUsage] Detected offset:" $ Maybe.fromJust offsetMaybe
-        firstLineRest = drop offset firstLine
-        pairs = map (splitAt offset) xs
-        ys = snd (head pairs) : map snd (takeWhile (null . trim . fst) (tail pairs))
+    result block =
+      case lines block of
+        [] -> ""
+        firstLine : _ ->
+          case length <$> HelpParser.parseUsageHeader keywords block of
+            Nothing -> Utils.debugShow "[parseUsage] Something is wrong" firstLine ""
+            Just offsetRaw
+              | (null . trim) firstLineRest -> Utils.debugMsg "[parseUsage] Header-only first line:" $ getBody block
+              | otherwise -> trimEnd (unlines ys)
+              where
+                offset = Utils.debugMsg "[parseUsage] Detected offset:" offsetRaw
+                firstLineRest = drop offset firstLine
+                pairs = map (splitAt offset) (lines block)
+                ys =
+                  case pairs of
+                    [] -> []
+                    (_, firstRest) : rest -> firstRest : map snd (takeWhile (null . trim . fst) rest)
 
     -- Local helper to avoid importing Data.List.Extra.trimStart
     trimStart = dropWhile (== ' ')

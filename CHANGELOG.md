@@ -1,3 +1,6 @@
+## 0.5.4 (2026-05-21)
+- Fix `stack build --copy-bins --pedantic` by removing unused fish helpers and replacing partial list operations in parsing/build paths.
+
 ## 0.5.3 (2026-05-21)
 - Preserve comma-separated subcommand aliases such as `remove, uninstall` in JSON output.
 - Improve QIIME/Click option parsing for wrapped `Choices(...)` metadata before descriptions or default annotations.

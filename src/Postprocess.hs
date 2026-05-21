@@ -116,9 +116,14 @@ score (Opt names arg desc) =
       | length (T.words t) == 1 = -4
       | "-" `T.isPrefixOf` t = -4
       | Char.isLower (T.head t) = -1
-      | (T.length . head . T.split (== '.')) t > 80 = -1
+      | firstSentenceLength t > 80 = -1
       | T.last t == '.' = 1
       | otherwise = 0
+
+    firstSentenceLength text =
+      case T.split (== '.') text of
+        firstSentence : _ -> T.length firstSentence
+        [] -> 0
 
     argScore :: Text -> Int
     argScore text
@@ -153,7 +158,9 @@ addVersion :: Command -> IO Command
 addVersion (Command name aliases desc usage opts subcmds _) = Command name aliases desc usage opts subcmds <$> version
   where
     raw = getVersion name
-    f = T.unpack . T.strip . (\xs -> if null xs then T.empty else head xs) . T.lines . T.strip
+    f = T.unpack . T.strip . firstLine . T.lines . T.strip
+    firstLine [] = T.empty
+    firstLine (line : _) = line
     version = f <$> raw
 
 fixCommand :: Command -> IO Command
