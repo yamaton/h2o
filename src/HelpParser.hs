@@ -139,10 +139,19 @@ optWord = do
   xs <- munch isAllowedOptChar
   -- For example stack --help has "--docker*"
   _ <- char '*' <++ pure '*'
-  -- Don't allow options like `-S.` or `--baba.`
-  if (not . null) xs && last xs == '.'
-    then pfail
-    else return (x : xs)
+  let raw = x : xs
+  case stripSuffix "..." raw of
+    Just base
+      | (not . null) base && isAlphanum (last base) -> return base
+    _ ->
+      -- Don't allow options like `-S.` or `--baba.`
+      if (not . null) xs && last xs == '.'
+        then pfail
+        else return raw
+  where
+    stripSuffix suffix str
+      | suffix `List.isSuffixOf` str = Just (take (length str - length suffix) str)
+      | otherwise = Nothing
 
 longOptNameWithNo :: ReadP OptName
 longOptNameWithNo = do
@@ -267,7 +276,7 @@ optNameArgPair = do
   (s, args) <- gather $ sepBy optArg argSep
   extra <- twoOrMoreDots <++ pure ""
   let s' = (trim . dropPrefix "=") s --- Exclude ':' as the last letter of an argument
-  let cleanArg = s' ++ extra
+  let cleanArg = if null args then s' else s' ++ extra
   if argsAreJustOr args || length args >= 5 || cleanArg == "."
     then pfail
     else return (name, cleanArg)

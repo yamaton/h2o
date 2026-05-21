@@ -114,6 +114,16 @@ outdatedTests =
       test_parser
         "--docker*                Run 'stack --docker-help' for details"
         (["--docker"], "", "Run 'stack --docker-help' for details"),
+      ---- clap ----
+      test_parser
+        "-q, --quiet...           Do not print any output"
+        (["-q", "--quiet"], "", "Do not print any output"),
+      test_parser
+        "-u, --unrestricted...    Perform an unrestricted search"
+        (["-u", "--unrestricted"], "", "Perform an unrestricted search"),
+      test_parser
+        "--exec <cmd>...          Execute a command for each search result"
+        (["--exec"], "<cmd>...", "Execute a command for each search result"),
       test_parser
         "    -u, --username USERNAME              Login with this account ID"
         (["-u", "--username"], "USERNAME", "Login with this account ID"),

@@ -101,6 +101,18 @@ clapFixtures =
           ["--color"]
           "<COLOR_CHOICE>"
           "Control the use of color in output [possible values: auto, always, never]"
+        assertOpt
+          opts
+          "--quiet"
+          ["-q", "--quiet"]
+          ""
+          "Do not print any output"
+        assertOpt
+          opts
+          "--verbose"
+          ["-v", "--verbose"]
+          ""
+          "Use verbose output"
     , testCase "cargo help parses comma-separated command aliases" $ do
         content <- readFile "test/fixtures/frameworks/clap-cargo-help.txt"
         parseSubcommand content

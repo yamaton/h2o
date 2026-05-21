@@ -21,6 +21,10 @@ Python options:
       --no-managed-python    Disable use of uv-managed Python versions [env: UV_NO_MANAGED_PYTHON=]
 
 Global options:
+  -q, --quiet...
+          Do not print any output
+  -v, --verbose...
+          Use verbose output
       --color <COLOR_CHOICE>
           Control the use of color in output [possible values: auto, always, never]
       --offline
