@@ -1,3 +1,7 @@
+## 0.5.5 (2026-05-21)
+- Preserve QIIME/Click status annotations such as `[required]` after type metadata continuations.
+- Improve QIIME/Click parsing for long `Choices(...)` metadata blocks before descriptions.
+
 ## 0.5.4 (2026-05-21)
 - Fix `stack build --copy-bins --pedantic` by removing unused fish helpers and replacing partial list operations in parsing/build paths.
 
