@@ -1,3 +1,7 @@
+## 0.5.3 (2026-05-21)
+- Preserve comma-separated subcommand aliases such as `remove, uninstall` in JSON output.
+- Improve QIIME/Click option parsing for wrapped `Choices(...)` metadata before descriptions or default annotations.
+
 ## 0.5.2 (2026-05-21)
 - Preserve QIIME/Click right-aligned status annotations such as `[required]`, `[optional]`, and `[default: ...]` in option descriptions.
 
