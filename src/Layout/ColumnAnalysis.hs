@@ -72,6 +72,7 @@ module Layout.ColumnAnalysis
 where
 
 import Control.Exception (assert)
+import Data.Char (isAlphaNum)
 import Data.List (isInfixOf)
 import qualified Data.List as List
 import Data.List.Extra (breakOnEnd, nubSort, trim, trimEnd)
@@ -388,14 +389,38 @@ isWordStartingAt offset x =
 -- description offset nor be emitted as description text.
 looksLikeTypeMetadata :: String -> Bool
 looksLikeTypeMetadata s =
-  not (null ws)
-    && length ws <= 2
+  not (null trimmed)
     && not (Utils.startsWithDash trimmed)
-    && any (`elem` trimmed) ("[](){}'\",|" :: String)
     && last trimmed /= '.'
+    && (looksLikeShortTypeMetadata || looksLikeChoiceListStart trimmed || looksLikeChoiceListContinuation trimmed)
   where
     trimmed = trim s
     ws = words trimmed
+    looksLikeShortTypeMetadata =
+      not (null ws)
+        && length ws <= 2
+        && any (`elem` trimmed) ("[](){}'\",|" :: String)
+
+looksLikeChoiceListStart :: String -> Bool
+looksLikeChoiceListStart s =
+  "Choices(" `List.isPrefixOf` s
+    && ("," `isInfixOf` s || ")" `List.isSuffixOf` s)
+    && all isChoiceListChar s
+
+looksLikeChoiceListContinuation :: String -> Bool
+looksLikeChoiceListContinuation "" = False
+looksLikeChoiceListContinuation s@(first : _) =
+  first `elem` ("'\"" :: String)
+    && ("," `isInfixOf` s || ")" `List.isSuffixOf` s)
+    && all isChoiceListChar s
+
+isChoiceListChar :: Char -> Bool
+isChoiceListChar c =
+  isAlphaNum c || c `elem` (" '\"`,()_-./" :: String)
+
+isOptionLineWithOnlyMetadata :: Int -> String -> Bool
+isOptionLineWithOnlyMetadata offset line =
+  looksLikeTypeMetadata (drop offset line)
 
 isStatusAnnotationLine :: String -> Bool
 isStatusAnnotationLine line =
@@ -561,11 +586,13 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
     isDescriptionLineWithoutOption idx line =
       isWordStartingWithIndentation descOffset line
         || isMetadataDescriptionLine descOffset line
+        || isMetadataContinuationLine idx line
         || isStatusContinuationLine idx line
-        || ( idx > 0
-               && (idx - 1) `Set.member` optLinesSet
-               && isMetadataOnlyLine line
-           )
+
+    isMetadataContinuationLine idx line =
+      isMetadataOnlyLine line
+        && idx > 0
+        && ((idx - 1) `Set.member` optLinesSet || isTypeMetadataLine (xs !! (idx - 1)))
 
     isStatusContinuationLine idx line =
       isStatusAnnotationLine line
@@ -573,16 +600,18 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
         && canContinueStatus (xs !! (idx - 1))
 
     canContinueStatus line =
-      isStatusAnnotationLine line
-        || Utils.startsWithDash line
-        || isWordStartingWithIndentation descOffset line
-        || isMetadataDescriptionLine descOffset line
+        isStatusAnnotationLine line
+          || Utils.startsWithDash line
+          || isWordStartingWithIndentation descOffset line
+          || isMetadataDescriptionLine descOffset line
+          || isMetadataOnlyLine line
 
     -- The line must be long when description starts at the same line
     -- the option and continues to the next line.
     -- [FIXME] too heuristic
     isOptionAndDescriptionLine idx
       | not (isOptionLine idx) = False
+      | isOptionLineWithOnlyMetadata descOffset x = False
       | length xs == idx + 1 = True
       | isOptionLine (idx + 1) =
           -- When both current and the next lines have options
