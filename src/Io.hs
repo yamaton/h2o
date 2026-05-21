@@ -92,7 +92,7 @@ toSubcommandsText path cmds =
     main = T.unlines . map (T.pack . show . asSubcommand) $ cmds
 
 toSubcommandOptionsText :: [String] -> Command -> Text
-toSubcommandOptionsText nameSeq (Command subname _ _ opts _ _) =
+toSubcommandOptionsText nameSeq (Command subname _ _ _ opts _ _) =
   T.unlines $ map (\opt -> prefix `T.append` T.pack (show opt)) opts
   where
     prefix = T.pack . printf "(%s) " . T.unwords . map T.pack $ nameSeq ++ [subname]
@@ -128,7 +128,7 @@ toNativeText cmd =
   T.intercalate "\n\n\n" . filter (not . T.null) $ toNativeTextRec [] cmd
 
 toNativeTextRec :: [String] -> Command -> [Text]
-toNativeTextRec path cmd@(Command name desc usage _ subCmds _) =
+toNativeTextRec path cmd@(Command name _ desc usage _ subCmds _) =
   [nameText, descText, usageText, optsText, subcommandsText] ++ rest
   where
     currentPath = path ++ [name]
@@ -169,7 +169,7 @@ pageToCommandIO name skipMan depth fetchVersion content = do
   isManAvailable <- isManAvailableIO name
   let useMan = not skipMan && isManAvailable
   budget <- newIORef subprocessBudget
-  (cmd, status) <- getCommandRec budget depth useMan [name] name "placeholder" content
+  (cmd, status) <- getCommandRec budget depth useMan [name] [] name "placeholder" content
   let isSuccess =
         (not . null . _options) cmd
           || (not . null . _subcommands) cmd
@@ -194,11 +194,12 @@ pageToCommandIO name skipMan depth fetchVersion content = do
 --     to --help if no man page exists for that particular subcommand.
 --     When False (--skip-man), help is used directly without trying man.
 --   cmdSeq is a list composed of command name, subcommand name, for example ["docker", "container", "run"].
+--   aliases are aliases for the command at the end of cmdSeq.
 --   desc is description of the subcommand obtained from the upper-level source.
 --   upperContent is the text scanned in the upper level. This information is needed because
 --     "foo bar --help" sometimes returns the identical result as "foo --help".
-getCommandRec :: IORef Int -> Int -> Bool -> [String] -> String -> Text -> String -> IO (Command, Bool)
-getCommandRec budget extraDepth useMan cmdSeq desc upperContent givenPage = do
+getCommandRec :: IORef Int -> Int -> Bool -> [String] -> [String] -> String -> Text -> String -> IO (Command, Bool)
+getCommandRec budget extraDepth useMan cmdSeq aliases desc upperContent givenPage = do
   page <-
     if null givenPage
       then do
@@ -218,18 +219,18 @@ getCommandRec budget extraDepth useMan cmdSeq desc upperContent givenPage = do
           else take maxSubcandidatesPerLevel (getSubcmdCandidates content)
   let subCommandCandidsM =
         mapM
-          ( \(Subcommand name subDesc) ->
-              getCommandRec budget (extraDepth - 1) useMan (cmdSeq ++ [name]) subDesc page ""
+          ( \(Subcommand name subAliases subDesc) ->
+              getCommandRec budget (extraDepth - 1) useMan (cmdSeq ++ [name]) subAliases subDesc page ""
           )
           ( filter
-              (\(Subcommand name _) -> null cmdSeq || (last cmdSeq /= name))
+              (\(Subcommand name _ _) -> null cmdSeq || (last cmdSeq /= name))
               subCandidates
           )
   let subCommandsM = map fst . filter snd <$> subCommandCandidsM
   let opts = parseBlockwise content
   subCommands <- subCommandsM
   let usage = parseUsage content
-  let result = Command (last cmdSeq) desc usage opts subCommands ""
+  let result = Command (last cmdSeq) aliases desc usage opts subCommands ""
   return (result, Utils.infoMsg ("Extraction succeeded for " ++ unwords cmdSeq ++ ":") isSuccess)
   where
     readFunc = if useMan then getManThenHelpSub else getHelpSub
@@ -241,8 +242,8 @@ getSubcmdCandidates content =
     uniqSubcommands . parseSubcommand $
       content
   where
-    sub2pair (Subcommand n d) = (n, d)
-    pair2sub = uncurry Subcommand
+    sub2pair (Subcommand n aliases d) = (n, (aliases, d))
+    pair2sub (n, (aliases, d)) = Subcommand n aliases d
     uniqSubcommands = map pair2sub . OMap.assocs . OMap.fromList . map sub2pair
 
 -- | Converts to Command given command name and text. See 'pageToCommandIO'
@@ -251,7 +252,7 @@ pageToCommandSimple :: String -> Bool -> String -> IO Command
 pageToCommandSimple name fetchVersion content =
   if null rootOptions
     then throwIO (NoExtractableOptions name)
-    else postProcess $ Command name name usage rootOptions [] ""
+    else postProcess $ Command name [] name usage rootOptions [] ""
   where
     rootOptions = parseBlockwise content
     usage = parseUsage content
@@ -264,7 +265,7 @@ listSubcommandsIO input = getSubnames <$> (pageToCommandIO name skipMan 1 False 
   where
     name = getName input
     skipMan = getSkipMan input
-    getSubnames = map (\(Command n _ _ _ _ _) -> T.pack n) . _subcommands
+    getSubnames = map (\(Command n _ _ _ _ _ _) -> T.pack n) . _subcommands
 
 getName :: Input -> String
 getName (CommandInput n _) = n

@@ -122,7 +122,7 @@ makeFishLineRootOption cmd subcmds opt@(Opt names _ desc) = line
 -- For root level: uses __fish_use_subcommand
 -- For nested level: requires ancestors seen AND no child subcommands of current level seen
 makeFishLineSubcommandNested :: String -> [String] -> [Command] -> Command -> Text
-makeFishLineSubcommandNested rootName cmdSeq siblings (Command subname desc _ _ _ _) = line
+makeFishLineSubcommandNested rootName cmdSeq siblings (Command subname _ desc _ _ _ _) = line
   where
     template = "complete -k -c %s -n \"%s\" -x -a %s -d %s"
     quotedDesc = show desc
@@ -155,7 +155,7 @@ makeFishLineSubcommandOptionNested rootName cmdSeq childSubcmds opt@(Opt names _
 
 -- | make a fish-completion line for a subcommand name:: String
 makeFishLineSubcommand :: String -> Command -> Text
-makeFishLineSubcommand name (Command subname desc _ _ _ _) = line
+makeFishLineSubcommand name (Command subname _ desc _ _ _ _) = line
   where
     template = "complete -k -c %s -n __fish_use_subcommand -x -a %s -d %s"
     quotedDesc = show desc
@@ -192,7 +192,7 @@ genFishScriptSubcommands name subcmds =
 
 -- | Generate fish completion script for options under a subcommand
 genFishScriptSubcommandOptions :: String -> Command -> Text
-genFishScriptSubcommandOptions name (Command subname _ _ opts _ _) =
+genFishScriptSubcommandOptions name (Command subname _ _ _ opts _ _) =
   unlineFishCommands [makeFishLineSubcommandOption name subname opt | opt <- opts]
 
 -- | Recursive helper for multi-level subcommand support
@@ -200,7 +200,7 @@ genFishScriptSubcommandOptions name (Command subname _ _ opts _ _) =
 -- cmdSeqPrev: ancestor command names up to but not including current (e.g., ["stack", "ls"])
 -- siblings: sibling subcommands at the current level (for generating subcommand completions)
 toFishScriptHelper :: String -> [String] -> [Command] -> Command -> Text
-toFishScriptHelper rootName cmdSeqPrev siblings (Command name _ _ opts subcmds _) =
+toFishScriptHelper rootName cmdSeqPrev siblings (Command name _ _ _ opts subcmds _) =
   T.intercalate "\n" (filter (not . T.null) parts) <> rest
   where
     cmdSeq = cmdSeqPrev ++ [name]

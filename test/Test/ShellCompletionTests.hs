@@ -79,4 +79,4 @@ tests =
       \}\n\n\
       \## -o bashdefault and -o default are fallback\n\
       \complete -o bashdefault -o default -F _nanachi nanachi\n"
-    dummyCmd n = Command n "" "" [] [] ""
+    dummyCmd n = Command n [] "" "" [] [] ""

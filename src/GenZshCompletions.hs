@@ -165,7 +165,7 @@ genZshBodySubcommandOptions :: [String] -> [Command] -> Text
 genZshBodySubcommandOptions cmdSeq subcommands =
   T.concat [textPrefix, textCore, textSuffix]
   where
-    subnames = [subname | (Command subname _ _ _ _ _) <- subcommands]
+    subnames = [subname | (Command subname _ _ _ _ _ _) <- subcommands]
     textPrefix =
       T.unlines
         [ "    case $state in",
@@ -196,10 +196,10 @@ genZshScript cmd opts = T.concat [header, comments, body]
 ------------------
 
 toZshScriptHelper :: [String] -> Command -> Text
-toZshScriptHelper cmdSeqPrev (Command name _ _ opts [] _) = genZshLeafOptionList accName opts
+toZshScriptHelper cmdSeqPrev (Command name _ _ _ opts [] _) = genZshLeafOptionList accName opts
   where
     accName = cmdSeqPrev ++ [name]
-toZshScriptHelper cmdSeqPrev (Command name _ _ opts subcmds _) = txt <> T.concat rest
+toZshScriptHelper cmdSeqPrev (Command name _ _ _ opts subcmds _) = txt <> T.concat rest
   where
     txt = T.concat [textFunctionOpening, textSubcommands, textRootOptions, textSubcommandOptionCalls, textFunctionClosing]
     cmdSeq = cmdSeqPrev ++ [name]

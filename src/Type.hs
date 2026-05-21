@@ -15,6 +15,7 @@ import Data.Aeson
     (.:),
     (.:?),
   )
+import qualified Data.List as List
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.Maybe as Maybe
 import Data.Text (Text)
@@ -23,13 +24,14 @@ import Text.Printf (printf)
 
 data Command = Command
   { _name :: String, -- command name
+    _aliases :: [String], -- command aliases
     _description :: String, -- description of command itself
     _usage :: String, -- usage
     _options :: [Opt], -- command options
     _subcommands :: [Command], -- subcommands
     _version :: String -- version
   }
-  deriving (Show)
+  deriving (Eq, Show)
 
 data Opt = Opt
   { _names :: [OptName],
@@ -40,15 +42,18 @@ data Opt = Opt
 
 data Subcommand = Subcommand
   { _name :: String,
+    _aliases :: [String],
     _desc :: String
   }
   deriving (Eq)
 
 instance Show Subcommand where
-  show (Subcommand name desc) = printf "%-25s (%s)" name desc
+  show (Subcommand name aliases desc) = printf "%-25s (%s)" displayedNames desc
+    where
+      displayedNames = List.intercalate ", " (name : aliases)
 
 instance Ord Subcommand where
-  compare (Subcommand n1 _) (Subcommand n2 _) = compare n1 n2
+  compare (Subcommand n1 _ _) (Subcommand n2 _ _) = compare n1 n2
 
 data OptName = OptName
   { _raw :: String,
@@ -98,6 +103,7 @@ instance FromJSON Command where
   parseJSON = withObject "Command" $ \v ->
     Command
       <$> (T.unpack <$> v .: "name")
+      <*> (map T.unpack . Maybe.fromMaybe [] <$> v .:? "aliases")
       <*> (T.unpack <$> v .: "description")
       <*> (T.unpack . Maybe.fromMaybe "" <$> v .:? "usage")
       <*> v
@@ -113,35 +119,51 @@ instance ToJSON Opt where
     pairs ("names" .= names <> "argument" .= arg <> "description" .= desc)
 
 instance ToJSON Command where
-  toJSON (Command name desc usage opts [] "" ) =
-    object ["name" .= name, "description" .= desc, "usage" .= usage, "options" .= opts]
-  toJSON (Command name desc usage opts subcommands "") =
-    object ["name" .= name, "description" .= desc, "usage" .= usage, "options" .= opts, "subcommands" .= subcommands]
-  toJSON (Command name desc usage opts [] version) =
-    object ["name" .= name, "description" .= desc, "usage" .= usage, "options" .= opts, "version" .= version]
-  toJSON (Command name desc usage opts subcommands version) =
-    object ["name" .= name, "description" .= desc, "usage" .= usage, "options" .= opts, "subcommands" .= subcommands, "version" .= version]
+  toJSON (Command name aliases desc usage opts subcommands version) =
+    object $
+      [ "name" .= name,
+        "description" .= desc,
+        "usage" .= usage,
+        "options" .= opts
+      ]
+        ++ aliasesField
+        ++ subcommandsField
+        ++ versionField
+    where
+      aliasesField = ["aliases" .= aliases | not (null aliases)]
+      subcommandsField = ["subcommands" .= subcommands | not (null subcommands)]
+      versionField = ["version" .= version | not (null version)]
 
-  toEncoding (Command name desc usage opts [] "") =
-    pairs ("name" .= name <> "description" .= desc <> "usage" .= usage <> "options" .= opts)
-  toEncoding (Command name desc usage opts subcommands "") =
-    pairs ("name" .= name <> "description" .= desc <> "usage" .= usage <> "options" .= opts <> "subcommands" .= subcommands)
-  toEncoding (Command name desc usage opts [] version) =
-    pairs ("name" .= name <> "description" .= desc <> "usage" .= usage <> "options" .= opts <> "version" .= version)
-  toEncoding (Command name desc usage opts subcommands version) =
-    pairs ("name" .= name <> "description" .= desc <> "usage" .= usage <> "options" .= opts <> "subcommands" .= subcommands <> "version" .= version)
+  toEncoding (Command name aliases desc usage opts subcommands version) =
+    pairs $
+      "name" .= name
+        <> aliasesPair
+        <> "description" .= desc
+        <> "usage" .= usage
+        <> "options" .= opts
+        <> subcommandsPair
+        <> versionPair
+    where
+      aliasesPair = if null aliases then mempty else "aliases" .= aliases
+      subcommandsPair = if null subcommands then mempty else "subcommands" .= subcommands
+      versionPair = if null version then mempty else "version" .= version
 
 instance ToJSON Subcommand where
-  toJSON (Subcommand name desc) =
-    object ["name" .= name, "desc" .= desc]
+  toJSON (Subcommand name aliases desc) =
+    object $
+      ["name" .= name, "desc" .= desc]
+        ++ ["aliases" .= aliases | not (null aliases)]
 
-  toEncoding (Subcommand name desc) =
-    pairs ("name" .= name <> "desc" .= desc)
+  toEncoding (Subcommand name aliases desc) =
+    pairs ("name" .= name <> aliasesPair <> "desc" .= desc)
+    where
+      aliasesPair = if null aliases then mempty else "aliases" .= aliases
 
 instance FromJSON Subcommand where
   parseJSON = withObject "Subcommand" $ \v ->
     Subcommand
       <$> (v .: "name" <|> v .: "cmd")  -- Accept both for backward compatibility
+      <*> (Maybe.fromMaybe [] <$> v .:? "aliases")
       <*> v .: "desc"
 
 -- | Classify an option name string. Returns 'Nothing' when the input does
@@ -157,4 +179,4 @@ toOptionNameType s
   | otherwise = Nothing
 
 asSubcommand :: Command -> Subcommand
-asSubcommand (Command n desc _ _ _ _) = Subcommand n desc
+asSubcommand (Command n aliases desc _ _ _ _) = Subcommand n aliases desc

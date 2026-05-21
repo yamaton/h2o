@@ -53,10 +53,21 @@ tests =
           \  sample-classifier   Plugin for machine learning prediction of sample\n\
           \                      metadata.\n\
           \  stats               Plugin for statistical analyses.\n"
-          @?= [ Type.Subcommand "composition" "Plugin for compositional data analysis.",
-                Type.Subcommand "cutadapt" "Plugin for removing adapter sequences, primers, and other unwanted sequence from sequence data.",
-                Type.Subcommand "sample-classifier" "Plugin for machine learning prediction of sample metadata.",
-                Type.Subcommand "stats" "Plugin for statistical analyses."
+          @?= [ Type.Subcommand "composition" [] "Plugin for compositional data analysis.",
+                Type.Subcommand "cutadapt" [] "Plugin for removing adapter sequences, primers, and other unwanted sequence from sequence data.",
+                Type.Subcommand "sample-classifier" [] "Plugin for machine learning prediction of sample metadata.",
+                Type.Subcommand "stats" [] "Plugin for statistical analyses."
+              ],
+      testCase "parseSubcommand keeps comma-separated aliases" $
+        parseSubcommand
+          "SUBCOMMANDS:\n\
+          \  shell                       Generate shell init scripts\n\
+          \  remove, uninstall           Remove packages from active environment\n\
+          \  search                      Find packages in active environment or channels\n\
+          \                              This is equivalent to `repoquery search` command\n"
+          @?= [ Type.Subcommand "shell" [] "Generate shell init scripts",
+                Type.Subcommand "remove" ["uninstall"] "Remove packages from active environment",
+                Type.Subcommand "search" [] "Find packages in active environment or channels This is equivalent to `repoquery search` command"
               ],
       testCase "getMostFrequent [1, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] == Just (-4)" $
         getMostFrequent [1 :: Int, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] @?= Just (-4 :: Int),
@@ -227,6 +238,20 @@ tests =
               Left err ->
                 assertBool ("error mentions non-empty requirement: " ++ err)
                   ("non-empty" `List.isInfixOf` err),
+      testCase "FromJSON Command accepts missing aliases as empty" $
+        let json = BSL.pack "{\"name\":\"demo\",\"description\":\"d\",\"options\":[]}"
+         in (Aeson.eitherDecode json :: Either String Type.Command)
+              @?= Right (Type.Command "demo" [] "d" "" [] [] ""),
+      testCase "ToJSON Command includes non-empty aliases" $
+        let cmd = Type.Command "remove" ["uninstall"] "Remove packages" "" [] [] ""
+            encoded = BSL.unpack (Aeson.encode cmd)
+         in do
+              assertBool encoded ("\"aliases\"" `List.isInfixOf` encoded)
+              assertBool encoded ("\"uninstall\"" `List.isInfixOf` encoded),
+      testCase "ToJSON Command omits empty aliases" $
+        let cmd = Type.Command "demo" [] "d" "" [] [] ""
+            encoded = BSL.unpack (Aeson.encode cmd)
+         in assertBool encoded (not $ "\"aliases\"" `List.isInfixOf` encoded),
       testCase "topTenPercentile returns Nothing for empty list" $
         Utils.topTenPercentile ([] :: [Int]) @?= Nothing,
       testCase "topTenPercentile returns Just for non-empty list" $

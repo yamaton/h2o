@@ -33,10 +33,10 @@ getSubcommandCall cmdSeq subname =
 getSubcmdsArray :: [Command] -> Text
 getSubcmdsArray subcmds = T.unwords subnames
   where
-    subnames = [T.pack subname | (Command subname _ _ _ _ _) <- subcmds]
+    subnames = [T.pack subname | (Command subname _ _ _ _ _ _) <- subcmds]
 
 genBashScript :: String -> [Opt] -> Text
-genBashScript name opts = toBashScript (Command name name "" opts [] "")
+genBashScript name opts = toBashScript (Command name [] name "" opts [] "")
 
 toBashFuncName :: [String] -> String
 toBashFuncName cmdSeq = '_' : List.intercalate "_" xs
@@ -85,7 +85,7 @@ toBashScript cmd = bashHeader <> toBashScriptHelper [] cmd <> compStatement
         ]
 
 toBashScriptHelper :: [String] -> Command -> Text
-toBashScriptHelper cmdSeqPrev (Command name _ _ opts subcmds _) =
+toBashScriptHelper cmdSeqPrev (Command name _ _ _ opts subcmds _) =
   header
     <> (if null cmdSeqPrev then initializeOnce else "")
     <> (if null subcmds then "" else subcommandCall)

@@ -64,7 +64,7 @@ getAlignedLines s =
 -- beyond the description column, so this does not introduce new command
 -- candidates.
 foldWrappedDescriptions :: Layout -> [String] -> [String]
-foldWrappedDescriptions layout@(_, descOffset) = reverse . flush . foldl step (Nothing, [])
+foldWrappedDescriptions layout@(nameOffset, descOffset) = reverse . flush . foldl step (Nothing, [])
   where
     step (current, acc) line
       | isSubcommandRow line = (Just line, maybe acc (: acc) current)
@@ -73,7 +73,13 @@ foldWrappedDescriptions layout@(_, descOffset) = reverse . flush . foldl step (N
 
     flush (current, acc) = maybe acc (: acc) current
 
-    isSubcommandRow line = firstTwoWordsLoc line == layout
+    isSubcommandRow line =
+      getIndentation line == nameOffset
+        && length line > descOffset
+        && validSubcommandNameCell (trim $ take descOffset line)
+        && (not . null . trim $ drop descOffset line)
+        && removeJunkLine line
+        && removeJunkDashLine line
 
     isContinuation line =
       case trim line of
@@ -107,16 +113,33 @@ subcommandWord = do
   _ <- char '*' <++ pure '*'
   return (x : xs)
 
+subcommandNames :: ReadP (String, [String])
+subcommandNames = do
+  name <- subcommandWord
+  aliases <- many alias
+  return (name, aliases)
+  where
+    alias = do
+      skipSpaces
+      _ <- char ','
+      skipSpaces
+      subcommandWord
+
+validSubcommandNameCell :: String -> Bool
+validSubcommandNameCell s =
+  any (const True) $
+    readP_to_S (subcommandNames <* skipSpaces <* eof) s
+
 subcommand :: ReadP Subcommand
 subcommand = do
   skipSpaces
-  name <- subcommandWord
+  (name, aliases) <- subcommandNames
   _ <- subcommandSep
   ss <- sepBy1 word singleSpace
   _ <- munch (== ' ')
   skip newline <++ eof
   let desc = unwords ss
-  return (Subcommand name desc)
+  return (Subcommand name aliases desc)
 
 subcommandSep :: ReadP String
 subcommandSep = colonBased <++ spaceBased
