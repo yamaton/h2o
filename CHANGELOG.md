@@ -1,3 +1,8 @@
+## 0.5.6 (2026-05-21)
+- Support Cobra colon-style subcommand sections, clap repeated flag ellipses, and wrapped argparse descriptions that begin with hyphenated text.
+- Add framework fixture coverage and JSON smoke tests for clap, Cobra, uv, cargo, fd, and gh help output.
+- Split help parsing internals into focused line, option, and metadata modules.
+
 ## 0.5.5 (2026-05-21)
 - Preserve QIIME/Click status annotations such as `[required]` after type metadata continuations.
 - Improve QIIME/Click parsing for long `Choices(...)` metadata blocks before descriptions.
