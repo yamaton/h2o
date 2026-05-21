@@ -1,10 +1,9 @@
 module Test.FrameworkFixtureTests (tests) where
 
-import qualified Data.List as List
 import Layout (parseBlockwise)
 import Subcommand (parseSubcommand)
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@?=))
+import Test.Tasty.HUnit (assertFailure, testCase, (@?=))
 import Type (Opt (..), OptName (..), Subcommand (..))
 
 tests :: TestTree
@@ -54,8 +53,12 @@ argparseFixtures =
     "argparse"
     [ testCase "python json.tool parses wrapped option descriptions" $ do
         opts <- parseBlockwise <$> readFile "test/fixtures/frameworks/argparse-json-tool-help.txt"
-        assertOptDescContains opts "--json-lines" "JSON Lines format"
-        assertOptDescContains opts "--json-lines" "valid JSON Lines output"
+        assertOpt
+          opts
+          "--json-lines"
+          ["--json-lines"]
+          ""
+          "parse input using the JSON Lines format. Use with --no-indent or --compact to produce valid JSON Lines output."
         assertOpt
           opts
           "--indent"
@@ -123,13 +126,6 @@ assertOpt opts target expectedNames expectedArg expectedDesc =
     optNames opt @?= expectedNames
     optArg opt @?= expectedArg
     optDesc opt @?= expectedDesc
-
-assertOptDescContains :: [Opt] -> String -> String -> IO ()
-assertOptDescContains opts target needle =
-  withOpt opts target $ \opt ->
-    assertBool
-      (target ++ " description should contain " ++ show needle ++ ": " ++ optDesc opt)
-      (needle `List.isInfixOf` optDesc opt)
 
 withOpt :: [Opt] -> String -> (Opt -> IO ()) -> IO ()
 withOpt opts target action =

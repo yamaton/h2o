@@ -9,7 +9,3 @@ command versions in CI.
 - `argparse-json-tool-help.txt`: Python `json.tool` argparse help style.
 - `clap-uv-help.txt`: uv-style clap help with command and option sections.
 - `clap-cargo-help.txt`: cargo-style clap help with command aliases.
-
-Known follow-up: the argparse fixture includes a hyphenated wrap
-(`--no-` + `indent`) that the current parser normalizes as `--noindent`.
-The fixture test avoids locking that exact bug as expected behavior.

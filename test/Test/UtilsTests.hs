@@ -106,6 +106,10 @@ tests =
         splitsAt "0123456789" [0] @?= ["0123456789"],
       testCase "splitsAt \"0123456789\" [] == [\"0123456789\"]" $
         splitsAt "0123456789" [] @?= ["0123456789"],
+      testCase "smartUnwords removes soft hyphenation" $
+        Utils.smartUnwords ["git-", "status"] @?= "gitstatus",
+      testCase "smartUnwords preserves wrapped option fragments" $
+        Utils.smartUnwords ["Use with --no-", "indent or --compact"] @?= "Use with --no-indent or --compact",
       testCase "truncateAfterPeriod 1" $
         GenFish.truncateAfterPeriod "hello, i.e. good bye!" @?= "hello, i.e. good bye!",
       testCase "truncateAfterPeriod 2" $

@@ -115,7 +115,9 @@ traceIf check run x
 -- https://unicode-table.com/en/2010/
 --
 -- [NOTE] `smartUnwords ["git-", "status"]` produces "gitstatus":
--- as it handles soft hyphen logic, NOT hard hyphen logic
+-- as it handles soft hyphen logic. A trailing "--no-" option fragment is
+-- treated as hard hyphenation, because argparse help can wrap option names
+-- inside descriptions.
 smartUnwords :: [String] -> String
 smartUnwords [] = ""
 smartUnwords xs =
@@ -125,12 +127,19 @@ smartUnwords xs =
     f "" acc = acc
     f s "" = s
     f s acc
+      | endsWithHyphen s && endsWithNoOptionFragment s = s ++ acc
+    f s acc
       | length s > 1 && c `elem` hyphens && c2 `List.notElem` (' ' : hyphens) = initS ++ acc
       | otherwise = s ++ (' ' : acc)
       where
         c = last s
         initS = init s
         c2 = last initS
+    endsWithHyphen s = length s > 1 && last s `elem` hyphens
+    endsWithNoOptionFragment s =
+      case words s of
+        [] -> False
+        ws -> "--no-" `List.isPrefixOf` last ws
 
 -- | convert strictly-increasing ints to a list of left-inclusive right-exclusive ranges
 -- toRanges [1,2,3,4,6,9,10] == [(1, 5), (6, 7), (9, 11)]
