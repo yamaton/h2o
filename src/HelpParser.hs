@@ -407,9 +407,28 @@ parseLine s = nubOrd . concat $ results
 parseWithOptPart :: String -> String -> [Opt]
 parseWithOptPart optStr descStr
   | (not . null) res = map ((\(a, b) -> Opt a b descStr) . fst) res
+  | (not . null) resWithoutMetadata = map ((\(a, b) -> Opt a b descStr) . fst) resWithoutMetadata
   | otherwise = trace "🛑🛑🛑🛑🛑 optPart parser failed, using fallback 🛑🛑🛑🛑🛑" $ parseLine (optStr ++ "   " ++ descStr) -- fallback
   where
     res = readP_to_S optPart optStr
+    resWithoutMetadata = readP_to_S optPart (dropTrailingTypeMetadata optStr)
+
+dropTrailingTypeMetadata :: String -> String
+dropTrailingTypeMetadata optStr =
+  case words optStr of
+    optWithArg : rest
+      | Utils.startsWithDash optWithArg
+          && "=" `List.isInfixOf` optWithArg
+          && any looksLikeTrailingTypeMetadata rest ->
+          optWithArg
+    optName' : arg : rest
+      | Utils.startsWithDash optName'
+          && not (Utils.startsWithDash arg)
+          && any looksLikeTrailingTypeMetadata rest ->
+          unwords [optName', arg]
+    _ -> optStr
+  where
+    looksLikeTrailingTypeMetadata s = any (`elem` s) ("[](){},|" :: String)
 
 preprocessAllFallback :: String -> [(String, String)]
 preprocessAllFallback "" = []

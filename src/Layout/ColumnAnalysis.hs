@@ -223,10 +223,14 @@ descOffsetWithCountInNonoptLines lineIdxBase s optLocs
   | null offsetOverlaps = (res, [])
   | otherwise = (res, optLocsRemoved)
   where
+    xs = lines s
+    typeMetadataRows = Set.fromList $ getTypeMetadataRowsAfterOptions xs optLocs
     descLocs =
       Utils.infoShowCoords "Description locations:" lineIdxBase $
-        takeHangingDesc lineIdxBase optLocs $
-          getNonoptLocations s
+        nubSort $
+          getTypeAwareDescriptionLocations xs optLocs
+            ++ takeHangingDesc lineIdxBase optLocs
+              (filter (\(row, _) -> row `Set.notMember` typeMetadataRows) (getNonoptLocations s))
     (_, descOffsets) = unzip descLocs
     (optLines, optOffsets) = unzip optLocs
     offsetOverlaps = Set.toList $ Set.intersection (Set.fromList optOffsets) (Set.fromList descOffsets)
@@ -365,6 +369,99 @@ isWordStartingAt offset x =
   where
     (before, after) = splitAt offset x
 
+-- | QIIME/Click can wrap rich type information between the option name and
+-- the real description:
+--
+-- @
+--   --i-sequences ARTIFACT FeatureData[Sequence]¹ |
+--     FeatureData[ProteinSequence]²
+--                           The sequences to be aligned.
+--   --p-maxiterate INTEGER  Specifies how many iterative refinement cycles are
+--     Range(0, None)        performed after the initial progressive alignment.
+-- @
+--
+-- The completion only needs the placeholder argument (ARTIFACT, INTEGER,
+-- TEXT, ...), while the bracketed/ranged metadata should neither become the
+-- description offset nor be emitted as description text.
+looksLikeTypeMetadata :: String -> Bool
+looksLikeTypeMetadata s =
+  not (null ws)
+    && length ws <= 2
+    && not (Utils.startsWithDash trimmed)
+    && any (`elem` trimmed) ("[](){}'\",|" :: String)
+    && last trimmed /= '.'
+  where
+    trimmed = trim s
+    ws = words trimmed
+
+metadataDescriptionOffset :: String -> Maybe Int
+metadataDescriptionOffset line =
+  Maybe.listToMaybe
+    [ end
+    | (start, end) <- spaceRuns line
+    , end < length line
+    , let prefix = trim (take start line)
+    , looksLikeTypeMetadata prefix
+    , not (null (trim (drop end line)))
+    ]
+  where
+    spaceRuns x =
+      [ (start, end)
+      | start <- [0 .. length x - 1]
+      , x !! start == ' '
+      , start == 0 || x !! (start - 1) /= ' '
+      , let end = start + length (takeWhile (== ' ') (drop start x))
+      , end - start >= 3
+      ]
+
+isMetadataDescriptionLine :: Int -> String -> Bool
+isMetadataDescriptionLine offset line = metadataDescriptionOffset line == Just offset
+
+isMetadataOnlyLine :: String -> Bool
+isMetadataOnlyLine line = looksLikeTypeMetadata line && Maybe.isNothing (metadataDescriptionOffset line)
+
+isTypeMetadataLine :: String -> Bool
+isTypeMetadataLine line =
+  isMetadataOnlyLine line || Maybe.isJust (metadataDescriptionOffset line)
+
+getTypeMetadataRowsAfterOptions :: [String] -> [Location] -> [Int]
+getTypeMetadataRowsAfterOptions xs optLocs = concatMap rowsAfterOpt optLocs
+  where
+    optLinesSet = Set.fromList (map fst optLocs)
+
+    rowsAfterOpt (row, optIndent) = go (row + 1)
+      where
+        go idx
+          | idx >= length xs = []
+          | idx `Set.member` optLinesSet = []
+          | null (trim line) = []
+          | indentation <= optIndent = []
+          | isTypeMetadataLine line = idx : go (idx + 1)
+          | otherwise = []
+          where
+            line = xs !! idx
+            indentation = length (takeWhile (== ' ') line)
+
+getTypeAwareDescriptionLocations :: [String] -> [Location] -> [Location]
+getTypeAwareDescriptionLocations xs optLocs = concatMap descLocsAfterOpt optLocs
+  where
+    optLinesSet = Set.fromList (map fst optLocs)
+
+    descLocsAfterOpt (row, optIndent) = go False (row + 1)
+      where
+        go seenMetadata idx
+          | idx >= length xs = []
+          | idx `Set.member` optLinesSet = []
+          | null (trim line) = []
+          | indentation <= optIndent = []
+          | Just offset <- metadataDescriptionOffset line = (idx, offset) : go True (idx + 1)
+          | isMetadataOnlyLine line = go True (idx + 1)
+          | seenMetadata && indentation >= optIndent + 6 = (idx, indentation) : go True (idx + 1)
+          | otherwise = []
+          where
+            line = xs !! idx
+            indentation = length (takeWhile (== ' ') line)
+
 splitAfter :: Int -> String -> (String, String)
 splitAfter offset x
   | null found = (x, "")
@@ -436,12 +533,24 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
       Utils.infoShowIndices
         "descLinesWithoutOptions:"
         lineIdxBase
-        [idx | (idx, x) <- zip [0 ..] xs, isWordStartingWithIndentation descOffset x, idx `Set.notMember` optLinesSet]
+        [ idx
+        | (idx, x) <- zip [0 ..] xs
+        , idx `Set.notMember` optLinesSet
+        , isDescriptionLineWithoutOption idx x
+        ]
     linewidths = map (length . (xs !!)) descLinesWithoutOptions
     descLineWidthTop10Percentile =
       infoMsg "Description line width (90th percentile):" $
         Maybe.fromMaybe 80 (Utils.topTenPercentile linewidths)
     descLinesWithoutOptionsSet = Set.fromList descLinesWithoutOptions
+
+    isDescriptionLineWithoutOption idx line =
+      isWordStartingWithIndentation descOffset line
+        || isMetadataDescriptionLine descOffset line
+        || ( idx > 0
+               && (idx - 1) `Set.member` optLinesSet
+               && isMetadataOnlyLine line
+           )
 
     -- The line must be long when description starts at the same line
     -- the option and continues to the next line.
@@ -525,7 +634,7 @@ squashOptionsAndDescriptionsNoOverlap xs offset a b c = (opt, desc)
   where
     optLines = map (trim . (xs !!)) $ take (b - a) [a, a + 1 ..]
     opt = List.intercalate "," optLines
-    descLines = map (snd . splitAfter offset . (xs !!)) $ take (c - b) [b, b + 1 ..]
+    descLines = map (descriptionSegment offset . (xs !!)) $ take (c - b) [b, b + 1 ..]
     desc = unlines descLines
 
 squashOptionsAndDescriptionsOverlap :: [String] -> Int -> Int -> Int -> Int -> (String, String)
@@ -534,8 +643,15 @@ squashOptionsAndDescriptionsOverlap xs offset a b c = (opt, desc)
     optLines = map (xs !!) $ take (b - a) [a, a + 1 ..]
     optLinesLastTruncated = map trim (init optLines ++ [(fst . splitAfter offset . last) optLines])
     opt = List.intercalate "," optLinesLastTruncated
-    descLines = map (snd . splitAfter offset . (xs !!)) $ take (c - b + 1) [b - 1, b ..]
+    descLines = map (descriptionSegment offset . (xs !!)) $ take (c - b + 1) [b - 1, b ..]
     desc = unlines descLines
+
+descriptionSegment :: Int -> String -> String
+descriptionSegment offset line
+  | isWordStartingWithIndentation offset line = snd (splitAt offset line)
+  | isMetadataDescriptionLine offset line = snd (splitAt offset line)
+  | isMetadataOnlyLine line = ""
+  | otherwise = snd (splitAfter offset line)
 
 oneliners :: [String] -> Int -> Int -> Int -> [(String, String)]
 oneliners xs offset a b =
