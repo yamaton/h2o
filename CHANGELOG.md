@@ -1,3 +1,6 @@
+## 0.5.2 (2026-05-21)
+- Preserve QIIME/Click right-aligned status annotations such as `[required]`, `[optional]`, and `[default: ...]` in option descriptions.
+
 ## 0.5.1 (2026-05-21)
 - Improve QIIME/Click-style subcommand parsing by joining wrapped descriptions.
 - Improve QIIME action option parsing for typed metadata continuations such as `FeatureData[...]`, `Choices(...)`, and `Range(...)`.
