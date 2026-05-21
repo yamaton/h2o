@@ -56,7 +56,13 @@ layoutTests =
       testCase "parseBlockwise ignores right-aligned status when estimating option-line offset" $
         let parsed = Layout.parseBlockwise qiimeCacheStore
          in findOpt "--key" parsed
-              @?= Just (Opt [OptName "--key" LongType] "TEXT" "The key to save the artifact under (must be a valid Python identifier). [required]")
+              @?= Just (Opt [OptName "--key" LongType] "TEXT" "The key to save the artifact under (must be a valid Python identifier). [required]"),
+      testCase "parseBlockwise keeps QIIME single-space inline descriptions" $
+        let parsed = Layout.parseBlockwise qiimeCutadaptDemuxPaired
+         in map (`findOpt` parsed) ["--p-forward-cut", "--p-reverse-cut"]
+              @?= [ Just (Opt [OptName "--p-forward-cut" LongType] "INTEGER" qiimeForwardCutDescription),
+                    Just (Opt [OptName "--p-reverse-cut" LongType] "INTEGER" qiimeReverseCutDescription)
+                  ]
     ]
   where
     qiimeTypedOptions =
@@ -179,6 +185,46 @@ layoutTests =
           "                        Python identifier).                         [required]",
           "  --help                Show this message and exit."
         ]
+    qiimeCutadaptDemuxPaired =
+      unlines
+        [ "Parameters:",
+          "  --p-forward-cut INTEGER Remove the specified number of bases from the",
+          "                          forward sequences. Bases are removed before",
+          "                          demultiplexing. If a positive value is provided,",
+          "                          bases are removed from the beginning of the",
+          "                          sequences. If a negative value is provided, bases",
+          "                          are removed from the end of the sequences. If",
+          "                          --p-mixed-orientation is set, then both",
+          "                          --p-forward-cut and --p-reverse-cut must be set to",
+          "                          the same value.                         [default: 0]",
+          "  --p-reverse-cut INTEGER Remove the specified number of bases from the",
+          "                          reverse sequences. Bases are removed before",
+          "                          demultiplexing. If a positive value is provided,",
+          "                          bases are removed from the beginning of the",
+          "                          sequences. If a negative value is provided, bases",
+          "                          are removed from the end of the sequences. If",
+          "                          --p-mixed-orientation is set, then both",
+          "                          --p-forward-cut and --p-reverse-cut must be set to",
+          "                          the same value.                         [default: 0]",
+          "  --p-anchor-forward-barcode / --p-no-anchor-forward-barcode",
+          "                          Anchor the forward barcode. The barcode is then",
+          "                          expected to occur in full length at the beginning",
+          "                          (5' end) of the forward sequence. Can speed up",
+          "                          demultiplexing if used.             [default: False]",
+          "  --p-anchor-reverse-barcode / --p-no-anchor-reverse-barcode",
+          "                          Anchor the reverse barcode. The barcode is then",
+          "                          expected to occur in full length at the beginning",
+          "                          (5' end) of the reverse sequence. Can speed up",
+          "                          demultiplexing if used.             [default: False]",
+          "  --p-error-rate PROPORTION Range(0, 1, inclusive_end=True)",
+          "                          The level of error tolerance, specified as the",
+          "                          maximum allowable error rate.         [default: 0.1]",
+          "  --p-cores NTHREADS      Number of CPU cores to use.             [default: 1]"
+        ]
+    qiimeForwardCutDescription =
+      "Remove the specified number of bases from the forward sequences. Bases are removed before demultiplexing. If a positive value is provided, bases are removed from the beginning of the sequences. If a negative value is provided, bases are removed from the end of the sequences. If --p-mixed-orientation is set, then both --p-forward-cut and --p-reverse-cut must be set to the same value. [default: 0]"
+    qiimeReverseCutDescription =
+      "Remove the specified number of bases from the reverse sequences. Bases are removed before demultiplexing. If a positive value is provided, bases are removed from the beginning of the sequences. If a negative value is provided, bases are removed from the end of the sequences. If --p-mixed-orientation is set, then both --p-forward-cut and --p-reverse-cut must be set to the same value. [default: 0]"
     findOpt raw opts =
       case [opt | opt@(Opt names _ _) <- opts, any (\name -> _raw name == raw) names] of
         opt : _ -> Just opt

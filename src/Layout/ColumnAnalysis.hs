@@ -72,7 +72,7 @@ module Layout.ColumnAnalysis
 where
 
 import Control.Exception (assert)
-import Data.Char (isAlphaNum)
+import Data.Char (isAlpha, isAlphaNum, isUpper)
 import Data.List (isInfixOf)
 import qualified Data.List as List
 import Data.List.Extra (nubSort, trim, trimEnd)
@@ -386,6 +386,10 @@ isNonDashWordStartingAround margin offset x =
   where
     indices = [offset .. offset + margin]
 
+isNonDashWordStartingAt :: Int -> String -> Bool
+isNonDashWordStartingAt offset x =
+  offset < length x && isWordStartingAt offset x && x !! offset /= '-'
+
 isWordStartingAt :: Int -> String -> Bool
 isWordStartingAt offset x =
   (not . null . trim) before && (not . null . trim) after && hasWordBoundary
@@ -395,6 +399,11 @@ isWordStartingAt offset x =
       case (reverse before, after) of
         (' ' : _, c : _) -> c /= ' '
         _ -> False
+
+isParseableOptPartWithArgument :: String -> Bool
+isParseableOptPartWithArgument s =
+  any (not . null . trim . snd . fst) $
+    readP_to_S HelpParser.optPart (trim s)
 
 -- | QIIME/Click can wrap rich type information between the option name and
 -- the real description:
@@ -423,6 +432,21 @@ looksLikeTypeMetadata s =
       not (null ws)
         && length ws <= 2
         && any (`elem` trimmed) ("[](){}'\",|" :: String)
+
+looksLikeBareTypeMetadata :: String -> Bool
+looksLikeBareTypeMetadata s =
+  not (null ws)
+    && length ws <= 2
+    && any isAllCapsWord ws
+    && all looksLikeBareTypeWord ws
+  where
+    ws = words (trim s)
+    isAllCapsWord word' =
+      any isAlpha word'
+        && all (\c -> not (isAlpha c) || isUpper c) word'
+    looksLikeBareTypeWord word' =
+      any isAlpha word'
+        && all (\c -> isAlphaNum c || c `elem` ("[]_." :: String)) word'
 
 looksLikeChoiceListStart :: String -> Bool
 looksLikeChoiceListStart s =
@@ -639,6 +663,7 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
     isOptionAndDescriptionLine idx
       | not (isOptionLine idx) = False
       | isOptionLineWithOnlyMetadata descOffset x = False
+      | isWordStartingAt descOffset x && looksLikeBareTypeMetadata descSegment = False
       | length xs == idx + 1 = True
       | isOptionLine (idx + 1) =
           -- When both current and the next lines have options
@@ -653,19 +678,26 @@ getOptionDescriptionPairsFromLayout lineIdxBase s
                )
       | otherwise =
           -- When current one has an option, but NOT the next line
-          isSplittingNearly
-            && ( (not . isDescriptionOnly) (idx + 1)
-                   || length x + 6 > descLineWidthTop10Percentile
-                   || hasSpacesAtMiddle x
-                   || isParsedAsOptDescLine x
-                     && length x + 25 > descLineWidthTop10Percentile
-               )
+          ( isSplittingNearly
+              && ( (not . isDescriptionOnly) (idx + 1)
+                     || length x + 6 > descLineWidthTop10Percentile
+                     || hasSpacesAtMiddle x
+                     || isParsedAsOptDescLine x
+                       && length x + 25 > descLineWidthTop10Percentile
+                 )
+          )
+            || hasParseableOptPartBeforeDescription
       where
         x = xs !! idx
         isOptionLine i = i `Set.member` optLinesSet
         isDescriptionOnly i = i `Set.member` descLinesWithoutOptionsSet
         (optSegment, descSegment) = splitAt descOffset x
         isParsedAsOptDescLine = not . null . HelpParser.parseLine
+        hasParseableOptPartBeforeDescription =
+          isDescriptionOnly (idx + 1)
+            && isNonDashWordStartingAt descOffset x
+            && length (words descSegment) >= 3
+            && isParseableOptPartWithArgument optSegment
         hasSpacesAtMiddle = ("   " `isInfixOf`) . trim
         isSplittingNearly = isNonDashWordStartingAround 2 descOffset x
         isSplittingRoughly = isWordStartingAround 8 descOffset x
