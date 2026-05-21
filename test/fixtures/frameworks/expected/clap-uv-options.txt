@@ -1,0 +1,16 @@
+-n
+--no-cache
+--cache-dir
+--managed-python
+--no-managed-python
+-q
+--quiet
+-v
+--verbose
+--color
+--offline
+--project
+-h
+--help
+-V
+--version

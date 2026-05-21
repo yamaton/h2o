@@ -1,0 +1,7 @@
+auth
+run
+init
+tool
+python
+pip
+help

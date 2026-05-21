@@ -1,0 +1,14 @@
+-H
+--hidden
+-I
+--no-ignore
+-u
+--unrestricted
+-x
+--exec
+-X
+--exec-batch
+-h
+--help
+-V
+--version

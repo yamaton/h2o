@@ -1,0 +1,7 @@
+run
+install
+upgrade
+list
+uninstall
+update-shell
+dir

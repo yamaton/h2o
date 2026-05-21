@@ -1,5 +1,6 @@
 module Test.FrameworkFixtureTests (tests) where
 
+import qualified Data.List as List
 import Layout (parseBlockwise)
 import Subcommand (parseSubcommand)
 import Test.Tasty (TestTree, testGroup)
@@ -13,6 +14,8 @@ tests =
     [ cobraFixtures
     , argparseFixtures
     , clapFixtures
+    , expectedNameCoverage
+    , fullSnapshotCoverage
     ]
 
 cobraFixtures :: TestTree
@@ -173,3 +176,128 @@ optArg (Opt _ arg _) = arg
 
 optDesc :: Opt -> String
 optDesc (Opt _ _ desc) = desc
+
+expectedNameCoverage :: TestTree
+expectedNameCoverage =
+  testGroup
+    "expected name coverage"
+    [ assertExpectedSubcommands
+        "gh root subcommands"
+        "test/fixtures/frameworks/cobra-gh-help.txt"
+        "test/fixtures/frameworks/expected/cobra-gh-subcommands.txt"
+    , assertExpectedOptions
+        "gh root options"
+        "test/fixtures/frameworks/cobra-gh-help.txt"
+        "test/fixtures/frameworks/expected/cobra-gh-options.txt"
+    , assertExpectedSubcommands
+        "gh auth subcommands"
+        "test/fixtures/frameworks/cobra-gh-auth-help.txt"
+        "test/fixtures/frameworks/expected/cobra-gh-auth-subcommands.txt"
+    , assertExpectedOptions
+        "gh auth options"
+        "test/fixtures/frameworks/cobra-gh-auth-help.txt"
+        "test/fixtures/frameworks/expected/cobra-gh-auth-options.txt"
+    , assertExpectedSubcommands
+        "uv subcommands"
+        "test/fixtures/frameworks/clap-uv-help.txt"
+        "test/fixtures/frameworks/expected/clap-uv-subcommands.txt"
+    , assertExpectedOptions
+        "uv options"
+        "test/fixtures/frameworks/clap-uv-help.txt"
+        "test/fixtures/frameworks/expected/clap-uv-options.txt"
+    , assertExpectedSubcommands
+        "cargo subcommands and aliases"
+        "test/fixtures/frameworks/clap-cargo-help.txt"
+        "test/fixtures/frameworks/expected/clap-cargo-subcommands.txt"
+    , assertExpectedOptions
+        "cargo options"
+        "test/fixtures/frameworks/clap-cargo-help.txt"
+        "test/fixtures/frameworks/expected/clap-cargo-options.txt"
+    , assertExpectedOptions
+        "fd options"
+        "test/fixtures/frameworks/clap-fd-help.txt"
+        "test/fixtures/frameworks/expected/clap-fd-options.txt"
+    ]
+
+assertExpectedOptions :: String -> FilePath -> FilePath -> TestTree
+assertExpectedOptions label helpPath expectedPath =
+  testCase label $ do
+    content <- readFile helpPath
+    expected <- readExpectedNames expectedPath
+    let actual = List.nub . concatMap optNames $ parseBlockwise content
+    assertContainsAll label expected actual
+
+assertExpectedSubcommands :: String -> FilePath -> FilePath -> TestTree
+assertExpectedSubcommands label helpPath expectedPath =
+  testCase label $ do
+    content <- readFile helpPath
+    expected <- readExpectedNames expectedPath
+    let actual = List.nub . concatMap subcommandNames $ parseSubcommand content
+    assertContainsAll label expected actual
+
+readExpectedNames :: FilePath -> IO [String]
+readExpectedNames path =
+  filter usefulLine . lines <$> readFile path
+  where
+    usefulLine "" = False
+    usefulLine ('#' : _) = False
+    usefulLine _ = True
+
+assertContainsAll :: String -> [String] -> [String] -> IO ()
+assertContainsAll label expected actual =
+  case expected List.\\ actual of
+    [] -> pure ()
+    missing -> assertFailure $ label ++ " missing expected names: " ++ show missing
+
+subcommandNames :: Subcommand -> [String]
+subcommandNames (Subcommand name aliases _) = name : aliases
+
+fullSnapshotCoverage :: TestTree
+fullSnapshotCoverage =
+  testGroup
+    "full snapshot coverage"
+    [ assertExpectedSubcommands
+        "gh full subcommands"
+        "test/fixtures/frameworks/full/gh-2.63.1-help.txt"
+        "test/fixtures/frameworks/expected/full-gh-subcommands.txt"
+    , assertExpectedOptions
+        "gh full options"
+        "test/fixtures/frameworks/full/gh-2.63.1-help.txt"
+        "test/fixtures/frameworks/expected/full-gh-options.txt"
+    , assertExpectedSubcommands
+        "gh auth full subcommands"
+        "test/fixtures/frameworks/full/gh-2.63.1-auth-help.txt"
+        "test/fixtures/frameworks/expected/full-gh-auth-subcommands.txt"
+    , assertExpectedOptions
+        "gh auth full options"
+        "test/fixtures/frameworks/full/gh-2.63.1-auth-help.txt"
+        "test/fixtures/frameworks/expected/full-gh-auth-options.txt"
+    , assertExpectedSubcommands
+        "uv full subcommands"
+        "test/fixtures/frameworks/full/uv-0.11.15-help.txt"
+        "test/fixtures/frameworks/expected/full-uv-subcommands.txt"
+    , assertExpectedOptions
+        "uv full options"
+        "test/fixtures/frameworks/full/uv-0.11.15-help.txt"
+        "test/fixtures/frameworks/expected/full-uv-options.txt"
+    , assertExpectedSubcommands
+        "uv tool full subcommands"
+        "test/fixtures/frameworks/full/uv-0.11.15-tool-help.txt"
+        "test/fixtures/frameworks/expected/full-uv-tool-subcommands.txt"
+    , assertExpectedOptions
+        "uv tool full options"
+        "test/fixtures/frameworks/full/uv-0.11.15-tool-help.txt"
+        "test/fixtures/frameworks/expected/full-uv-tool-options.txt"
+    , assertExpectedSubcommands
+        "cargo full subcommands and aliases"
+        "test/fixtures/frameworks/full/cargo-1.95.0-help.txt"
+        "test/fixtures/frameworks/expected/full-cargo-subcommands.txt"
+    , assertExpectedOptions
+        "cargo full options"
+        "test/fixtures/frameworks/full/cargo-1.95.0-help.txt"
+        "test/fixtures/frameworks/expected/full-cargo-options.txt"
+    , assertExpectedOptions
+        "fd full options"
+        "test/fixtures/frameworks/full/fd-10.4.2-help.txt"
+        "test/fixtures/frameworks/expected/full-fd-options.txt"
+    ]

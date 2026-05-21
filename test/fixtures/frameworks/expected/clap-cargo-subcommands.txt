@@ -1,0 +1,12 @@
+build
+b
+check
+c
+clean
+doc
+d
+run
+r
+test
+t
+help

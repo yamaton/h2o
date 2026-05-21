@@ -1,0 +1,17 @@
+-V
+--version
+--list
+--explain
+-v
+--verbose
+-q
+--quiet
+--color
+-C
+--locked
+--offline
+--frozen
+--config
+-Z
+-h
+--help

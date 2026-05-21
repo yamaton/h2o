@@ -10,3 +10,10 @@ command versions in CI.
 - `clap-uv-help.txt`: uv-style clap help with command and option sections.
 - `clap-cargo-help.txt`: cargo-style clap help with command aliases.
 - `clap-fd-help.txt`: fd 10.4.2-style clap help with repeated flags and repeated command arguments.
+
+The `expected/` files list option names and subcommand names that must be
+present in parsed output for each snapshot. They intentionally check extraction
+coverage without making descriptions golden-sensitive.
+
+The `full/` files are versioned snapshots of locally available CLI help output
+used to catch broad extraction gaps for representative Cobra and clap tools.

@@ -1,0 +1,9 @@
+-V
+--version
+--list
+--explain
+-q
+--quiet
+--color
+-h
+--help

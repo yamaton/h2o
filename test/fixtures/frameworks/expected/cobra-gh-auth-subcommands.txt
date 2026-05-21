@@ -1,0 +1,7 @@
+login
+logout
+refresh
+setup-git
+status
+switch
+token
