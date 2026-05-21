@@ -130,6 +130,26 @@ clapFixtures =
           ["--color"]
           "<WHEN>"
           "Coloring [possible values: auto, always, never]"
+    , testCase "fd help parses clap repeated flags and repeated command arguments" $ do
+        opts <- parseBlockwise <$> readFile "test/fixtures/frameworks/clap-fd-help.txt"
+        assertOpt
+          opts
+          "--unrestricted"
+          ["-u", "--unrestricted"]
+          ""
+          "Perform an unrestricted search, including ignored and hidden files. This is an alias for '--no-ignore --hidden'."
+        assertOpt
+          opts
+          "--exec"
+          ["-x", "--exec"]
+          "<cmd>..."
+          "Execute a command for each search result in parallel (use --threads=1 for sequential command execution). There is no guarantee of the order commands are executed in, and the order should not be depended upon. All positional arguments following --exec are considered to be arguments to the command - not to fd. It is therefore recommended to place the '-x'/'--exec' option last."
+        assertOpt
+          opts
+          "--exec-batch"
+          ["-X", "--exec-batch"]
+          "<cmd>..."
+          "Execute the given command once, with all search results as arguments. The order of the arguments is non-deterministic, and should not be relied upon."
     ]
 
 assertOpt :: [Opt] -> String -> [String] -> String -> String -> IO ()

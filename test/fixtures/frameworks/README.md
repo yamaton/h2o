@@ -9,3 +9,4 @@ command versions in CI.
 - `argparse-json-tool-help.txt`: Python `json.tool` argparse help style.
 - `clap-uv-help.txt`: uv-style clap help with command and option sections.
 - `clap-cargo-help.txt`: cargo-style clap help with command aliases.
+- `clap-fd-help.txt`: fd 10.4.2-style clap help with repeated flags and repeated command arguments.
