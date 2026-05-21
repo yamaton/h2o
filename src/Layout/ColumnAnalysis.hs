@@ -75,7 +75,7 @@ import Control.Exception (assert)
 import Data.Char (isAlphaNum)
 import Data.List (isInfixOf)
 import qualified Data.List as List
-import Data.List.Extra (breakOnEnd, nubSort, trim, trimEnd)
+import Data.List.Extra (nubSort, trim, trimEnd)
 import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified HelpParser
@@ -326,17 +326,27 @@ descOffsetWithCountInOptionLines :: Int -> String -> [Location] -> Maybe (Int, I
 descOffsetWithCountInOptionLines _ s optLocs =
   infoMsg "Description offset (from option lines):" res
   where
-    -- Hardcoded 3-space separator: most CLI tools use at least 3 spaces
-    -- between options and descriptions. Single/double spaces appear within
-    -- option arguments (e.g., "-o FILE"), so 3+ spaces is a reliable boundary.
-    sep = "   "
     xs = lines s
     optLines = map ((xs !!) . fst) optLocs
-    xss = map (fst . breakOnEnd sep . trimEnd) optLines
+    xss = Maybe.mapMaybe optionLineDescriptionPrefix optLines
     res =
       getMostFrequentWithCount $
-        map length $
-          filter (not . null . trim) xss
+        map length xss
+
+optionLineDescriptionPrefix :: String -> Maybe String
+optionLineDescriptionPrefix line =
+  Maybe.listToMaybe $
+    reverse
+      [ take end trimmedLine
+      | (start, end) <- spaceRuns trimmedLine
+      , end < length trimmedLine
+      , not (null (trim (take start trimmedLine)))
+      , let suffix = trim (drop end trimmedLine)
+      , not (null suffix)
+      , not (isStatusAnnotationLine suffix)
+      ]
+  where
+    trimmedLine = trimEnd line
 
 --------------------------------------------------------------------------------
 -- String Inspection Helpers
@@ -452,15 +462,16 @@ metadataDescriptionOffset line =
     , looksLikeTypeMetadata prefix
     , not (null (trim (drop end line)))
     ]
-  where
-    spaceRuns x =
-      [ (start, end)
-      | start <- [0 .. length x - 1]
-      , x !! start == ' '
-      , start == 0 || x !! (start - 1) /= ' '
-      , let end = start + length (takeWhile (== ' ') (drop start x))
-      , end - start >= 3
-      ]
+
+spaceRuns :: String -> [(Int, Int)]
+spaceRuns x =
+  [ (start, end)
+  | start <- [0 .. length x - 1]
+  , x !! start == ' '
+  , start == 0 || x !! (start - 1) /= ' '
+  , let end = start + length (takeWhile (== ' ') (drop start x))
+  , end - start >= 3
+  ]
 
 isMetadataDescriptionLine :: Int -> String -> Bool
 isMetadataDescriptionLine offset line = metadataDescriptionOffset line == Just offset

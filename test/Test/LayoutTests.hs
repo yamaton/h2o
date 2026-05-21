@@ -52,7 +52,11 @@ layoutTests =
               @?= [ Just (Opt [OptName "--p-alpha-metrics" LongType] "TEXT..." "[default: ['pielou_e', 'observed_features', 'shannon']]"),
                     Just (Opt [OptName "--p-beta-metrics" LongType] "TEXT..." "[default: ['braycurtis', 'jaccard']]"),
                     Just (Opt [OptName "--p-random-seed" LongType] "INTEGER" "[optional]")
-                  ]
+                  ],
+      testCase "parseBlockwise ignores right-aligned status when estimating option-line offset" $
+        let parsed = Layout.parseBlockwise qiimeCacheStore
+         in findOpt "--key" parsed
+              @?= Just (Opt [OptName "--key" LongType] "TEXT" "The key to save the artifact under (must be a valid Python identifier). [required]")
     ]
   where
     qiimeTypedOptions =
@@ -165,6 +169,15 @@ layoutTests =
           "    'sqeuclidean', 'yule')",
           "                                          [default: ['braycurtis', 'jaccard']]",
           "  --p-random-seed INTEGER                                           [optional]"
+        ]
+    qiimeCacheStore =
+      unlines
+        [ "Options:",
+          "  --cache DIRECTORY     Path to an existing cache to save into.     [required]",
+          "  --artifact-path FILE  Path to a .qza to save into the cache.      [required]",
+          "  --key TEXT            The key to save the artifact under (must be a valid",
+          "                        Python identifier).                         [required]",
+          "  --help                Show this message and exit."
         ]
     findOpt raw opts =
       case [opt | opt@(Opt names _ _) <- opts, any (\name -> _raw name == raw) names] of
