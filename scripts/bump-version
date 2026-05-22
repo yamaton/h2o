@@ -11,7 +11,8 @@ Example:
   scripts/bump-version 0.5.6 "Improve QIIME option parsing."
 
 This script updates package.yaml, prepends a CHANGELOG.md section, regenerates
-h2o.cabal through Stack/hpack, and verifies the resulting binary version.
+h2o.cabal through Stack/hpack, verifies the resulting binary version, commits
+the release bump, and creates an annotated release tag.
 EOF
 }
 
@@ -32,6 +33,7 @@ fi
 
 new_version="$1"
 shift
+tag_name="v$new_version"
 
 [[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ||
     die "VERSION must be MAJOR.MINOR.PATCH, got '$new_version'"
@@ -54,6 +56,10 @@ current_version="$(
 [[ -n "$current_version" ]] || die "could not read current version from package.yaml"
 [[ "$current_version" != "$new_version" ]] ||
     die "package.yaml is already at version $new_version"
+
+if git rev-parse -q --verify "refs/tags/$tag_name" >/dev/null; then
+    die "tag $tag_name already exists"
+fi
 
 if grep -qE "^## ${new_version//./\\.} " CHANGELOG.md; then
     die "CHANGELOG.md already contains an entry for $new_version"
@@ -89,6 +95,10 @@ reported_version="$(stack exec h2o -- --version)"
 
 git diff --check
 
+git add package.yaml h2o.cabal CHANGELOG.md
+git commit -m "Bump version to $new_version"
+git tag -a "$tag_name" -m "Release $new_version"
+
 cat <<EOF
 Bumped h2o from $current_version to $new_version.
 
@@ -98,6 +108,5 @@ Updated:
   CHANGELOG.md
 
 Next:
-  git add package.yaml h2o.cabal CHANGELOG.md
-  git commit -m "Bump version to $new_version"
+  git push origin main $tag_name
 EOF
