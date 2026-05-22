@@ -1,3 +1,8 @@
+## 0.5.7 (2026-05-22)
+- Abort recursive subcommand scans when the subprocess budget is exhausted instead of emitting incomplete specs.
+- Raise the default recursive subprocess budget to 1000 and expose --subprocess-budget for large command trees.
+- Have scripts/bump-version create the release commit and v-prefixed annotated tag.
+
 ## 0.5.6 (2026-05-21)
 - Support Cobra colon-style subcommand sections, clap repeated flag ellipses, and wrapped argparse descriptions that begin with hyphenated text.
 - Add framework fixture coverage and JSON smoke tests for clap, Cobra, uv, cargo, fd, and gh help output.
