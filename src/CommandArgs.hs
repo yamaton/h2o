@@ -28,12 +28,16 @@ data Config = Config
     _isListingSubcommands :: Bool,
     _isPreprocessOnly :: Bool,
     _depth :: Int,
+    _subprocessBudget :: Int,
     _verbose :: Bool
   }
 
 data ConfigOrVersion = Version | C_ Config
 
 data OutputFormat = Bash | Zsh | Fish | Json | Native deriving (Eq, Show)
+
+defaultSubprocessBudget :: Int
+defaultSubprocessBudget = 1000
 
 toOutputFormat :: String -> OutputFormat
 toOutputFormat s
@@ -150,6 +154,14 @@ config =
                   <> showDefault
                   <> value 4
                   <> help "Maximum subcommand nesting depth to scan."
+              )
+            <*> option
+              auto
+              ( long "subprocess-budget"
+                  <> metavar "<n>"
+                  <> showDefault
+                  <> value defaultSubprocessBudget
+                  <> help "Maximum help/man subprocesses during recursive subcommand scanning."
               )
             <*> switch
               ( long "verbose"

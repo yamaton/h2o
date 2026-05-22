@@ -1,6 +1,6 @@
 module Test.GoldenTests (tests) where
 
-import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat (..))
+import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat (..), defaultSubprocessBudget)
 import qualified Data.ByteString.Lazy.Char8 as BSL
 import qualified Data.Text as T
 import Io (getInputContent, pageToCommandSimple, run, toScript)
@@ -74,7 +74,7 @@ integratedGoldenTestsCommandInput =
     (map toTestTree commands)
   where
     commands = ["h2o", "mockcmd"]
-    conf name = C_ (Config (CommandInput name True) Native False False False 4 False)
+    conf name = C_ (Config (CommandInput name True) Native False False False 4 defaultSubprocessBudget False)
     runWithCommand name = toLazyByteString <$> run (conf name)
     toTestTree name =
       goldenVsString
@@ -103,7 +103,7 @@ integratedGoldenTestsFileInput =
     outputFiles = [printf "test/golden/%s.txt" name | name <- commandNames]
     triples = zip3 commandNames inputFiles outputFiles
 
-    conf filepath = C_ (Config (FileInput filepath True) Native False False False 4 False)
+    conf filepath = C_ (Config (FileInput filepath True) Native False False False 4 defaultSubprocessBudget False)
     runWithCommand filepath = toLazyByteString <$> run (conf filepath)
     toTestTree (_, inputFile, outputFile) =
       goldenVsString
@@ -128,7 +128,7 @@ integratedGoldenTestsJsonInput =
     outputFiles = [printf "test/golden/%s-output.txt" name | name <- commandNames]
     triples = zip3 commandNames inputFiles outputFiles
 
-    conf filepath = C_ (Config (JsonInput filepath) Native False False False 4 False)
+    conf filepath = C_ (Config (JsonInput filepath) Native False False False 4 defaultSubprocessBudget False)
     runWithCommand filepath = toLazyByteString <$> run (conf filepath)
     toTestTree (_, inputFile, outputFile) =
       goldenVsString

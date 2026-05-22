@@ -9,7 +9,8 @@ h2o (
       ((-c|--command <name>) | (-f|--file <path>) | 
         (-s|--subcommand <cmd-sub>) | --loadjson <path>) [--skip-man] 
       [--format {bash|zsh|fish|json|native}] [--json] 
-      [--list-subcommands] [--debug] [--depth <n>] [-v|--verbose] |
+      [--list-subcommands] [--debug] [--depth <n>] 
+      [--subprocess-budget <n>] [-v|--verbose] |
       --version)
 
 
@@ -42,6 +43,9 @@ Show preprocessed text without parsing (for debugging).
 
 (h2o) --depth  ::  <n>
 Maximum subcommand nesting depth to scan. (default: 4)
+
+(h2o) --subprocess-budget  ::  <n>
+Maximum help/man subprocesses during recursive subcommand scanning. (default: 1000)
 
 (h2o) -v --verbose  ::  
 Show parser diagnostics.

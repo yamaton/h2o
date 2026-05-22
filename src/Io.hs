@@ -4,7 +4,7 @@
 
 module Io where
 
-import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat (..))
+import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat (..), defaultSubprocessBudget)
 import Control.Exception (throwIO)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as BSL
@@ -39,10 +39,10 @@ run :: ConfigOrVersion -> IO Text
 -- Just return version
 run Version = return (T.concat ["h2o ", Version.versionStr, "\n"])
 -- Or, do some utility work
-run (C_ (Config input _ isExportingJSON isListingSubcommands isPreprocessOnly depth _))
+run (C_ (Config input _ isExportingJSON isListingSubcommands isPreprocessOnly depth subprocessLimit _))
   | isExportingJSON =
       Utils.warnTrace "Deprecated: --json flag. Use --format json instead" $
-        run (C_ (Config input Json False False False depth False))
+        run (C_ (Config input Json False False False depth subprocessLimit False))
   | isListingSubcommands =
       Utils.infoTrace "Listing subcommands..." $
         T.unlines <$> listSubcommandsIO input
@@ -53,26 +53,26 @@ run (C_ (Config input _ isExportingJSON isListingSubcommands isPreprocessOnly de
     formatStringPairs = unlines . map (\(a, b) -> unlines [a, b])
 
 -- Or, process the input file in text
-run (C_ (Config input@(FileInput f skipMan) format _ _ _ depth _)) =
-  toScript format <$> (pageToCommandIO name skipMan depth False =<< contentIO)
+run (C_ (Config input@(FileInput f skipMan) format _ _ _ depth subprocessLimit _)) =
+  toScript format <$> (pageToCommandIO name skipMan depth subprocessLimit False =<< contentIO)
   where
     name = takeBaseName f
     contentIO = getInputContent input
 
 -- Or, process with command name
-run (C_ (Config input@(CommandInput name skipMan) format _ _ _ depth _)) =
-  toScript format <$> (pageToCommandIO name skipMan depth True =<< contentIO)
+run (C_ (Config input@(CommandInput name skipMan) format _ _ _ depth subprocessLimit _)) =
+  toScript format <$> (pageToCommandIO name skipMan depth subprocessLimit True =<< contentIO)
   where
     contentIO = getInputContent input
 
 -- Or, process with command name AND subcommand name
-run (C_ (Config input@(SubcommandInput name subname _) format _ _ _ _ _)) =
+run (C_ (Config input@(SubcommandInput name subname _) format _ _ _ _ _ _)) =
   toScript format <$> (pageToCommandSimple nameSubname True =<< getInputContent input)
   where
     nameSubname = name ++ "-" ++ subname
 
 -- Or, load Command from JSON
-run (C_ (Config (JsonInput f) format _ _ _ _ _)) = do
+run (C_ (Config (JsonInput f) format _ _ _ _ _ _)) = do
   content <- BSL.readFile f
   case Aeson.eitherDecode content :: Either String Command of
     Left err -> throwIO (JsonDecodeFailed f err)
@@ -139,14 +139,6 @@ toNativeTextRec path cmd@(Command name _ desc usage _ subCmds _) =
     subcommandsText = toSubcommandsText currentPath subCmds
     rest = concatMap (toNativeTextRec currentPath) subCmds
 
--- | Maximum total help/man invocations during a single recursive scan.
--- Bounds the depth × branching-factor fan-out so a deeply nested or noisy
--- CLI cannot spawn thousands of subprocesses. Realistic CLIs (docker,
--- kubectl, even most gcloud roots) fit comfortably; pathological cases
--- get truncated with a warning rather than locking h2o for hours.
-subprocessBudget :: Int
-subprocessBudget = 500
-
 -- | Maximum subcommand candidates considered at any single recursion level.
 -- Acts as a noise filter: when the parser overestimates how many
 -- subcommands a help text contains, we cap the explosion at one level
@@ -162,14 +154,14 @@ maxSubcandidatesPerLevel = 100
 --     populate the 'Command._version' field. Set 'False' for inputs where
 --     the command is not installed (file / JSON input); the lookup would
 --     fail anyway and each failed invocation costs one slot of
---     'subprocessBudget' and up to 'processTimeoutMicros' of wall time.
+--     the subprocess budget and up to 'processTimeoutMicros' of wall time.
 -- `content` is the top-level text to be scanned.
-pageToCommandIO :: String -> Bool -> Int -> Bool -> String -> IO Command
-pageToCommandIO name skipMan depth fetchVersion content = do
+pageToCommandIO :: String -> Bool -> Int -> Int -> Bool -> String -> IO Command
+pageToCommandIO name skipMan depth subprocessLimit fetchVersion content = do
   isManAvailable <- isManAvailableIO name
   let useMan = not skipMan && isManAvailable
-  budget <- newIORef subprocessBudget
-  (cmd, status) <- getCommandRec budget depth useMan [name] [] name "placeholder" content
+  budget <- newIORef subprocessLimit
+  (cmd, status) <- getCommandRec budget subprocessLimit depth useMan [name] [] name "placeholder" content
   let isSuccess =
         (not . null . _options) cmd
           || (not . null . _subcommands) cmd
@@ -186,8 +178,8 @@ pageToCommandIO name skipMan depth fetchVersion content = do
 --
 -- Arguments:
 --   budget is a shared IORef counting remaining subprocess invocations.
---     When it reaches zero, further fetches are skipped (the affected
---     subcommands return as empty Commands and are filtered out).
+--     When it reaches zero, scanning aborts instead of emitting incomplete
+--     output.
 --   extraDepth is the number of extra depths to scan sub-sub..commands. Set 0 to avoid scanning sub-sub commands.
 --   useMan carries information whether man page should be tried first.
 --     When True, each subcommand fetch tries the man page and falls back
@@ -198,15 +190,14 @@ pageToCommandIO name skipMan depth fetchVersion content = do
 --   desc is description of the subcommand obtained from the upper-level source.
 --   upperContent is the text scanned in the upper level. This information is needed because
 --     "foo bar --help" sometimes returns the identical result as "foo --help".
-getCommandRec :: IORef Int -> Int -> Bool -> [String] -> [String] -> String -> Text -> String -> IO (Command, Bool)
-getCommandRec budget extraDepth useMan cmdSeq aliases desc upperContent givenPage = do
+getCommandRec :: IORef Int -> Int -> Int -> Bool -> [String] -> [String] -> String -> Text -> String -> IO (Command, Bool)
+getCommandRec budget budgetLimit extraDepth useMan cmdSeq aliases desc upperContent givenPage = do
   page <-
     if null givenPage
       then do
         remaining <- readIORef budget
         if remaining <= 0
-          then return $
-            Utils.warnTrace ("Subprocess budget exhausted; skipping " ++ unwords cmdSeq) T.empty
+          then throwIO (SubprocessBudgetExhausted (unwords cmdSeq) budgetLimit)
           else do
             modifyIORef' budget (subtract 1)
             normalizeInputText <$> readFunc cmdSeq
@@ -220,7 +211,7 @@ getCommandRec budget extraDepth useMan cmdSeq aliases desc upperContent givenPag
   let subCommandCandidsM =
         mapM
           ( \(Subcommand name subAliases subDesc) ->
-              getCommandRec budget (extraDepth - 1) useMan (cmdSeq ++ [name]) subAliases subDesc page ""
+              getCommandRec budget budgetLimit (extraDepth - 1) useMan (cmdSeq ++ [name]) subAliases subDesc page ""
           )
           ( filter
               (\(Subcommand name _ _) -> null cmdSeq || (last cmdSeq /= name))
@@ -261,7 +252,7 @@ pageToCommandSimple name fetchVersion content =
       | otherwise    = return . Postprocess.fixOpts
 
 listSubcommandsIO :: Input -> IO [Text]
-listSubcommandsIO input = getSubnames <$> (pageToCommandIO name skipMan 1 False =<< getInputContent input)
+listSubcommandsIO input = getSubnames <$> (pageToCommandIO name skipMan 1 defaultSubprocessBudget False =<< getInputContent input)
   where
     name = getName input
     skipMan = getSkipMan input

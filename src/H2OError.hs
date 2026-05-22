@@ -27,6 +27,9 @@ data H2OError
   | -- | Help text was fetched but no options, subcommands, or usage
     -- could be recovered. Carries the command name or file label.
     NoExtractableOptions String
+  | -- | Recursive subcommand scanning exhausted the configured process
+    -- budget. Carries the command path being scanned and the budget limit.
+    SubprocessBudgetExhausted String Int
   deriving (Show)
 
 instance Exception H2OError where
@@ -50,3 +53,9 @@ renderH2OError err = case err of
     "Error: Could not extract options from '"
       ++ name
       ++ "'. The help text may have an unsupported format."
+  SubprocessBudgetExhausted name budget ->
+    "Error: Subprocess budget exhausted while scanning '"
+      ++ name
+      ++ "'. h2o stopped to avoid emitting incomplete output. The current limit is "
+      ++ show budget
+      ++ " help/man invocations; try a lower --depth value or a higher --subprocess-budget value."

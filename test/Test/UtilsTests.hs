@@ -294,6 +294,9 @@ tests =
       testCase "renderH2OError preserves aeson error in JsonDecodeFailed" $
         H2OError.renderH2OError (JsonDecodeFailed "x.json" "Error in $: oops")
           @?= "Error: Cannot decode JSON from 'x.json'. Ensure the file contains a valid Command schema.\n  Error in $: oops",
+      testCase "renderH2OError reports subprocess budget exhaustion as incomplete output" $
+        H2OError.renderH2OError (SubprocessBudgetExhausted "qiime kmerizer" 500)
+          @?= "Error: Subprocess budget exhausted while scanning 'qiime kmerizer'. h2o stopped to avoid emitting incomplete output. The current limit is 500 help/man invocations; try a lower --depth value or a higher --subprocess-budget value.",
       testCase "H2OError is catchable via Control.Exception.try" $ do
         result <-
           try (Control.Exception.throwIO (NoExtractableOptions "demo")) ::
