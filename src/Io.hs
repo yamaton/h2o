@@ -256,7 +256,10 @@ listSubcommandsIO input = getSubnames <$> (pageToCommandIO name skipMan 1 defaul
   where
     name = getName input
     skipMan = getSkipMan input
-    getSubnames = map (\(Command n _ _ _ _ _ _) -> T.pack n) . _subcommands
+    getSubnames = map toListedSubcommandText . _subcommands
+
+toListedSubcommandText :: Command -> Text
+toListedSubcommandText = T.pack . show . asSubcommand
 
 getName :: Input -> String
 getName (CommandInput n _) = n

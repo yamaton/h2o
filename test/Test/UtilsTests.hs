@@ -11,6 +11,7 @@ import qualified Data.Text as T
 import qualified GenFishCompletions as GenFish
 import qualified H2OError
 import H2OError (H2OError (..))
+import Io (toListedSubcommandText)
 import qualified Postprocess
 import Subcommand (firstTwoWordsLoc, parseSubcommand)
 import Test.Tasty (TestTree, testGroup)
@@ -110,6 +111,10 @@ tests =
           \  Minimizer k-mer length [15]\n\
           \  Discard chains with chaining score <INT>\n"
           @?= [],
+      testCase "toListedSubcommandText includes aliases" $
+        toListedSubcommandText
+          (Type.Command "build" ["b"] "Compile the current package" "" [] [] "")
+          @?= "build, b                  (Compile the current package)",
       testCase "getMostFrequent [1, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] == Just (-4)" $
         getMostFrequent [1 :: Int, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] @?= Just (-4 :: Int),
       testCase "groupConsecutive [2, 3, 4, 8, 10, 11] == [[2, 3, 4], [8], [10, 11]]" $
