@@ -5,6 +5,7 @@ import Data.Char (toLower, toUpper)
 import qualified Data.List as List
 import Data.List.Extra (trim)
 import qualified Data.Maybe as Maybe
+import qualified Data.Text as T
 import HelpParser (alphanumChars, newline, singleSpace, skip, word)
 import Layout (getDescriptionOffset)
 import Text.ParserCombinators.ReadP
@@ -43,11 +44,25 @@ getAlignedLines s =
     Just lay -> foldWrappedDescriptions lay xs
     _ -> []
   where
-    xs = filter removeJunkDashLine (lines s)
+    normalized = T.unpack . Utils.convertTabsToSpaces 8 . T.pack $ s
+    markedLines = markCommandSections (lines normalized)
+    xs = filter removeJunkDashLine (map snd markedLines)
     offsetMay = getDescriptionOffset (unlines xs)
     offset = infoMsg "Description offset:" $ Maybe.fromMaybe 50 offsetMay
-    ys = filter removeJunkLine (lines s)
+    ys =
+      [ line
+      | (inCommandSection, line) <- markedLines
+      , removeJunkLine line
+      , inCommandSection || hasWideSeparatorAfterFirstToken line
+      ]
     layoutMay = infoMsg "Detected layout:" $ getLayoutMaybe ys offset
+
+markCommandSections :: [String] -> [(Bool, String)]
+markCommandSections = reverse . snd . foldl step (False, [])
+  where
+    step (inCommandSection, acc) line =
+      let inCommandSection' = updateCommandSection inCommandSection line
+       in (inCommandSection', (inCommandSection', line) : acc)
 
 -- | Merge physical continuation lines into the preceding subcommand row.
 --
@@ -78,6 +93,7 @@ foldWrappedDescriptions layout@(nameOffset, descOffset) = reverse . flush . fold
     isSubcommandRow inCommandSection line =
       getIndentation line == nameOffset
         && length line > descOffset
+        && (inCommandSection || hasWideSeparatorBeforeDescription line descOffset)
         && validSubcommandHeaderCell inCommandSection (trim $ take descOffset line)
         && (not . null . trim $ drop descOffset line)
         && removeJunkLine line
@@ -95,6 +111,19 @@ foldWrappedDescriptions layout@(nameOffset, descOffset) = reverse . flush . fold
     appendContinuation line current = current ++ " " ++ trim line
 
     getIndentation = length . takeWhile (== ' ')
+
+hasWideSeparatorAfterFirstToken :: String -> Bool
+hasWideSeparatorAfterFirstToken line =
+  case dropWhile (== ' ') line of
+    "" -> False
+    lineBody ->
+      let (_, rest) = span (/= ' ') lineBody
+          (separator, afterSeparator) = span (== ' ') rest
+       in length separator >= 2 && not (null afterSeparator)
+
+hasWideSeparatorBeforeDescription :: String -> Int -> Bool
+hasWideSeparatorBeforeDescription line descOffset =
+  length (takeWhile (== ' ') . reverse $ take descOffset line) >= 2
 
 updateCommandSection :: Bool -> String -> Bool
 updateCommandSection inCommandSection line

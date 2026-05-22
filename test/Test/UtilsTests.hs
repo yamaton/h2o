@@ -94,6 +94,22 @@ tests =
           \  Note:  This is not a command\n\
           \  Type:  statistics\n"
           @?= [],
+      testCase "parseSubcommand keeps sectionless catalogs with wide separators" $
+        parseSubcommand
+          "Usage: demo <command> [args]\n\
+          \Workflows\n\
+          \  Build              Build project artifacts\n\
+          \  clean              Remove project artifacts\n"
+          @?= [ Type.Subcommand "Build" [] "Build project artifacts",
+                Type.Subcommand "clean" [] "Remove project artifacts"
+              ],
+      testCase "parseSubcommand ignores sectionless prose with single spaces" $
+        parseSubcommand
+          "Usage: demo [OPTIONS] FILE\n\
+          \Options:\n\
+          \  Minimizer k-mer length [15]\n\
+          \  Discard chains with chaining score <INT>\n"
+          @?= [],
       testCase "getMostFrequent [1, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] == Just (-4)" $
         getMostFrequent [1 :: Int, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] @?= Just (-4 :: Int),
       testCase "groupConsecutive [2, 3, 4, 8, 10, 11] == [[2, 3, 4], [8], [10, 11]]" $
