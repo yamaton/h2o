@@ -11,7 +11,7 @@ import qualified Data.Text as T
 import qualified GenFishCompletions as GenFish
 import qualified H2OError
 import H2OError (H2OError (..))
-import Io (toListedSubcommandText)
+import Io (formatSubcommandTree, toListedSubcommandText)
 import qualified Postprocess
 import Subcommand (firstTwoWordsLoc, parseSubcommand)
 import Test.Tasty (TestTree, testGroup)
@@ -115,6 +115,25 @@ tests =
         toListedSubcommandText
           (Type.Command "build" ["b"] "Compile the current package" "" [] [] "")
           @?= "build, b                  (Compile the current package)",
+      testCase "formatSubcommandTree indents nested subcommands" $
+        formatSubcommandTree
+          [ Type.Command
+              "remote"
+              []
+              "Manage remote connections"
+              ""
+              []
+              [ Type.Command "add" [] "Add a new remote" "" [] [] "",
+                Type.Command "remove" [] "Remove a remote" "" [] [] ""
+              ]
+              "",
+            Type.Command "config" [] "Get and set options" "" [] [] ""
+          ]
+          @?= [ "remote                    (Manage remote connections)",
+                "  add                       (Add a new remote)",
+                "  remove                    (Remove a remote)",
+                "config                    (Get and set options)"
+              ],
       testCase "getMostFrequent [1, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] == Just (-4)" $
         getMostFrequent [1 :: Int, -4, 2, 9, 1, -4, -3, 7, -4, -4, 1] @?= Just (-4 :: Int),
       testCase "groupConsecutive [2, 3, 4, 8, 10, 11] == [[2, 3, 4], [8], [10, 11]]" $

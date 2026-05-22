@@ -45,7 +45,7 @@ run (C_ (Config input _ isExportingJSON isListingSubcommands isPreprocessOnly de
         run (C_ (Config input Json False False False depth subprocessLimit False))
   | isListingSubcommands =
       Utils.infoTrace "Listing subcommands..." $
-        T.unlines <$> listSubcommandsIO input
+        T.unlines <$> listSubcommandsIO input depth subprocessLimit
   | isPreprocessOnly =
       Utils.infoTrace "Running preprocessing only (splitting options and descriptions)" $
         T.pack . formatStringPairs . preprocessBlockwise <$> getInputContent input
@@ -251,12 +251,20 @@ pageToCommandSimple name fetchVersion content =
       | fetchVersion = Postprocess.fixCommand
       | otherwise    = return . Postprocess.fixOpts
 
-listSubcommandsIO :: Input -> IO [Text]
-listSubcommandsIO input = getSubnames <$> (pageToCommandIO name skipMan 1 defaultSubprocessBudget False =<< getInputContent input)
+listSubcommandsIO :: Input -> Int -> Int -> IO [Text]
+listSubcommandsIO input depth subprocessLimit =
+  formatSubcommandTree . _subcommands
+    <$> (pageToCommandIO name skipMan depth subprocessLimit False =<< getInputContent input)
   where
     name = getName input
     skipMan = getSkipMan input
-    getSubnames = map toListedSubcommandText . _subcommands
+
+formatSubcommandTree :: [Command] -> [Text]
+formatSubcommandTree = go 0
+  where
+    go level = concatMap (formatOne level)
+    formatOne level cmd@(Command _ _ _ _ _ subcommands _) =
+      (T.replicate level "  " <> toListedSubcommandText cmd) : go (level + 1) subcommands
 
 toListedSubcommandText :: Command -> Text
 toListedSubcommandText = T.pack . show . asSubcommand

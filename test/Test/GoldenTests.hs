@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Test.GoldenTests (tests) where
 
 import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), OutputFormat (..), defaultSubprocessBudget)
@@ -9,7 +11,7 @@ import System.IO (hClose, openBinaryTempFile)
 import Test.Helpers (toLazyByteString)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsString)
-import Test.Tasty.HUnit (assertBool, testCase)
+import Test.Tasty.HUnit (assertBool, testCase, (@?=))
 import Text.Printf (printf)
 
 tests :: TestTree
@@ -20,8 +22,41 @@ tests =
     , integratedGoldenTestsCommandInput
     , integratedGoldenTestsFileInput
     , integratedGoldenTestsJsonInput
+    , listSubcommandsTests
     , fileInputRobustnessTests
     ]
+
+listSubcommandsTests :: TestTree
+listSubcommandsTests =
+  testGroup
+    "--list-subcommands"
+    [ testCase "honors depth 0" $ do
+        assertListSubcommands 0 T.empty
+    , testCase "honors depth 1" $ do
+        assertListSubcommands 1 $
+          T.unlines
+            [ "init                      (Initialize a new project)"
+            , "remote                    (Manage remote connections)"
+            , "config                    (Get and set options)"
+            ]
+    , testCase "honors depth 2 with tree output" $ do
+        assertListSubcommands 2 $
+          T.unlines
+            [ "init                      (Initialize a new project)"
+            , "remote                    (Manage remote connections)"
+            , "  add                       (Add a new remote)"
+            , "  remove                    (Remove a remote)"
+            , "  list                      (List all remotes)"
+            , "config                    (Get and set options)"
+            ]
+    ]
+  where
+    assertListSubcommands depth expected = do
+      actual <- runListSubcommands depth
+      actual @?= expected
+
+    runListSubcommands depth =
+      run (C_ (Config (CommandInput "mockcmd" True) Native False True False depth defaultSubprocessBudget False))
 
 fileInputRobustnessTests :: TestTree
 fileInputRobustnessTests =
