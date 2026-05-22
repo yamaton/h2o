@@ -1,3 +1,6 @@
+## 0.5.8 (2026-05-22)
+- Reduce false-positive subcommand discovery on sectionless help pages.
+
 ## 0.5.7 (2026-05-22)
 - Abort recursive subcommand scans when the subprocess budget is exhausted instead of emitting incomplete specs.
 - Raise the default recursive subprocess budget to 1000 and expose --subprocess-budget for large command trees.
