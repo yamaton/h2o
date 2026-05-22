@@ -4,6 +4,7 @@
 
 module CommandArgs where
 
+import Control.Applicative (optional, (<|>))
 import Data.List.Extra (stripInfix)
 import qualified Data.Text as T
 import Options.Applicative
@@ -11,7 +12,7 @@ import Options.Applicative
 -- | Type of external input to `h2o` command
 -- Bool here corresponds to `--skipMan` i.e.
 -- it obtains texts from help pages if it's True
--- otherwise it searches man pages first then look for help texts.
+-- otherwise it searches man pages first then looks for help texts.
 data Input
   = CommandInput String Bool
   | FileInput FilePath Bool
@@ -86,7 +87,7 @@ commandSource =
       ( long "command"
           <> short 'c'
           <> metavar "<name>"
-          <> help "Parse man page, or --help output if unavailable."
+          <> help "Parse command help output."
       )
 
 fileSource :: Parser InputSource
@@ -113,10 +114,20 @@ inputSourceP = commandSource <|> fileSource <|> subcommandSource <|> jsonSource
 
 skipManSwitch :: Parser Bool
 skipManSwitch =
-  switch
-    ( long "skip-man"
-        <> help "Skip man page lookup, parse --help output directly."
-    )
+  maybe True id <$> optional (useManFlag <|> skipManFlag)
+  where
+    skipManFlag =
+      flag'
+        True
+        ( long "skip-man"
+            <> help "Skip man page lookup and parse --help output directly. This is the default."
+        )
+    useManFlag =
+      flag'
+        False
+        ( long "use-man"
+            <> help "Try man page lookup before falling back to --help output."
+        )
 
 inputP :: Parser Input
 inputP = toInput <$> inputSourceP <*> skipManSwitch

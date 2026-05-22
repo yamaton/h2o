@@ -1,10 +1,10 @@
 # H2O: Help to Options
 
-H2O extracts command-line options from man pages or help text, then generates shell completion scripts (bash, zsh, fish) or JSON output. It first attempts to parse the man page; if unavailable, it falls back to `--help` output. Use `--skip-man` to skip man page lookup.
+H2O extracts command-line options from help text or man pages, then generates shell completion scripts (bash, zsh, fish) or JSON output. By default, it parses `--help` output directly. Use `--use-man` to try man page lookup before falling back to `--help`.
 
 ## Features
 
-- Parses man pages (preferred) or `--help` output to extract flags, options, arguments, and subcommands
+- Parses `--help` output or man pages to extract flags, options, arguments, and subcommands
 - Generates shell completion scripts for **fish**, **zsh**, and **bash**
 - Exports structured CLI information as JSON for tooling integration
 - Handles nested subcommands (e.g., `git remote add`)
@@ -28,7 +28,7 @@ stack install  # Installs to ~/.local/bin
 ### Basic Examples
 
 ```bash
-# Generate fish completion from command's help/man
+# Generate fish completion from command help
 h2o -c grep --format fish > ~/.config/fish/completions/grep.fish
 
 # Generate zsh completion
@@ -63,11 +63,12 @@ h2o --loadjson curl.json --format fish
 
 ```
 Options:
-  -c, --command <name>     Parse man page, or --help output if unavailable
+  -c, --command <name>     Parse command help output
   -f, --file <path>        Parse options from a file containing help output
   -s, --subcommand <cmd-sub>  Parse a specific subcommand, e.g., git-log
   --loadjson <path>        Load command data from a JSON file
-  --skip-man               Skip man page lookup, parse --help output directly
+  --skip-man               Skip man page lookup and parse --help output directly (default)
+  --use-man                Try man page lookup before falling back to --help output
   --format <format>        Output format: bash|zsh|fish|json|native (default: native)
   --json                   Output in JSON (same as --format=json)
   --depth <n>              Maximum subcommand nesting depth to scan (default: 4)

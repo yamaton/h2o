@@ -4,6 +4,7 @@ module Test.UtilsTests (tests) where
 
 import qualified Control.Exception
 import Control.Exception (try)
+import CommandArgs (Config (..), ConfigOrVersion (..), Input (..), configOrVersion)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BSL
 import qualified Data.List as List
@@ -12,6 +13,7 @@ import qualified GenFishCompletions as GenFish
 import qualified H2OError
 import H2OError (H2OError (..))
 import Io (formatSubcommandTree, toListedSubcommandText)
+import Options.Applicative (ParserResult (..), defaultPrefs, execParserPure, info)
 import qualified Postprocess
 import Subcommand (firstTwoWordsLoc, parseSubcommand)
 import Test.Tasty (TestTree, testGroup)
@@ -115,6 +117,12 @@ tests =
         toListedSubcommandText
           (Type.Command "build" ["b"] "Compile the current package" "" [] [] "")
           @?= "build, b                  (Compile the current package)",
+      testCase "command input skips man lookup by default" $
+        parseCommandSkipMan ["--command", "gh"] @?= Right True,
+      testCase "command input can opt into man lookup" $
+        parseCommandSkipMan ["--command", "gh", "--use-man"] @?= Right False,
+      testCase "explicit --skip-man keeps default help lookup" $
+        parseCommandSkipMan ["--command", "gh", "--skip-man"] @?= Right True,
       testCase "formatSubcommandTree indents nested subcommands" $
         formatSubcommandTree
           [ Type.Command
@@ -347,3 +355,11 @@ tests =
             assertFailure ("unexpected H2OError variant: " ++ show other)
           Right _ -> assertFailure "exception was not raised"
     ]
+
+parseCommandSkipMan :: [String] -> Either String Bool
+parseCommandSkipMan args =
+  case execParserPure defaultPrefs (info configOrVersion mempty) args of
+    Success (C_ (Config (CommandInput _ skipMan) _ _ _ _ _ _ _)) -> Right skipMan
+    Success _ -> Left "unexpected input source"
+    Failure _ -> Left "parse failure"
+    CompletionInvoked _ -> Left "completion invoked"

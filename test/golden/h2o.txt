@@ -7,15 +7,15 @@ Desc:  h2o
 Usage:
 h2o (
       ((-c|--command <name>) | (-f|--file <path>) | 
-        (-s|--subcommand <cmd-sub>) | --loadjson <path>) [--skip-man] 
-      [--format {bash|zsh|fish|json|native}] [--json] 
-      [--list-subcommands] [--debug] [--depth <n>] 
+        (-s|--subcommand <cmd-sub>) | --loadjson <path>) 
+      [--use-man | --skip-man] [--format {bash|zsh|fish|json|native}] 
+      [--json] [--list-subcommands] [--debug] [--depth <n>] 
       [--subprocess-budget <n>] [-v|--verbose] |
       --version)
 
 
 (h2o) -c --command  ::  <name>
-Parse man page, or --help output if unavailable.
+Parse command help output.
 
 (h2o) -f --file  ::  <path>
 Parse options from a file containing help output.
@@ -26,8 +26,11 @@ Parse a specific subcommand, e.g., git-log.
 (h2o) --loadjson  ::  <path>
 Load command data from a JSON file.
 
+(h2o) --use-man  ::  
+Try man page lookup before falling back to --help output.
+
 (h2o) --skip-man  ::  
-Skip man page lookup, parse --help output directly.
+Skip man page lookup and parse --help output directly. This is the default.
 
 (h2o) --format  ::  {bash|zsh|fish|json|native}
 Output format for the completion script. (default: "native")
