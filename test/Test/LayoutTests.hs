@@ -88,6 +88,18 @@ layoutTests =
          in map (`findOpt` parsed) ["--p-forward-cut", "--p-reverse-cut"]
               @?= [ Just (Opt [OptName "--p-forward-cut" LongType] "INTEGER" qiimeForwardCutDescription),
                     Just (Opt [OptName "--p-reverse-cut" LongType] "INTEGER" qiimeReverseCutDescription)
+                  ],
+      -- Regression: a short description with a parenthesised default value
+      -- ("Verbose (false)") used to be misclassified as a QIIME-style type
+      -- expression, causing the option line to be excluded from descLines
+      -- and merged with the following option. The discriminator is whether
+      -- the bracket is attached to an identifier (type expression) or
+      -- preceded by a space (default value).
+      testCase "parseBlockwise separates options with Word (default) descriptions" $
+        let parsed = Layout.parseBlockwise jellyfishStatsOptions
+         in map (`findOpt` parsed) ["--verbose", "--output"]
+              @?= [ Just (Opt [OptName "-v" ShortType, OptName "--verbose" LongType] "" "Verbose (false)"),
+                    Just (Opt [OptName "-o" ShortType, OptName "--output" LongType] "string" "Output file")
                   ]
     ]
   where
@@ -306,6 +318,18 @@ layoutTests =
           "                          The level of error tolerance, specified as the",
           "                          maximum allowable error rate.         [default: 0.1]",
           "  --p-cores NTHREADS      Number of CPU cores to use.             [default: 1]"
+        ]
+    jellyfishStatsOptions =
+      unlines
+        [ "Options (default value in (), *required):",
+          " -L, --lower-count=uint64                 Don't consider k-mer with count < lower-count (0)",
+          " -U, --upper-count=uint64                 Don't consider k-mer with count > upper-count (2^64)",
+          " -v, --verbose                            Verbose (false)",
+          " -o, --output=string                      Output file",
+          "     --usage                              Usage",
+          " -h, --help                               This message",
+          "     --full-help                          Detailed help",
+          " -V, --version                            Version"
         ]
     qiimeForwardCutDescription =
       "Remove the specified number of bases from the forward sequences. Bases are removed before demultiplexing. If a positive value is provided, bases are removed from the beginning of the sequences. If a negative value is provided, bases are removed from the end of the sequences. If --p-mixed-orientation is set, then both --p-forward-cut and --p-reverse-cut must be set to the same value. [default: 0]"

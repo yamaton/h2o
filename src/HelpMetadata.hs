@@ -56,7 +56,15 @@ looksLikeTypeMetadata s =
     looksLikeShortTypeMetadata =
       not (null ws)
         && length ws <= 2
-        && any (`elem` trimmed) ("[](){}'\",|" :: String)
+        && hasAttachedTypeBracket trimmed
+    -- A bracket only signals a type expression when it sits directly
+    -- after an identifier character (e.g. Range(...), Choices('a'),
+    -- FeatureData[...]). A space between a word and the bracket means
+    -- we are looking at a default-value parenthetical like
+    -- "Verbose (false)", which is plain description text.
+    hasAttachedTypeBracket s = any opensTypeExpr (zip s (drop 1 s))
+    opensTypeExpr (prev, c) =
+      c `elem` ("[({" :: String) && isAlphaNum prev
     looksLikeQiimeTypeExpression =
       any (`elem` trimmed) ("[]|" :: String)
         && any looksLikeTypeName ws
