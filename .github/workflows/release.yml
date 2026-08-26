@@ -11,6 +11,8 @@ on:
 env:
   GHC_VERSION: "9.8.4"
   STACK_VERSION: "3.9.3"
+  MUSL_BUILD_IMAGE: "docker.io/benz0li/ghc-musl@sha256:423b91446c8c0afbc4a3d08be94f297c3663a7586a29d6b7519e57a37bb3b0cc"
+  ALPINE_TEST_IMAGE: "docker.io/library/alpine:3.24.1@sha256:79ff19e9084a00eece421b2523fb93e22d730e2c0e525905de047e848e56d95f"
 
 permissions:
   contents: read
@@ -121,18 +123,27 @@ jobs:
             target: x86_64-apple-darwin
             archive: tar.gz
             arch_pattern: x86_64
+            build_kind: stack
           - os: macos-15
             target: aarch64-apple-darwin
             archive: tar.gz
             arch_pattern: arm64
+            build_kind: stack
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             archive: tar.gz
             arch_pattern: x86-64
+            build_kind: stack
           - os: ubuntu-22.04-arm
             target: aarch64-unknown-linux-gnu
             archive: tar.gz
             arch_pattern: aarch64
+            build_kind: stack
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-musl
+            archive: tar.gz
+            arch_pattern: x86-64
+            build_kind: musl
 
     name: Build ${{ matrix.target }}
 
@@ -141,6 +152,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup Haskell Stack
+        if: matrix.build_kind == 'stack'
         id: setup-haskell
         uses: haskell-actions/setup@v2
         with:
@@ -151,12 +163,22 @@ jobs:
           stack-version: ${{ env.STACK_VERSION }}
 
       - name: Cache Stack files
+        if: matrix.build_kind == 'stack'
         uses: actions/cache@v6
         with:
           path: ${{ steps.setup-haskell.outputs.stack-root }}
           key: ${{ runner.os }}-${{ runner.arch }}-ghc-${{ env.GHC_VERSION }}-stack-${{ env.STACK_VERSION }}-${{ hashFiles('stack.yaml', 'stack.yaml.lock', 'package.yaml') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-ghc-${{ env.GHC_VERSION }}-stack-${{ env.STACK_VERSION }}-
+
+      - name: Cache musl Stack files
+        if: matrix.build_kind == 'musl'
+        uses: actions/cache@v6
+        with:
+          path: .stack-root-musl
+          key: linux-x64-musl-ghc-${{ env.GHC_VERSION }}-423b91446c8c-${{ hashFiles('stack.yaml', 'stack.yaml.lock', 'package.yaml') }}
+          restore-keys: |
+            linux-x64-musl-ghc-${{ env.GHC_VERSION }}-423b91446c8c-
 
       - name: Install test fixture
         if: matrix.target == 'x86_64-unknown-linux-gnu'
@@ -167,18 +189,39 @@ jobs:
         run: stack test
 
       - name: Build release binary
+        if: matrix.build_kind == 'stack'
         run: stack build --copy-bins
+
+      - name: Build static musl release binary
+        if: matrix.build_kind == 'musl'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p .release-bin-musl .stack-root-musl .stack-work-musl
+          docker run --rm \
+            --env STACK_ROOT=/work/.stack-root-musl \
+            --volume "$GITHUB_WORKSPACE:/work" \
+            --workdir /work \
+            "$MUSL_BUILD_IMAGE" \
+            sh -c "stack --system-ghc --no-install-ghc --work-dir .stack-work-musl build --flag h2o:static-executable --copy-bins --local-bin-path .release-bin-musl"
 
       - name: Verify and package the release binary
         shell: bash
         env:
           ARCH_PATTERN: ${{ matrix.arch_pattern }}
+          BUILD_KIND: ${{ matrix.build_kind }}
           VERSION: ${{ needs.detect-version.outputs.version }}
           TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
 
-          binary="$(stack path --local-bin)/h2o"
+          if [[ "$BUILD_KIND" == "musl" ]]; then
+            binary="$GITHUB_WORKSPACE/.release-bin-musl/h2o"
+          else
+            binary="$(stack path --local-bin)/h2o"
+          fi
+
           reported_version="$("$binary" --version)"
           if [[ "$reported_version" != "h2o $VERSION" ]]; then
             echo "h2o reports '$reported_version', expected 'h2o $VERSION'" >&2
@@ -197,6 +240,11 @@ jobs:
             echo "Binary architecture does not match $ARCH_PATTERN" >&2
             exit 1
           fi
+          if [[ "$BUILD_KIND" == "musl" ]] && ! grep -Eiq 'statically linked' <<< "$binary_description"; then
+            echo "The Alpine binary is not statically linked" >&2
+            exit 1
+          fi
+
           mv "$binary" "h2o-$TARGET"
           chmod +x "h2o-$TARGET"
           tar -czf "h2o-$TARGET.tar.gz" "h2o-$TARGET"
@@ -208,6 +256,17 @@ jobs:
           if [[ "$packaged_version" != "h2o $VERSION" ]]; then
             echo "Packaged h2o reports '$packaged_version', expected 'h2o $VERSION'" >&2
             exit 1
+          fi
+
+          if [[ "$BUILD_KIND" == "musl" ]]; then
+            alpine_version="$(docker run --rm \
+              --volume "$extracted_dir:/release:ro" \
+              "$ALPINE_TEST_IMAGE" \
+              "/release/h2o-$TARGET" --version)"
+            if [[ "$alpine_version" != "h2o $VERSION" ]]; then
+              echo "h2o reports '$alpine_version' on Alpine, expected 'h2o $VERSION'" >&2
+              exit 1
+            fi
           fi
 
           if command -v sha256sum >/dev/null 2>&1; then
@@ -253,8 +312,8 @@ jobs:
 
           archives=(h2o-*.tar.gz)
           checksums=(h2o-*.sha256)
-          if (( ${#archives[@]} != 4 || ${#checksums[@]} != 4 )); then
-            echo "Expected 4 archives and 4 checksums, found ${#archives[@]} and ${#checksums[@]}" >&2
+          if (( ${#archives[@]} != 5 || ${#checksums[@]} != 5 )); then
+            echo "Expected 5 archives and 5 checksums, found ${#archives[@]} and ${#checksums[@]}" >&2
             exit 1
           fi
 
@@ -301,7 +360,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download verified release bundle
         uses: actions/download-artifact@v8
@@ -403,8 +462,8 @@ jobs:
           shopt -s nullglob
           archives=(h2o-*.tar.gz)
           checksums=(h2o-*.sha256)
-          if (( ${#archives[@]} != 4 || ${#checksums[@]} != 4 )); then
-            echo "Release $TAG does not contain the expected 4 archives and 4 checksums" >&2
+          if (( ${#archives[@]} != 5 || ${#checksums[@]} != 5 )); then
+            echo "Release $TAG does not contain the expected 5 archives and 5 checksums" >&2
             exit 1
           fi
           for checksum in "${checksums[@]}"; do

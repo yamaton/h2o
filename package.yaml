@@ -31,6 +31,12 @@ dependencies:
   - typed-process
   - ordered-containers
 
+flags:
+  static-executable:
+    description: Build the h2o executable as a statically linked binary
+    manual: true
+    default: false
+
 library:
   source-dirs: src
 
@@ -44,15 +50,13 @@ executables:
       - -rtsopts
       - -with-rtsopts=-N
       # - -eventlog     # for threadscope
-      ## ---------------------------------------------------------------------------------------
-      ## Require following to build static executable with ghc-musl docker image:
-      ## stack build --docker --docker-image "utdemir/ghc-musl:v25-ghc925" --no-nix --copy-bins
-      ##
-      # - -O2
-      # - -static
-      # - -optl-static  # same as ld-options:  - -static
-      # - -optl-pthread #                      - -pthread
-      # - -fPIC
+    when:
+      - condition: flag(static-executable)
+        ghc-options:
+          - -O2
+          - -static
+          - -optl-static
+          - -optl-pthread
 
     dependencies:
       - h2o

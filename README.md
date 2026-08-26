@@ -22,6 +22,7 @@ New releases provide versioned binaries from [GitHub Releases](https://github.co
 | macOS Apple Silicon | `h2o-aarch64-apple-darwin.tar.gz` | `h2o-aarch64-apple-darwin` |
 | Linux x86_64 | `h2o-x86_64-unknown-linux-gnu.tar.gz` | `h2o-x86_64-unknown-linux-gnu` |
 | Linux arm64 | `h2o-aarch64-unknown-linux-gnu.tar.gz` | `h2o-aarch64-unknown-linux-gnu` |
+| Alpine Linux x86_64 | `h2o-x86_64-unknown-linux-musl.tar.gz` | `h2o-x86_64-unknown-linux-musl` |
 
 Each archive has a corresponding `.sha256` file, and the release also includes
 an aggregate `SHA256SUMS` file. For example, on Linux:
@@ -30,8 +31,9 @@ an aggregate `SHA256SUMS` file. For example, on Linux:
 sha256sum --check h2o-x86_64-unknown-linux-gnu.tar.gz.sha256
 ```
 
-The Linux archives target GNU/Linux with glibc. The binaries are currently
-unsigned.
+The `*-unknown-linux-gnu` archives target GNU/Linux with glibc. The
+`*-unknown-linux-musl` archive is statically linked and intended for Alpine Linux
+x86_64. The binaries are currently unsigned.
 
 ### From Source
 
