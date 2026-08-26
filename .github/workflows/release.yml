@@ -486,3 +486,37 @@ jobs:
           if [[ "$(gh release view "$TAG" --json isDraft --jq '.isDraft')" == "true" ]]; then
             gh release edit "$TAG" --draft=false
           fi
+
+      - name: Verify immutable release attestation
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.detect-version.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          verified=false
+          for attempt in {1..12}; do
+            if gh release verify "$TAG" --repo "$GITHUB_REPOSITORY"; then
+              verified=true
+              break
+            fi
+            if (( attempt < 12 )); then
+              echo "Release attestation is not available yet; retrying in 5 seconds"
+              sleep 5
+            fi
+          done
+          if [[ "$verified" != "true" ]]; then
+            echo "Release $TAG is not immutable or has no valid attestation" >&2
+            exit 1
+          fi
+
+          shopt -s nullglob
+          assets=(release-assets/h2o-* release-assets/SHA256SUMS)
+          if (( ${#assets[@]} != 11 )); then
+            echo "Expected 11 local release assets, found ${#assets[@]}" >&2
+            exit 1
+          fi
+          for asset in "${assets[@]}"; do
+            gh release verify-asset "$TAG" "$asset" --repo "$GITHUB_REPOSITORY"
+          done
