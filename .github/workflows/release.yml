@@ -204,7 +204,7 @@ jobs:
             --volume "$GITHUB_WORKSPACE:/work" \
             --workdir /work \
             "$MUSL_BUILD_IMAGE" \
-            sh -c "stack --system-ghc --no-install-ghc --work-dir .stack-work-musl build --flag h2o:static-executable --copy-bins --local-bin-path .release-bin-musl"
+            sh -c "stack --allow-different-user --system-ghc --no-install-ghc --work-dir .stack-work-musl build --flag h2o:static-executable --copy-bins --local-bin-path .release-bin-musl"
 
       - name: Verify and package the release binary
         shell: bash
