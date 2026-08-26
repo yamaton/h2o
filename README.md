@@ -71,8 +71,8 @@ h2o -c curl --format json > curl.json
 man ls | col -bx > ls.txt
 h2o -f ls.txt --format fish
 
-# Or pipe directly (using samples)
-h2o -f samples/grep.txt --format zsh
+# Or parse one of the included samples
+h2o -f samples/freebayes.txt --format zsh
 ```
 
 ### Load from JSON
