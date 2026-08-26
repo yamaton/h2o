@@ -7,6 +7,12 @@ on:
     paths:
       - package.yaml
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Build and publish the current version as a GitHub Release
+        required: true
+        type: boolean
+        default: false
 
 env:
   GHC_VERSION: "9.8.4"
@@ -37,6 +43,7 @@ jobs:
         env:
           BEFORE_SHA: ${{ github.event.before }}
           EVENT_NAME: ${{ github.event_name }}
+          PUBLISH_RELEASE: ${{ inputs.publish }}
         run: |
           set -euo pipefail
 
@@ -69,7 +76,11 @@ jobs:
               echo "version=$current_version"
               echo "tag=$tag"
             } >> "$GITHUB_OUTPUT"
-            echo "Running a build-only preflight for $current_version"
+            if [[ "$PUBLISH_RELEASE" == "true" ]]; then
+              echo "Preparing manually triggered release $tag"
+            else
+              echo "Running a build-only preflight for $current_version"
+            fi
             exit 0
           fi
 
@@ -350,7 +361,7 @@ jobs:
     needs:
       - detect-version
       - prepare-release
-    if: github.event_name == 'push' && needs.detect-version.outputs.changed == 'true'
+    if: needs.detect-version.outputs.changed == 'true' && (github.event_name == 'push' || inputs.publish == true)
     runs-on: ubuntu-latest
     concurrency:
       group: release-${{ needs.detect-version.outputs.tag }}
