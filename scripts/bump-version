@@ -12,7 +12,8 @@ Example:
 
 This script updates package.yaml, prepends a CHANGELOG.md section, regenerates
 h2o.cabal through Stack/hpack, verifies the resulting binary version, commits
-the release bump, and creates an annotated release tag.
+the release bump, and leaves tag and GitHub Release creation to CI. Run it from
+the main branch.
 EOF
 }
 
@@ -35,11 +36,15 @@ new_version="$1"
 shift
 tag_name="v$new_version"
 
-[[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ||
+[[ "$new_version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] ||
     die "VERSION must be MAJOR.MINOR.PATCH, got '$new_version'"
 
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
+
+current_branch="$(git branch --show-current)"
+[[ "$current_branch" == "main" ]] ||
+    die "release bumps must be created on main, currently on '${current_branch:-detached HEAD}'"
 
 [[ -f package.yaml ]] || die "package.yaml not found"
 [[ -f h2o.cabal ]] || die "h2o.cabal not found"
@@ -54,8 +59,18 @@ current_version="$(
 )"
 
 [[ -n "$current_version" ]] || die "could not read current version from package.yaml"
+[[ "$current_version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] ||
+    die "package.yaml contains invalid version '$current_version'"
 [[ "$current_version" != "$new_version" ]] ||
     die "package.yaml is already at version $new_version"
+
+IFS=. read -r current_major current_minor current_patch <<< "$current_version"
+IFS=. read -r new_major new_minor new_patch <<< "$new_version"
+if (( 10#$new_major < 10#$current_major )) ||
+   (( 10#$new_major == 10#$current_major && 10#$new_minor < 10#$current_minor )) ||
+   (( 10#$new_major == 10#$current_major && 10#$new_minor == 10#$current_minor && 10#$new_patch <= 10#$current_patch )); then
+    die "VERSION must increase: $current_version -> $new_version"
+fi
 
 if git rev-parse -q --verify "refs/tags/$tag_name" >/dev/null; then
     die "tag $tag_name already exists"
@@ -97,8 +112,6 @@ git diff --check
 
 git add package.yaml h2o.cabal CHANGELOG.md
 git commit -m "Bump version to $new_version"
-git tag -a "$tag_name" -m "Release $new_version"
-
 cat <<EOF
 Bumped h2o from $current_version to $new_version.
 
@@ -108,5 +121,7 @@ Updated:
   CHANGELOG.md
 
 Next:
-  git push origin main $tag_name
+  git push origin main
+
+The release workflow will build the binary and create $tag_name on GitHub.
 EOF
