@@ -1,3 +1,8 @@
+## 0.6.0 (2026-08-26)
+- List nested subcommands recursively and show their aliases.
+- Treat command input as help text by default and distinguish default-value parentheses from type metadata.
+- Publish verified binaries for Intel and Apple Silicon macOS, x86_64 and arm64 GNU/Linux, and x86_64 Alpine Linux.
+
 ## 0.5.8 (2026-05-22)
 - Reduce false-positive subcommand discovery on sectionless help pages.
 
