@@ -6,9 +6,11 @@ on:
       - main
     paths:
       - package.yaml
+  workflow_dispatch:
 
 env:
-  ghc: "9.8.4"
+  GHC_VERSION: "9.8.4"
+  STACK_VERSION: "3.9.3"
 
 permissions:
   contents: read
@@ -32,6 +34,7 @@ jobs:
         shell: bash
         env:
           BEFORE_SHA: ${{ github.event.before }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
 
@@ -44,6 +47,28 @@ jobs:
           if [[ ! "$current_version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
             echo "package.yaml does not contain a valid MAJOR.MINOR.PATCH version" >&2
             exit 1
+          fi
+
+          cabal_version="$(read_version < h2o.cabal)"
+          if [[ "$cabal_version" != "$current_version" ]]; then
+            echo "h2o.cabal version is '$cabal_version', expected '$current_version'" >&2
+            exit 1
+          fi
+
+          if ! grep -qE "^## ${current_version//./\\.} \\([0-9]{4}-[0-9]{2}-[0-9]{2}\\)$" CHANGELOG.md; then
+            echo "CHANGELOG.md has no dated section for $current_version" >&2
+            exit 1
+          fi
+
+          tag="v$current_version"
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            {
+              echo "changed=true"
+              echo "version=$current_version"
+              echo "tag=$tag"
+            } >> "$GITHUB_OUTPUT"
+            echo "Running a build-only preflight for $current_version"
+            exit 0
           fi
 
           if [[ "$BEFORE_SHA" =~ ^0+$ ]]; then
@@ -72,18 +97,6 @@ jobs:
             exit 1
           fi
 
-          cabal_version="$(read_version < h2o.cabal)"
-          if [[ "$cabal_version" != "$current_version" ]]; then
-            echo "h2o.cabal version is '$cabal_version', expected '$current_version'" >&2
-            exit 1
-          fi
-
-          if ! grep -qE "^## ${current_version//./\\.} \\([0-9]{4}-[0-9]{2}-[0-9]{2}\\)$" CHANGELOG.md; then
-            echo "CHANGELOG.md has no dated section for $current_version" >&2
-            exit 1
-          fi
-
-          tag="v$current_version"
           if tag_commit="$(git rev-list -n 1 "$tag" 2>/dev/null)" && [[ "$tag_commit" != "$GITHUB_SHA" ]]; then
             echo "$tag already points to $tag_commit instead of $GITHUB_SHA" >&2
             exit 1
@@ -101,70 +114,124 @@ jobs:
     if: needs.detect-version.outputs.changed == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - ghc: "9.8.4"
-            build: macos
-            os: macos-15-intel
+          - os: macos-15-intel
             target: x86_64-apple-darwin
+            archive: tar.gz
+            arch_pattern: x86_64
+          - os: macos-15
+            target: aarch64-apple-darwin
+            archive: tar.gz
+            arch_pattern: arm64
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+            arch_pattern: x86-64
+          - os: ubuntu-22.04-arm
+            target: aarch64-unknown-linux-gnu
+            archive: tar.gz
+            arch_pattern: aarch64
 
-    name: stack w/ ghc ${{ matrix.ghc }} for ${{ matrix.build }}
+    name: Build ${{ matrix.target }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
       - name: Setup Haskell Stack
+        id: setup-haskell
         uses: haskell-actions/setup@v2
         with:
-          ghc-version: ${{ matrix.ghc }}
+          cabal-update: false
+          ghc-version: ${{ env.GHC_VERSION }}
           enable-stack: true
-          stack-version: "latest"
+          stack-no-global: true
+          stack-version: ${{ env.STACK_VERSION }}
 
       - name: Cache Stack files
         uses: actions/cache@v6
         with:
-          path: ~/.stack
-          key: ${{ runner.os }}-${{ matrix.ghc }}-stack-${{ hashFiles('stack.yaml', 'package.yaml') }}
+          path: ${{ steps.setup-haskell.outputs.stack-root }}
+          key: ${{ runner.os }}-${{ runner.arch }}-ghc-${{ env.GHC_VERSION }}-stack-${{ env.STACK_VERSION }}-${{ hashFiles('stack.yaml', 'stack.yaml.lock', 'package.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.ghc }}-stack-
+            ${{ runner.os }}-${{ runner.arch }}-ghc-${{ env.GHC_VERSION }}-stack-${{ env.STACK_VERSION }}-
+
+      - name: Install test fixture
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        run: sudo install -m 0755 test/fixtures/mockcmd /usr/local/bin/mockcmd
+
+      - name: Run test suite
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        run: stack test
 
       - name: Build release binary
         run: stack build --copy-bins
 
-      - name: Verify and rename the binary
+      - name: Verify and package the release binary
         shell: bash
         env:
+          ARCH_PATTERN: ${{ matrix.arch_pattern }}
           VERSION: ${{ needs.detect-version.outputs.version }}
           TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
-          reported_version="$(stack exec h2o -- --version)"
+
+          binary="$(stack path --local-bin)/h2o"
+          reported_version="$("$binary" --version)"
           if [[ "$reported_version" != "h2o $VERSION" ]]; then
             echo "h2o reports '$reported_version', expected 'h2o $VERSION'" >&2
             exit 1
           fi
-          mv "$(stack path --local-bin)/h2o" "h2o-$TARGET"
+
+          "$binary" --file test/golden/grep-input.txt --format json > "$RUNNER_TEMP/h2o-smoke.json"
+          if ! grep -Eq '"name"[[:space:]]*:[[:space:]]*"grep-input"' "$RUNNER_TEMP/h2o-smoke.json"; then
+            echo "h2o did not produce the expected JSON during its smoke test" >&2
+            exit 1
+          fi
+
+          binary_description="$(file "$binary")"
+          echo "$binary_description"
+          if ! grep -Eiq "$ARCH_PATTERN" <<< "$binary_description"; then
+            echo "Binary architecture does not match $ARCH_PATTERN" >&2
+            exit 1
+          fi
+          mv "$binary" "h2o-$TARGET"
           chmod +x "h2o-$TARGET"
           tar -czf "h2o-$TARGET.tar.gz" "h2o-$TARGET"
 
-      - name: Upload the release binary
+          extracted_dir="$RUNNER_TEMP/h2o-release-smoke-$TARGET"
+          mkdir -p "$extracted_dir"
+          tar -xzf "h2o-$TARGET.tar.gz" -C "$extracted_dir"
+          packaged_version="$("$extracted_dir/h2o-$TARGET" --version)"
+          if [[ "$packaged_version" != "h2o $VERSION" ]]; then
+            echo "Packaged h2o reports '$packaged_version', expected 'h2o $VERSION'" >&2
+            exit 1
+          fi
+
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum "h2o-$TARGET.tar.gz" > "h2o-$TARGET.tar.gz.sha256"
+          else
+            shasum -a 256 "h2o-$TARGET.tar.gz" > "h2o-$TARGET.tar.gz.sha256"
+          fi
+
+      - name: Upload release assets
         uses: actions/upload-artifact@v7
         with:
           name: h2o-${{ matrix.target }}
-          path: ./h2o-${{ matrix.target }}.tar.gz
+          path: |
+            ./h2o-${{ matrix.target }}.${{ matrix.archive }}
+            ./h2o-${{ matrix.target }}.${{ matrix.archive }}.sha256
           if-no-files-found: error
+          retention-days: 7
 
-  publish-release:
+  prepare-release:
     needs:
       - detect-version
       - build-release
+    if: needs.detect-version.outputs.changed == 'true'
     runs-on: ubuntu-latest
-    concurrency:
-      group: release-${{ needs.detect-version.outputs.tag }}
-      cancel-in-progress: false
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout repository
@@ -177,6 +244,25 @@ jobs:
           path: release-assets
           merge-multiple: true
 
+      - name: Verify and aggregate checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release-assets
+          shopt -s nullglob
+
+          archives=(h2o-*.tar.gz)
+          checksums=(h2o-*.sha256)
+          if (( ${#archives[@]} != 4 || ${#checksums[@]} != 4 )); then
+            echo "Expected 4 archives and 4 checksums, found ${#archives[@]} and ${#checksums[@]}" >&2
+            exit 1
+          fi
+
+          for checksum in "${checksums[@]}"; do
+            tr -d '\r' < "$checksum" | sha256sum --check -
+          done
+          sha256sum "${archives[@]}" | sort -k 2 > SHA256SUMS
+
       - name: Prepare release notes
         shell: bash
         env:
@@ -187,11 +273,41 @@ jobs:
             index($0, "## " version " (") == 1 { found = 1; next }
             found && /^## / { exit }
             found { print }
-          ' CHANGELOG.md > release-notes.md
-          if [[ ! -s release-notes.md ]]; then
+          ' CHANGELOG.md > release-assets/release-notes.md
+          if [[ ! -s release-assets/release-notes.md ]]; then
             echo "CHANGELOG.md section for $VERSION is empty" >&2
             exit 1
           fi
+
+      - name: Upload verified release bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: verified-release-${{ needs.detect-version.outputs.tag }}
+          path: release-assets/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-release:
+    needs:
+      - detect-version
+      - prepare-release
+    if: github.event_name == 'push' && needs.detect-version.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: release-${{ needs.detect-version.outputs.tag }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Download verified release bundle
+        uses: actions/download-artifact@v8
+        with:
+          name: verified-release-${{ needs.detect-version.outputs.tag }}
+          path: release-assets
 
       - name: Create or verify annotated release tag
         shell: bash
@@ -243,7 +359,7 @@ jobs:
           fi
           echo "$TAG was concurrently created at the expected commit"
 
-      - name: Create or repair GitHub Release
+      - name: Create or verify GitHub Release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -253,10 +369,10 @@ jobs:
           set -euo pipefail
 
           if ! gh release view "$TAG" >/dev/null 2>&1; then
-            if gh release create "$TAG" release-assets/* \
+            if gh release create "$TAG" release-assets/h2o-* release-assets/SHA256SUMS \
               --verify-tag \
               --title "h2o $VERSION" \
-              --notes-file release-notes.md; then
+              --notes-file release-assets/release-notes.md; then
               exit 0
             fi
 
@@ -267,16 +383,34 @@ jobs:
             fi
           fi
 
-          echo "Release $TAG already exists; checking its assets"
-          existing_assets="$(gh release view "$TAG" --json assets --jq '.assets[].name')"
-          for asset in release-assets/*; do
-            asset_name="${asset##*/}"
-            if grep -Fqx -- "$asset_name" <<< "$existing_assets"; then
-              echo "Asset $asset_name already exists"
-            else
-              gh release upload "$TAG" "$asset"
+          echo "Release $TAG already exists; verifying its complete asset set"
+          existing_dir="$RUNNER_TEMP/existing-release-$TAG"
+          mkdir -p "$existing_dir"
+          gh release download "$TAG" \
+            --dir "$existing_dir" \
+            --pattern 'h2o-*' \
+            --pattern SHA256SUMS
+
+          for expected_asset in release-assets/h2o-* release-assets/SHA256SUMS; do
+            asset_name="${expected_asset##*/}"
+            if [[ ! -f "$existing_dir/$asset_name" ]]; then
+              echo "Release $TAG is missing $asset_name; refusing to mix assets from separate builds" >&2
+              exit 1
             fi
           done
+
+          cd "$existing_dir"
+          shopt -s nullglob
+          archives=(h2o-*.tar.gz)
+          checksums=(h2o-*.sha256)
+          if (( ${#archives[@]} != 4 || ${#checksums[@]} != 4 )); then
+            echo "Release $TAG does not contain the expected 4 archives and 4 checksums" >&2
+            exit 1
+          fi
+          for checksum in "${checksums[@]}"; do
+            tr -d '\r' < "$checksum" | sha256sum --check -
+          done
+          sha256sum --check SHA256SUMS
 
           if [[ "$(gh release view "$TAG" --json isDraft --jq '.isDraft')" == "true" ]]; then
             gh release edit "$TAG" --draft=false

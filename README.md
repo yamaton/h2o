@@ -12,6 +12,27 @@ H2O extracts command-line options from help text or man pages, then generates sh
 
 ## Installation
 
+### Prebuilt Binaries
+
+New releases provide versioned binaries from [GitHub Releases](https://github.com/yamaton/h2o/releases).
+
+| Platform | Archive | Executable |
+|----------|---------|------------|
+| macOS Intel | `h2o-x86_64-apple-darwin.tar.gz` | `h2o-x86_64-apple-darwin` |
+| macOS Apple Silicon | `h2o-aarch64-apple-darwin.tar.gz` | `h2o-aarch64-apple-darwin` |
+| Linux x86_64 | `h2o-x86_64-unknown-linux-gnu.tar.gz` | `h2o-x86_64-unknown-linux-gnu` |
+| Linux arm64 | `h2o-aarch64-unknown-linux-gnu.tar.gz` | `h2o-aarch64-unknown-linux-gnu` |
+
+Each archive has a corresponding `.sha256` file, and the release also includes
+an aggregate `SHA256SUMS` file. For example, on Linux:
+
+```bash
+sha256sum --check h2o-x86_64-unknown-linux-gnu.tar.gz.sha256
+```
+
+The Linux archives target GNU/Linux with glibc. The binaries are currently
+unsigned.
+
 ### From Source
 
 Requires [Stack](https://docs.haskellstack.org/):
